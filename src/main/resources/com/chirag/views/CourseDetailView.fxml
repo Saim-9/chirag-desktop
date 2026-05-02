@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<ScrollPane fitToWidth="true" stylesheets="@styles.css" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.chirag.controllers.CourseDetailController">
+    <VBox spacing="30.0" styleClass="content-area">
+        <HBox>
+            <Button text="Back to Marketplace" onAction="#goBack" styleClass="nav-button" style="-fx-text-fill: #1B263B; -fx-background-color: #E0DCD3; -fx-padding: 5 15;" />
+        </HBox>
+        
+        <VBox styleClass="card-container" spacing="15.0">
+            <Label fx:id="titleLabel" styleClass="label-header" />
+            <Label fx:id="instructorLabel" style="-fx-font-size: 16px; -fx-text-fill: #8D99AE;" />
+            <Label fx:id="descriptionLabel" wrapText="true" style="-fx-font-size: 14px;" />
+            <HBox alignment="CENTER_LEFT" spacing="20.0">
+                <Label fx:id="priceLabel" style="-fx-font-size: 24px; -fx-font-weight: bold; -fx-text-fill: #2D6A4F;" />
+                <Button fx:id="buyButton" text="Buy Course" styleClass="button-primary" onAction="#handleBuy" />
+                <Label fx:id="statusMsgLabel" textFill="#2D6A4F" />
+            </HBox>
+        </VBox>
+
+        <VBox styleClass="card-container" spacing="15.0">
+            <Label text="Course Content" styleClass="section-header" />
+            <VBox fx:id="lecturesList" spacing="10.0" />
+        </VBox>
+    </VBox>
+</ScrollPane>

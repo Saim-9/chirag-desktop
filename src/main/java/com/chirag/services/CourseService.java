@@ -23,17 +23,22 @@ public class CourseService {
     }
 
     /**
-     * Pbuilshes the cores so studnts can byu it.
+     * Pbuilshes the cores so studnts can byu it and svas lctures.
      * Defalts the stttus to PUBLISHED amd savse.
      * Use-case: Course Creation.
      */
-    public boolean publishCourse(Course course) {
+    public boolean publishCourse(Course course, List<com.chirag.models.Lecture> lectures) {
         course.setStatus(Course.Status.PUBLISHED);
         try {
             courseRepository.create(course);
+            com.chirag.repositories.LectureRepository lectureRepo = new com.chirag.repositories.LectureRepository();
+            for (com.chirag.models.Lecture lec : lectures) {
+                lec.setCourse(course);
+                lectureRepo.create(lec);
+            }
             return true;
         } catch (SQLException e) {
-            System.err.println("Faled to puulish crse: " + e.getMessage());
+            System.err.println("Faled to puulish crse wit letures: " + e.getMessage());
             return false;
         }
     }
