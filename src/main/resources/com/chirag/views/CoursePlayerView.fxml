@@ -12,7 +12,7 @@
         </HBox>
     </top>
     <center>
-        <VBox styleClass="content-area">
+        <VBox styleClass="content-area" style="-fx-background-color: #0B0F19;">
             <WebView fx:id="videoEngine" prefWidth="800" prefHeight="450" />
             <HBox alignment="CENTER" style="-fx-padding: 20 0;">
                 <Button text="Mark as Complete" styleClass="button-primary" onAction="#handleMarkAsComplete" />
@@ -22,7 +22,7 @@
     </center>
     <right>
         <VBox styleClass="card-container" prefWidth="300" spacing="10.0">
-            <Label text="Curriculum" styleClass="section-header" />
+            <Label text="Curriculum" style="-fx-font-size: 20px; -fx-font-weight: bold; -fx-text-fill: #1B263B; -fx-padding: 10 0;" />
             <VBox fx:id="lecturesList" spacing="10.0" />
         </VBox>
     </right>

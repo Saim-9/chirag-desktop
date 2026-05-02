@@ -31,10 +31,16 @@
                     </HBox>
                 </VBox>
                 
-                <VBox spacing="10.0">
-                    <Label text="My Learning" styleClass="section-header" />
-                    <FlowPane fx:id="enrolledCoursesContainer" hgap="20.0" vgap="20.0" />
-                </VBox>
+                <HBox spacing="30.0">
+                    <VBox spacing="10.0" HBox.hgrow="ALWAYS">
+                        <Label text="My Learning" styleClass="section-header" />
+                        <FlowPane fx:id="enrolledCoursesContainer" hgap="20.0" vgap="20.0" />
+                    </VBox>
+                    <VBox spacing="10.0" prefWidth="300.0" styleClass="card-container">
+                        <Label text="Recent Transactions" styleClass="section-header" />
+                        <ListView fx:id="transactionsList" prefHeight="200.0" style="-fx-background-color: transparent; -fx-border-color: #E0DCD3;" />
+                    </VBox>
+                </HBox>
 
                 <VBox spacing="10.0">
                     <Label text="Creator Studio" styleClass="section-header" />

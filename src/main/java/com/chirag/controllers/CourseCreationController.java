@@ -90,9 +90,14 @@ public class CourseCreationController {
                 TextField lFld = (TextField) hbox.getChildren().get(1);
                 
                 if (!tFld.getText().trim().isEmpty() && !lFld.getText().trim().isEmpty()) {
+                    String rawLink = lFld.getText().trim();
+                    // Use-case: Course Creation (Link Formatting).
+                    if (rawLink.contains("/view")) {
+                        rawLink = rawLink.substring(0, rawLink.lastIndexOf("/view")) + "/preview";
+                    }
                     Lecture lec = new Lecture();
-                    lec.setTitle(tFld.getText());
-                    lec.setDriveLink(lFld.getText());
+                    lec.setTitle(tFld.getText().trim());
+                    lec.setDriveLink(rawLink);
                     lectures.add(lec);
                 }
             }

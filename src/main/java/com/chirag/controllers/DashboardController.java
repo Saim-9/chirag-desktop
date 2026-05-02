@@ -2,13 +2,16 @@ package com.chirag.controllers;
 
 import com.chirag.models.Course;
 import com.chirag.models.Enrollment;
+import com.chirag.models.Transaction;
 import com.chirag.models.User;
 import com.chirag.repositories.CourseRepository;
 import com.chirag.repositories.EnrollmentRepository;
+import com.chirag.repositories.TransactionRepository;
 import com.chirag.utils.UserSession;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.control.Label;
+import javafx.scene.control.ListView;
 import javafx.scene.layout.FlowPane;
 import javafx.scene.layout.VBox;
 import java.util.List;
@@ -37,8 +40,12 @@ public class DashboardController {
     @FXML
     private FlowPane uploadedCoursesContainer;
 
+    @FXML
+    private ListView<String> transactionsList;
+
     private CourseRepository courseRepository;
     private EnrollmentRepository enrollmentRepository;
+    private TransactionRepository transactionRepository;
 
     /**
      * Sets up the dependencies for fetching courses.
@@ -47,6 +54,7 @@ public class DashboardController {
     public DashboardController() {
         this.courseRepository = new CourseRepository();
         this.enrollmentRepository = new EnrollmentRepository();
+        this.transactionRepository = new TransactionRepository();
     }
 
     /**
@@ -102,6 +110,20 @@ public class DashboardController {
                 });
                 card.setStyle(card.getStyle() + "-fx-cursor: hand;");
                 enrolledCoursesContainer.getChildren().add(card);
+            }
+
+            // Fetch recent transactions
+            try {
+                List<Transaction> transactions = transactionRepository.getDao().queryBuilder()
+                    .orderBy("transactionDate", false).where().eq("user_id", user.getId()).query();
+                int limit = Math.min(5, transactions.size());
+                transactionsList.getItems().clear();
+                for (int i = 0; i < limit; i++) {
+                    Transaction t = transactions.get(i);
+                    transactionsList.getItems().add(t.getDescription() + " - $" + String.format("%.2f", t.getAmount()));
+                }
+            } catch (java.sql.SQLException e) {
+                System.err.println("Failed to load transactions: " + e.getMessage());
             }
         }
     }

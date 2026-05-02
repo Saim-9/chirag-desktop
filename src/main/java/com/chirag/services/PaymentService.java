@@ -5,6 +5,7 @@ import com.chirag.models.Transaction;
 import com.chirag.models.User;
 import com.chirag.repositories.TransactionRepository;
 import com.chirag.repositories.UserRepository;
+import com.chirag.utils.UserSession;
 import java.sql.SQLException;
 import java.util.Date;
 
@@ -18,6 +19,7 @@ public class PaymentService {
     private UserRepository userRepository;
     private TransactionRepository transactionRepository;
     private com.chirag.repositories.EnrollmentRepository enrollmentRepository;
+    private UserService userService;
 
     /**
      * Sets up dependencies for user, transaction, and enrollment repos.
@@ -27,12 +29,13 @@ public class PaymentService {
         this.userRepository = new UserRepository();
         this.transactionRepository = new TransactionRepository();
         this.enrollmentRepository = new com.chirag.repositories.EnrollmentRepository();
+        this.userService = new UserService();
     }
 
     /**
      * Processes the full payment event logic.
      * Checks balance, deducts, splits revenue, and saves records.
-     * Use-case: Course Purchase.
+     * Use-case: Course Purchase (Circular Payment Fix).
      */
     public boolean processCoursePurchase(User buyer, Course course) {
         double price = course.getPrice();
@@ -43,19 +46,20 @@ public class PaymentService {
             return false;
         }
 
-        // Deduct full price
-        double newBuyerBalance = buyer.getVirtualWalletBalance() - price;
-        buyer.setVirtualWalletBalance(newBuyerBalance);
-
-        // Split revenue (90% to teacher, 10% admin log)
         User instructor = course.getInstructor();
+        boolean isCircular = (buyer.getId() == instructor.getId());
+
         double instructorCut = price * 0.90;
         double adminCut = price * 0.10;
-        
-        System.out.println("LOG: Admins took a cut of $" + adminCut);
 
-        double newInstructorBalance = instructor.getVirtualWalletBalance() + instructorCut;
-        instructor.setVirtualWalletBalance(newInstructorBalance);
+        // Ensure updateBalance accurately reflects the final wallet delta
+        if (isCircular) {
+            // Net effect: user only loses the 10% admin cut
+            userService.updateBalance(buyer, -adminCut);
+        } else {
+            userService.updateBalance(buyer, -price);
+            userService.updateBalance(instructor, instructorCut);
+        }
 
         // Create transaction record
         Transaction transaction = new Transaction();
@@ -66,8 +70,6 @@ public class PaymentService {
 
         // Save to database through repositories
         try {
-            userRepository.update(buyer);
-            userRepository.update(instructor);
             transactionRepository.create(transaction);
             
             com.chirag.models.Enrollment enr = new com.chirag.models.Enrollment();
@@ -75,6 +77,9 @@ public class PaymentService {
             enr.setCourse(course);
             enr.setCompleted(false);
             enrollmentRepository.create(enr);
+            
+            // Refresh UserSession from DB directly
+            UserSession.setCurrentUser(userRepository.getDao().queryForId(buyer.getId()));
             
             return true;
         } catch (SQLException e) {
