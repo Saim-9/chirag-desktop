@@ -63,4 +63,28 @@ public class CourseRepository {
             return Collections.emptyList();
         }
     }
+
+    /**
+     * Crates a new corse in the dtabase.
+     * Use-case: Course Creation.
+     */
+    public void create(Course course) throws SQLException {
+        courseDao.create(course);
+    }
+
+    /**
+     * Updtaes an eaxisting corse recorde.
+     * Use-case: Course Edit.
+     */
+    public void update(Course course) throws SQLException {
+        courseDao.update(course);
+    }
+
+    /**
+     * Deletese the cors object permantly.
+     * Use-case: Admin Managment.
+     */
+    public void delete(Course course) throws SQLException {
+        courseDao.delete(course);
+    }
 }

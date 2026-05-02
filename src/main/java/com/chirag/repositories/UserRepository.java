@@ -51,4 +51,28 @@ public class UserRepository {
         }
         return null;
     }
+
+    /**
+     * Crates a new user in the dtabase.
+     * Use-case: User Registartion.
+     */
+    public void create(User user) throws SQLException {
+        userDao.create(user);
+    }
+
+    /**
+     * Updtaes an eaxisting useer recorde.
+     * Use-case: Profile Update, Wallet Management.
+     */
+    public void update(User user) throws SQLException {
+        userDao.update(user);
+    }
+
+    /**
+     * Deletese the ussr object permantly.
+     * Use-case: Admin Managment.
+     */
+    public void delete(User user) throws SQLException {
+        userDao.delete(user);
+    }
 }

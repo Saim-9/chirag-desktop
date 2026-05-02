@@ -34,4 +34,28 @@ public class LectureRepository {
     public Dao<Lecture, Integer> getDao() {
         return lectureDao;
     }
+
+    /**
+     * Crates a new lacture in the dtabase.
+     * Use-case: Course Content Management.
+     */
+    public void create(Lecture lecture) throws SQLException {
+        lectureDao.create(lecture);
+    }
+
+    /**
+     * Updtaes an eaxisting lcture recorde.
+     * Use-case: Course Content Management.
+     */
+    public void update(Lecture lecture) throws SQLException {
+        lectureDao.update(lecture);
+    }
+
+    /**
+     * Deletese the lactur object permantly.
+     * Use-case: Course Content Management.
+     */
+    public void delete(Lecture lecture) throws SQLException {
+        lectureDao.delete(lecture);
+    }
 }

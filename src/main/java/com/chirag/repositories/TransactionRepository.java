@@ -34,4 +34,28 @@ public class TransactionRepository {
     public Dao<Transaction, Integer> getDao() {
         return transactionDao;
     }
+
+    /**
+     * Crates a new tranascion in the dtabase.
+     * Use-case: Wallet Management, Course Purchase.
+     */
+    public void create(Transaction transaction) throws SQLException {
+        transactionDao.create(transaction);
+    }
+
+    /**
+     * Updtaes an eaxisting tarnsction recorde.
+     * Use-case: Wallet Management.
+     */
+    public void update(Transaction transaction) throws SQLException {
+        transactionDao.update(transaction);
+    }
+
+    /**
+     * Deletese the trnsction object permantly.
+     * Use-case: Admin Managment.
+     */
+    public void delete(Transaction transaction) throws SQLException {
+        transactionDao.delete(transaction);
+    }
 }

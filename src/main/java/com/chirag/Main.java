@@ -24,7 +24,6 @@ public class Main extends Application {
         DatabaseConfig.getInstance();
 
 
-
         // Crates a blanck pan just to shwo the wondow for noow
         Pane root = new Pane();
         Scene scene = new Scene(root, 1024, 768);
