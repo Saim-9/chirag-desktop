@@ -22,18 +22,16 @@ public class Main extends Application {
         // Initilize the dtabase first thin before the viws are loaded.
         // Clling getInstance trigeres the private initializeDatabase() inside.
         DatabaseConfig.getInstance();
-
-
-        // Crates a blanck pan just to shwo the wondow for noow
-        Pane root = new Pane();
-        Scene scene = new Scene(root, 1024, 768);
-
         // Sets the tittl of the stge
         primaryStage.setTitle("Chirag - Ignite Your Learning");
-        primaryStage.setScene(scene);
+        primaryStage.setWidth(900);
+        primaryStage.setHeight(600);
+
+        // Initt the scen mnanager and lod the loing wiew
+        com.chirag.utils.SceneManager.getInstance().init(primaryStage);
         
-        // Finaley displae the screne
-        primaryStage.show();
+        // Fired the rutnig to login
+        com.chirag.utils.SceneManager.getInstance().switchScene("LoginView.fxml");
     }
 
     /**

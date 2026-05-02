@@ -1,0 +1,24 @@
+.root { -fx-background-color: #FAF8F5; -fx-font-family: "Segoe UI", sans-serif; }
+.card-container { 
+    -fx-background-color: #FFFFFF; 
+    -fx-padding: 50; 
+    -fx-spacing: 20;
+    -fx-effect: dropshadow(three-pass-box, rgba(27,38,59,0.1), 15, 0, 0, 5); 
+}
+.label-header { -fx-text-fill: #1B263B; -fx-font-size: 24px; -fx-font-weight: bold; }
+.text-field, .password-field { 
+    -fx-background-color: #F8F9FA; 
+    -fx-border-color: transparent transparent #E0DCD3 transparent; 
+    -fx-border-width: 0 0 2 0; 
+    -fx-text-fill: #1B263B; 
+    -fx-padding: 12 10;
+    -fx-font-size: 14px;
+}
+.text-field:focused, .password-field:focused { -fx-border-color: transparent transparent #1B263B transparent; -fx-background-color: #FFFFFF;}
+.button-primary { 
+    -fx-background-color: #1B263B; -fx-text-fill: #FAF8F5; 
+    -fx-background-radius: 0; -fx-padding: 12 30; 
+    -fx-font-weight: bold; -fx-cursor: hand; -fx-min-width: 250px;
+}
+.button-primary:hover { -fx-background-color: #2D3E5A; }
+.link-text { -fx-text-fill: #8D99AE; -fx-underline: true; -fx-cursor: hand; }

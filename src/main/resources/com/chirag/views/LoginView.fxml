@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.image.*?>
+
+<VBox alignment="CENTER" stylesheets="@styles.css" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.chirag.controllers.LoginController">
+    <VBox alignment="CENTER" spacing="20.0" maxWidth="400.0" styleClass="card-container">
+        <ImageView fitWidth="150" preserveRatio="true">
+            <image>
+                <Image url="@../assets/logo.png" />
+            </image>
+        </ImageView>
+        <Label text="Login" styleClass="label-header" />
+        <TextField fx:id="emailField" promptText="Email" />
+        <PasswordField fx:id="passwordField" promptText="Password" />
+        <Button text="Login" styleClass="button-primary" onAction="#handleLogin" />
+        <Hyperlink text="Don't have an account? Sign up" styleClass="link-text" onAction="#goToRegister"/>
+    </VBox>
+</VBox>
