@@ -10,6 +10,7 @@ import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
+import javafx.scene.layout.FlowPane;
 import javafx.scene.layout.VBox;
 import java.sql.SQLException;
 import java.util.List;
@@ -24,6 +25,8 @@ public class CourseDetailController {
     private Label titleLabel;
     @FXML
     private Label instructorLabel;
+    @FXML
+    private FlowPane tagsFlowPane;
     @FXML
     private Label descriptionLabel;
     @FXML
@@ -61,6 +64,14 @@ public class CourseDetailController {
         priceLabel.setText("$" + String.format("%.2f", course.getPrice()));
         buyButton.setText("Buy Course for $" + String.format("%.2f", course.getPrice()));
         
+        if (course.getTags() != null && !course.getTags().isEmpty()) {
+            for (String tag : course.getTags().split(",")) {
+                Label tLbl = new Label(tag.trim());
+                tLbl.getStyleClass().add("tag-chip");
+                tagsFlowPane.getChildren().add(tLbl);
+            }
+        }
+
         loudLectures();
     }
 

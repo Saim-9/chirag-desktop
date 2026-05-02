@@ -11,7 +11,12 @@
                 <Button text="Back" onAction="#goBack" styleClass="nav-button" style="-fx-text-fill: #1B263B; -fx-background-color: #E0DCD3; -fx-padding: 5 15;" />
                 <Label text="Marketplace" styleClass="label-header" />
             </HBox>
-            <TextField fx:id="searchField" promptText="Search courses by title or tags..." style="-fx-font-size: 16px;" />
+            <TextField fx:id="searchField" promptText="Search courses by title..." style="-fx-font-size: 16px;" />
+            <HBox spacing="10.0" alignment="CENTER_LEFT">
+                <TextField fx:id="tagInput" promptText="Add a Tag" HBox.hgrow="ALWAYS" />
+                <Button fx:id="addTagButton" text="+" styleClass="button-primary" style="-fx-padding: 5 15;" onAction="#handleAddTag" />
+            </HBox>
+            <FlowPane fx:id="activeTagsContainer" hgap="5.0" vgap="5.0" />
         </VBox>
     </top>
     <center>

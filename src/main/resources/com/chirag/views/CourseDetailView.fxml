@@ -12,6 +12,7 @@
         <VBox styleClass="card-container" spacing="15.0">
             <Label fx:id="titleLabel" styleClass="label-header" />
             <Label fx:id="instructorLabel" style="-fx-font-size: 16px; -fx-text-fill: #8D99AE;" />
+            <FlowPane fx:id="tagsFlowPane" hgap="5.0" vgap="5.0" />
             <Label fx:id="descriptionLabel" wrapText="true" style="-fx-font-size: 14px;" />
             <HBox alignment="CENTER_LEFT" spacing="20.0">
                 <Label fx:id="priceLabel" style="-fx-font-size: 24px; -fx-font-weight: bold; -fx-text-fill: #2D6A4F;" />

@@ -31,3 +31,7 @@
 .section-header { -fx-font-size: 20px; -fx-font-weight: bold; -fx-text-fill: #1B263B; -fx-padding: 10 0; }
 .content-area { -fx-background-color: #FAF8F5; -fx-padding: 30; }
 .item-card { -fx-background-color: white; -fx-padding: 15; -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.05), 10, 0, 0, 5); }
+.tag-chip { 
+    -fx-background-color: #E0DCD3; -fx-text-fill: #1B263B; 
+    -fx-padding: 4 8; -fx-font-size: 11px; -fx-background-radius: 0; 
+}
