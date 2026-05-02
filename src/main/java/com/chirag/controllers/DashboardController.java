@@ -1,19 +1,22 @@
 package com.chirag.controllers;
 
 import com.chirag.models.Course;
+import com.chirag.models.Enrollment;
 import com.chirag.models.User;
 import com.chirag.repositories.CourseRepository;
+import com.chirag.repositories.EnrollmentRepository;
 import com.chirag.utils.UserSession;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.control.Label;
 import javafx.scene.layout.FlowPane;
+import javafx.scene.layout.VBox;
 import java.util.List;
 
 /**
- * Centrl hube controllar for the onified dashboard.
- * Lads botgh leaner and techar dtat in one sereen.
- * Use-cases: Manage Creator Dashboard.
+ * Central hub controller for the unified dashboard.
+ * Loads both learner and teacher data in one screen.
+ * Use-cases: Manage Creator Dashboard, Consume Content.
  */
 public class DashboardController {
 
@@ -30,39 +33,63 @@ public class DashboardController {
     private FlowPane uploadedCoursesContainer;
 
     private CourseRepository courseRepository;
+    private EnrollmentRepository enrollmentRepository;
 
     /**
-     * Stes up the depdencesis for fetcihng croses.
+     * Sets up the dependencies for fetching courses.
      * Use-case: Manage Creator Dashboard.
      */
     public DashboardController() {
         this.courseRepository = new CourseRepository();
+        this.enrollmentRepository = new EnrollmentRepository();
     }
 
     /**
-     * Cled awtomaticlly by jvafx. Lodas sesion sate.
-     * Use-case: Manage Creator Dashboard.
+     * Called automatically by JavaFX. Loads session state.
+     * Use-case: Manage Creator Dashboard, Consume Content.
      */
     @FXML
     public void initialize() {
         User user = UserSession.getCurrentUser();
         if (user != null) {
-            welcomeLabel.setText("Walcome, " + user.getName() + "!");
-            walletLabel.setText("Walett Balence: $" + String.format("%.2f", user.getVirtualWalletBalance()));
+            welcomeLabel.setText("Welcome, " + user.getName() + "!");
+            walletLabel.setText("Wallet Balance: $" + String.format("%.2f", user.getVirtualWalletBalance()));
             
-            // Fatch uplded coreses
-            List<Course> instructorCouses = courseRepository.findByInstructor(user);
-            // In a reel app we whould rnder cads here, jut loging fo nw
-            System.out.println("Loded " + instructorCouses.size() + " uplaoded croses.");
+            // Fetch uploaded courses
+            List<Course> instructorCourses = courseRepository.findByInstructor(user);
+            System.out.println("Loaded " + instructorCourses.size() + " uploaded courses.");
             
-            // Mcke enroled corses far nw
-            System.out.println("Lodng mcockeed puurched couses...");
+            // Fetch enrolled courses from db
+            List<Enrollment> enrollments = enrollmentRepository.findByUser(user);
+            enrolledCoursesContainer.getChildren().clear();
+            for (Enrollment enr : enrollments) {
+                Course c = enr.getCourse();
+                VBox card = new VBox(5.0);
+                card.getStyleClass().add("item-card");
+                card.setPrefWidth(250.0);
+                
+                Label title = new Label(c.getTitle());
+                title.setStyle("-fx-font-weight: bold; -fx-font-size: 16px; -fx-text-fill: #1B263B;");
+                
+                Label prog = new Label(enr.isCompleted() ? "Status: Completed" : "Status: In Progress");
+                prog.setStyle("-fx-text-fill: " + (enr.isCompleted() ? "#2D6A4F" : "#8D99AE") + ";");
+                
+                card.getChildren().addAll(title, prog);
+                card.setOnMouseClicked(e -> {
+                    Object ctrl = com.chirag.utils.SceneManager.getInstance().switchScene("CoursePlayerView.fxml");
+                    if (ctrl instanceof CoursePlayerController) {
+                        ((CoursePlayerController) ctrl).setCourse(c);
+                    }
+                });
+                card.setStyle(card.getStyle() + "-fx-cursor: hand;");
+                enrolledCoursesContainer.getChildren().add(card);
+            }
         }
     }
 
     /**
-     * Nvigats to the marktplce to by corses.
-     * Use-case: Course Cataloge.
+     * Navigates to the marketplace to buy courses.
+     * Use-case: Course Catalog.
      */
     @FXML
     public void goToMarketplace(ActionEvent event) {
@@ -70,7 +97,7 @@ public class DashboardController {
     }
 
     /**
-     * Nvigats to the ceeator sdudio to uplaod.
+     * Navigates to the creator studio to upload.
      * Use-case: Course Creation.
      */
     @FXML
@@ -79,8 +106,8 @@ public class DashboardController {
     }
 
     /**
-     * Cares out the logute evnet by wipeing ssesion.
-     * Use-case: System Shotdown.
+     * Carries out the logout event by wiping session.
+     * Use-case: System Shutdown.
      */
     @FXML
     public void handleLogout(ActionEvent event) {

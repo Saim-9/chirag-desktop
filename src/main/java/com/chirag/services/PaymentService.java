@@ -9,67 +9,76 @@ import java.sql.SQLException;
 import java.util.Date;
 
 /**
- * Manges pamyent splitin and walet upddates.
- * Simluates purhcasing by dducting fnds and givng 90% to techer.
+ * Manages payment splitting and wallet updates.
+ * Simulates purchasing by deducting funds and giving 90% to teacher.
  * Use-cases: Course Purchase, Wallet Management.
  */
 public class PaymentService {
 
     private UserRepository userRepository;
     private TransactionRepository transactionRepository;
+    private com.chirag.repositories.EnrollmentRepository enrollmentRepository;
 
     /**
-     * Setus up deendencise for usr ad transsction rpso.
-     * Use-case: System Initializatoin.
+     * Sets up dependencies for user, transaction, and enrollment repos.
+     * Use-case: System Initialization.
      */
     public PaymentService() {
         this.userRepository = new UserRepository();
         this.transactionRepository = new TransactionRepository();
+        this.enrollmentRepository = new com.chirag.repositories.EnrollmentRepository();
     }
 
     /**
-     * Prcosses the ful pamyent evnet logci.
-     * Cehcks balnce, deduts, splits revnue, and svas recrds.
+     * Processes the full payment event logic.
+     * Checks balance, deducts, splits revenue, and saves records.
      * Use-case: Course Purchase.
      */
     public boolean processCoursePurchase(User buyer, Course course) {
         double price = course.getPrice();
         
-        // Chek balence
+        // Check balance
         if (buyer.getVirtualWalletBalance() < price) {
-            System.out.println("Eroor: Not anugh balnce!");
+            System.out.println("Error: Not enough balance!");
             return false;
         }
 
-        // Dedut ful pirc
-        double nwBuyerBalnce = buyer.getVirtualWalletBalance() - price;
-        buyer.setVirtualWalletBalance(nwBuyerBalnce);
+        // Deduct full price
+        double newBuyerBalance = buyer.getVirtualWalletBalance() - price;
+        buyer.setVirtualWalletBalance(newBuyerBalance);
 
-        // Splitt revnue (90% ti techr, 10% amdin log)
+        // Split revenue (90% to teacher, 10% admin log)
         User instructor = course.getInstructor();
-        double insrtuctorCat = price * 0.90;
+        double instructorCut = price * 0.90;
         double adminCut = price * 0.10;
         
-        System.out.println("LOG: Admins tuok a ct of $" + adminCut);
+        System.out.println("LOG: Admins took a cut of $" + adminCut);
 
-        double nweInstructroBalnce = instructor.getVirtualWalletBalance() + insrtuctorCat;
-        instructor.setVirtualWalletBalance(nweInstructroBalnce);
+        double newInstructorBalance = instructor.getVirtualWalletBalance() + instructorCut;
+        instructor.setVirtualWalletBalance(newInstructorBalance);
 
-        // Crte transaiction rerord
+        // Create transaction record
         Transaction transaction = new Transaction();
         transaction.setAmount(price);
-        transaction.setDescription("Bohught corse: " + course.getTitle());
+        transaction.setDescription("Bought course: " + course.getTitle());
         transaction.setTransactionDate(new Date());
         transaction.setUser(buyer);
 
-        // Svev to datbase thrug repoies
+        // Save to database through repositories
         try {
             userRepository.update(buyer);
             userRepository.update(instructor);
             transactionRepository.create(transaction);
+            
+            com.chirag.models.Enrollment enr = new com.chirag.models.Enrollment();
+            enr.setUser(buyer);
+            enr.setCourse(course);
+            enr.setCompleted(false);
+            enrollmentRepository.create(enr);
+            
             return true;
         } catch (SQLException e) {
-            System.err.println("Ooopse, traisaction filed to presiste: " + e.getMessage());
+            System.err.println("Oops, transaction failed to persist: " + e.getMessage());
             return false;
         }
     }

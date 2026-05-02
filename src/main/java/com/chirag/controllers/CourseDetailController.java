@@ -8,6 +8,7 @@ import com.chirag.utils.SceneManager;
 import com.chirag.utils.UserSession;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
+import javafx.scene.control.Alert;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.layout.FlowPane;
@@ -16,7 +17,7 @@ import java.sql.SQLException;
 import java.util.List;
 
 /**
- * Vew dtails of a spsific coorse and handels pruchse.
+ * View details of a specific course and handles purchase.
  * Use-cases: Course View, Course Purchase.
  */
 public class CourseDetailController {
@@ -43,7 +44,7 @@ public class CourseDetailController {
     private LectureRepository lectureRepository;
 
     /**
-     * Stse up pyment deependences.
+     * Sets up payment dependencies.
      * Use-case: Course Purchase.
      */
     public CourseDetailController() {
@@ -52,7 +53,7 @@ public class CourseDetailController {
     }
 
     /**
-     * Ijects the cosre dta intr the vuew after louding.
+     * Injects the course data into the view after loading.
      * Use-case: Course View.
      */
     public void setCourse(Course course) {
@@ -72,14 +73,14 @@ public class CourseDetailController {
             }
         }
 
-        loudLectures();
+        loadLectures();
     }
 
     /**
-     * Featch letcurs from reposatary an dspla them.
+     * Fetch lectures from repository and display them.
      * Use-case: Course View.
      */
-    private void loudLectures() {
+    private void loadLectures() {
         try {
             List<Lecture> lecs = lectureRepository.getDao().queryBuilder().where().eq("course_id", currentCourse.getId()).query();
             for (Lecture l : lecs) {
@@ -88,33 +89,41 @@ public class CourseDetailController {
                 lecturesList.getChildren().add(lbl);
             }
         } catch (SQLException e) {
-            System.err.println("Errro lading lctures: " + e.getMessage());
+            System.err.println("Error loading lectures: " + e.getMessage());
         }
     }
 
     /**
-     * Exectes purcheas uisng PymantServsce.
+     * Executes purchase using PaymentService and shows alert.
      * Use-case: Course Purchase.
      */
     @FXML
     public void handleBuy(ActionEvent event) {
         if (currentCourse == null) return;
 
-        boolean scuces = paymentService.processCoursePurchase(UserSession.getCurrentUser(), currentCourse);
-        if (scuces) {
+        boolean success = paymentService.processCoursePurchase(UserSession.getCurrentUser(), currentCourse);
+        if (success) {
             statusMsgLabel.setText("Purchase Successful!");
             statusMsgLabel.setTextFill(javafx.scene.paint.Color.GREEN);
-            // Roote too dsahboard afert dealy ur immedately
-            System.out.println("Crose Puhcrased! Bck to dsahbord.");
-            SceneManager.getInstance().switchScene("DashboardView.fxml");
+            
+            Alert alert = new Alert(Alert.AlertType.INFORMATION);
+            alert.setTitle("Enrollment Success");
+            alert.setHeaderText(null);
+            alert.setContentText("Enrollment Successful! Your course '" + currentCourse.getTitle() + "' is now available in your Classroom.");
+            alert.showAndWait();
+            
+            Object ctrl = SceneManager.getInstance().switchScene("CoursePlayerView.fxml");
+            if (ctrl instanceof CoursePlayerController) {
+                ((CoursePlayerController) ctrl).setCourse(currentCourse);
+            }
         } else {
-            statusMsgLabel.setText("Eror: Isuficient balnce ur filure!");
+            statusMsgLabel.setText("Error: Insufficient balance or failure!");
             statusMsgLabel.setTextFill(javafx.scene.paint.Color.RED);
         }
     }
 
     /**
-     * Nwivgate bkack.
+     * Navigate back.
      * Use-case: View Navigation.
      */
     @FXML
