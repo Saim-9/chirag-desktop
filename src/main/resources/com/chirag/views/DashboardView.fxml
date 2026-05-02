@@ -25,7 +25,10 @@
             <VBox styleClass="content-area" spacing="30.0">
                 <VBox styleClass="card-container">
                     <Label fx:id="welcomeLabel" text="Welcome, User!" styleClass="label-header" />
-                    <Label fx:id="walletLabel" text="Wallet Balance: $0.00" style="-fx-font-size: 16px; -fx-text-fill: #2D6A4F;" />
+                    <HBox alignment="CENTER_LEFT" spacing="15.0">
+                        <Label fx:id="walletLabel" text="Wallet Balance: $0.00" style="-fx-font-size: 16px; -fx-text-fill: #2D6A4F;" />
+                        <Button text="+ Top Up" styleClass="button-primary" style="-fx-padding: 5 10; -fx-font-size: 12px;" onAction="#openWalletPopup" />
+                    </HBox>
                 </VBox>
                 
                 <VBox spacing="10.0">

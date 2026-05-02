@@ -54,4 +54,20 @@ public class UserService {
         }
         return null;
     }
+
+    /**
+     * Updates the user's virtual wallet balance in the database.
+     * Use-case: Top Up Virtual Wallet.
+     */
+    public boolean updateBalance(User user, double amountToAdd) {
+        double newBalance = user.getVirtualWalletBalance() + amountToAdd;
+        user.setVirtualWalletBalance(newBalance);
+        try {
+            userRepository.update(user);
+            return true;
+        } catch (SQLException e) {
+            System.err.println("Failed to update user balance: " + e.getMessage());
+            return false;
+        }
+    }
 }

@@ -12,6 +12,11 @@ import javafx.scene.control.Label;
 import javafx.scene.layout.FlowPane;
 import javafx.scene.layout.VBox;
 import java.util.List;
+import javafx.fxml.FXMLLoader;
+import javafx.scene.Parent;
+import javafx.scene.Scene;
+import javafx.stage.Modality;
+import javafx.stage.Stage;
 
 /**
  * Central hub controller for the unified dashboard.
@@ -57,7 +62,21 @@ public class DashboardController {
             
             // Fetch uploaded courses
             List<Course> instructorCourses = courseRepository.findByInstructor(user);
-            System.out.println("Loaded " + instructorCourses.size() + " uploaded courses.");
+            uploadedCoursesContainer.getChildren().clear();
+            for (Course c : instructorCourses) {
+                VBox card = new VBox(5.0);
+                card.getStyleClass().add("item-card");
+                card.setPrefWidth(250.0);
+                
+                Label title = new Label(c.getTitle());
+                title.setStyle("-fx-font-weight: bold; -fx-font-size: 16px; -fx-text-fill: #1B263B;");
+                
+                Label status = new Label("Status: " + c.getStatus().toString());
+                status.setStyle("-fx-text-fill: #8D99AE;");
+                
+                card.getChildren().addAll(title, status);
+                uploadedCoursesContainer.getChildren().add(card);
+            }
             
             // Fetch enrolled courses from db
             List<Enrollment> enrollments = enrollmentRepository.findByUser(user);
@@ -103,6 +122,40 @@ public class DashboardController {
     @FXML
     public void goToCreatorStudio(ActionEvent event) {
         com.chirag.utils.SceneManager.getInstance().switchScene("CourseCreationView.fxml");
+    }
+
+    /**
+     * Opens the modal window to top up virtual wallet.
+     * Use-case: Top Up Virtual Wallet.
+     */
+    @FXML
+    public void openWalletPopup(ActionEvent event) {
+        try {
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/com/chirag/views/WalletPopupView.fxml"));
+            Parent root = loader.load();
+            
+            WalletPopupController popupController = loader.getController();
+            popupController.setParentController(this);
+            
+            Stage popupStage = new Stage();
+            popupStage.initModality(Modality.APPLICATION_MODAL);
+            popupStage.setTitle("Top Up Wallet");
+            popupStage.setScene(new Scene(root));
+            popupStage.showAndWait();
+        } catch (Exception e) {
+            System.err.println("Failed to open wallet popup: " + e.getMessage());
+        }
+    }
+
+    /**
+     * Refreshes the wallet label after a top up.
+     * Use-case: Top Up Virtual Wallet.
+     */
+    public void refreshWalletDisplay() {
+        User user = UserSession.getCurrentUser();
+        if (user != null) {
+            walletLabel.setText("Wallet Balance: $" + String.format("%.2f", user.getVirtualWalletBalance()));
+        }
     }
 
     /**
