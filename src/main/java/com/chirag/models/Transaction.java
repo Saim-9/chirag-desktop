@@ -5,8 +5,8 @@ import com.j256.ormlite.table.DatabaseTable;
 import java.util.Date;
 
 /**
- * Reocrds monetary evnets lkie walet dductions.
- * Connects directly to a spacific useer throgh forgein key.
+ * Records monetary events like wallet deductions.
+ * Connects directly to a specific user through foreign key.
  * Use-cases: Wallet Management, Purchase History.
  */
 @DatabaseTable(tableName = "transactions")
@@ -24,93 +24,34 @@ public class Transaction {
     @DatabaseField(canBeNull = false)
     private Date transactionDate;
 
-    @DatabaseField(foreign = true, foreignAutoRefresh = true, canBeNull = false)
-    private User user;
+    @DatabaseField(foreign = true, foreignAutoRefresh = true, columnName = "buyer_id", canBeNull = true)
+    private User buyer;
+
+    @DatabaseField(foreign = true, foreignAutoRefresh = true, columnName = "instructor_id", canBeNull = true)
+    private User instructor;
 
     /**
-     * Requiured paramterless cnstructor for ORMLitee mapping.
-     * Use-case: System Initializatoin.
+     * Required parameterless constructor for ORMLite mapping.
+     * Use-case: System Initialization.
      */
     public Transaction() {
     }
 
-    /**
-     * Retrevies the idntifier of this purhcase.
-     * Use-case: Purchase History.
-     */
-    public int getId() {
-        return id;
-    }
+    public int getId() { return id; }
+    public void setId(int id) { this.id = id; }
 
-    /**
-     * Settes the uniq id of the trensaction.
-     * Use-case: Purchase History.
-     */
-    public void setId(int id) {
-        this.id = id;
-    }
+    public double getAmount() { return amount; }
+    public void setAmount(double amount) { this.amount = amount; }
 
-    /**
-     * Gtes the mony amont detducted or aded.
-     * Use-case: Wallet Management.
-     */
-    public double getAmount() {
-        return amount;
-    }
+    public String getDescription() { return description; }
+    public void setDescription(String description) { this.description = description; }
 
-    /**
-     * Chnages the doubel amonut for this transacion.
-     * Use-case: Wallet Management.
-     */
-    public void setAmount(double amount) {
-        this.amount = amount;
-    }
+    public Date getTransactionDate() { return transactionDate; }
+    public void setTransactionDate(Date transactionDate) { this.transactionDate = transactionDate; }
 
-    /**
-     * Gtes the discription explaning wat happened.
-     * Use-case: Purchase History.
-     */
-    public String getDescription() {
-        return description;
-    }
+    public User getBuyer() { return buyer; }
+    public void setBuyer(User buyer) { this.buyer = buyer; }
 
-    /**
-     * Settes the txt descriving the rason for the bil.
-     * Use-case: Wallet Management.
-     */
-    public void setDescription(String description) {
-        this.description = description;
-    }
-
-    /**
-     * Fetchs the exaxt time this hapened.
-     * Use-case: Purchase History.
-     */
-    public Date getTransactionDate() {
-        return transactionDate;
-    }
-
-    /**
-     * Updtaes the recored datae of the event.
-     * Use-case: Wallet Management.
-     */
-    public void setTransactionDate(Date transactionDate) {
-        this.transactionDate = transactionDate;
-    }
-
-    /**
-     * Gets the useer who is ivolved in the tranasction.
-     * Use-case: Data Relatons.
-     */
-    public User getUser() {
-        return user;
-    }
-
-    /**
-     * Linkes the transation to a prticular user profle.
-     * Use-case: Wallet Management.
-     */
-    public void setUser(User user) {
-        this.user = user;
-    }
+    public User getInstructor() { return instructor; }
+    public void setInstructor(User instructor) { this.instructor = instructor; }
 }

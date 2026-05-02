@@ -64,6 +64,9 @@ public class DatabaseConfig {
         TableUtils.createTableIfNotExists(connectionSource, User.class);
         TableUtils.createTableIfNotExists(connectionSource, Course.class);
         TableUtils.createTableIfNotExists(connectionSource, Lecture.class);
+        try {
+            TableUtils.dropTable(connectionSource, Transaction.class, true);
+        } catch (Exception e) {}
         TableUtils.createTableIfNotExists(connectionSource, Transaction.class);
         TableUtils.createTableIfNotExists(connectionSource, com.chirag.models.Enrollment.class);
     }

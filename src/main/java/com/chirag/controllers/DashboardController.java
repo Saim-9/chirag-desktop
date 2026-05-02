@@ -113,15 +113,45 @@ public class DashboardController {
             }
 
             // Fetch recent transactions
+            // Use-case: Purchase History.
             try {
-                List<Transaction> transactions = transactionRepository.getDao().queryBuilder()
-                    .orderBy("transactionDate", false).where().eq("user_id", user.getId()).query();
+                com.j256.ormlite.stmt.QueryBuilder<Transaction, Integer> qb = transactionRepository.getDao().queryBuilder();
+                qb.orderBy("transactionDate", false);
+                qb.where().eq("buyer_id", user.getId()).or().eq("instructor_id", user.getId());
+                
+                List<Transaction> transactions = qb.query();
                 int limit = Math.min(5, transactions.size());
                 transactionsList.getItems().clear();
+                
                 for (int i = 0; i < limit; i++) {
                     Transaction t = transactions.get(i);
-                    transactionsList.getItems().add(t.getDescription() + " - $" + String.format("%.2f", t.getAmount()));
+                    boolean isIncome = (t.getInstructor() != null && t.getInstructor().getId() == user.getId() && (t.getBuyer() == null || t.getBuyer().getId() != user.getId()));
+                    
+                    if (isIncome) {
+                        transactionsList.getItems().add(t.getDescription() + " - +$" + String.format("%.2f", t.getAmount()));
+                    } else {
+                        transactionsList.getItems().add(t.getDescription() + " - -$" + String.format("%.2f", t.getAmount()));
+                    }
                 }
+                
+                transactionsList.setCellFactory(lv -> new javafx.scene.control.ListCell<String>() {
+                    @Override
+                    protected void updateItem(String item, boolean empty) {
+                        super.updateItem(item, empty);
+                        if (empty || item == null) {
+                            setText(null);
+                            setStyle("");
+                        } else {
+                            setText(item);
+                            if (item.contains("+$")) {
+                                setStyle("-fx-text-fill: #2D6A4F; -fx-font-weight: bold;"); // Green for income
+                            } else {
+                                setStyle("-fx-text-fill: #1B263B;");
+                            }
+                        }
+                    }
+                });
+                
             } catch (java.sql.SQLException e) {
                 System.err.println("Failed to load transactions: " + e.getMessage());
             }

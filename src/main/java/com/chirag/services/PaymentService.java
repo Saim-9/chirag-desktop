@@ -66,7 +66,8 @@ public class PaymentService {
         transaction.setAmount(price);
         transaction.setDescription("Bought course: " + course.getTitle());
         transaction.setTransactionDate(new Date());
-        transaction.setUser(buyer);
+        transaction.setBuyer(buyer);
+        transaction.setInstructor(instructor);
 
         // Save to database through repositories
         try {

@@ -92,12 +92,29 @@ public class CourseCreationController {
                 if (!tFld.getText().trim().isEmpty() && !lFld.getText().trim().isEmpty()) {
                     String rawLink = lFld.getText().trim();
                     // Use-case: Course Creation (Link Formatting).
-                    if (rawLink.contains("/view")) {
-                        rawLink = rawLink.substring(0, rawLink.lastIndexOf("/view")) + "/preview";
+                    String embedLink = null;
+                    if (rawLink.contains("youtube.com/watch?v=")) {
+                        String id = rawLink.substring(rawLink.indexOf("v=") + 2);
+                        if (id.contains("&")) id = id.substring(0, id.indexOf("&"));
+                        embedLink = "https://www.youtube.com/embed/" + id;
+                    } else if (rawLink.contains("youtu.be/")) {
+                        String id = rawLink.substring(rawLink.indexOf("youtu.be/") + 9);
+                        if (id.contains("?")) id = id.substring(0, id.indexOf("?"));
+                        embedLink = "https://www.youtube.com/embed/" + id;
                     }
+                    
+                    if (embedLink == null) {
+                        javafx.scene.control.Alert alert = new javafx.scene.control.Alert(javafx.scene.control.Alert.AlertType.ERROR);
+                        alert.setTitle("Invalid Link");
+                        alert.setHeaderText(null);
+                        alert.setContentText("Only YouTube links are supported. Please provide a valid YouTube link.");
+                        alert.showAndWait();
+                        return; // Block submission
+                    }
+
                     Lecture lec = new Lecture();
                     lec.setTitle(tFld.getText().trim());
-                    lec.setDriveLink(rawLink);
+                    lec.setDriveLink(embedLink);
                     lectures.add(lec);
                 }
             }
