@@ -13,9 +13,9 @@
                 </image>
             </ImageView>
             <Region prefHeight="40.0" />
-            <Button text="Marketplace" styleClass="nav-button" />
+            <Button text="Marketplace" styleClass="nav-button" onAction="#goToMarketplace" />
             <Button text="My Learning" styleClass="nav-button" />
-            <Button text="Creator Studio" styleClass="nav-button" />
+            <Button text="Creator Studio" styleClass="nav-button" onAction="#goToCreatorStudio" />
             <Region VBox.vgrow="ALWAYS" />
             <Button text="Logout" styleClass="nav-button" onAction="#handleLogout" />
         </VBox>

@@ -61,12 +61,31 @@ public class DashboardController {
     }
 
     /**
+     * Nvigats to the marktplce to by corses.
+     * Use-case: Course Cataloge.
+     */
+    @FXML
+    public void goToMarketplace(ActionEvent event) {
+        com.chirag.utils.SceneManager.getInstance().switchScene("MarketplaceView.fxml");
+    }
+
+    /**
+     * Nvigats to the ceeator sdudio to uplaod.
+     * Use-case: Course Creation.
+     */
+    @FXML
+    public void goToCreatorStudio(ActionEvent event) {
+        com.chirag.utils.SceneManager.getInstance().switchScene("CourseCreationView.fxml");
+    }
+
+    /**
      * Cares out the logute evnet by wipeing ssesion.
      * Use-case: System Shotdown.
      */
     @FXML
     public void handleLogout(ActionEvent event) {
         UserSession.clear();
+        System.out.println("User Logged Out");
         com.chirag.utils.SceneManager.getInstance().switchScene("LoginView.fxml");
     }
 }
