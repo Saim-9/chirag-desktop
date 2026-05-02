@@ -12,6 +12,7 @@
             </image>
         </ImageView>
         <Label text="Login" styleClass="label-header" />
+        <Label fx:id="statusLabel" textFill="#2D6A4F" />
         <TextField fx:id="emailField" promptText="Email" />
         <PasswordField fx:id="passwordField" promptText="Password" />
         <Button text="Login" styleClass="button-primary" onAction="#handleLogin" />

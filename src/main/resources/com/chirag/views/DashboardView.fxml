@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.image.*?>
+
+<BorderPane stylesheets="@styles.css" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.chirag.controllers.DashboardController">
+    <left>
+        <VBox styleClass="sidebar" prefWidth="250.0">
+            <ImageView fitWidth="150" preserveRatio="true">
+                <image>
+                    <Image url="@../assets/logo.png" />
+                </image>
+            </ImageView>
+            <Region prefHeight="40.0" />
+            <Button text="Marketplace" styleClass="nav-button" />
+            <Button text="My Learning" styleClass="nav-button" />
+            <Button text="Creator Studio" styleClass="nav-button" />
+            <Region VBox.vgrow="ALWAYS" />
+            <Button text="Logout" styleClass="nav-button" onAction="#handleLogout" />
+        </VBox>
+    </left>
+    <center>
+        <ScrollPane fitToWidth="true" style="-fx-background-color: transparent;">
+            <VBox styleClass="content-area" spacing="30.0">
+                <VBox styleClass="card-container">
+                    <Label fx:id="welcomeLabel" text="Welcome, User!" styleClass="label-header" />
+                    <Label fx:id="walletLabel" text="Wallet Balance: $0.00" style="-fx-font-size: 16px; -fx-text-fill: #2D6A4F;" />
+                </VBox>
+                
+                <VBox spacing="10.0">
+                    <Label text="My Learning" styleClass="section-header" />
+                    <FlowPane fx:id="enrolledCoursesContainer" hgap="20.0" vgap="20.0" />
+                </VBox>
+
+                <VBox spacing="10.0">
+                    <Label text="Creator Studio" styleClass="section-header" />
+                    <FlowPane fx:id="uploadedCoursesContainer" hgap="20.0" vgap="20.0" />
+                </VBox>
+            </VBox>
+        </ScrollPane>
+    </center>
+</BorderPane>

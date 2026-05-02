@@ -44,14 +44,14 @@ public class UserService {
      * Athunticats the usr by comapring the row pasword.
      * Use-case: User Login.
      */
-    public boolean authenticate(String email, String rawPassword) {
+    public User authenticate(String email, String rawPassword) {
         User user = userRepository.findByEmail(email);
         if (user != null) {
             // Note: plain tetx pasword comparisson for nmow
             if (user.getPassword().equals(rawPassword)) {
-                return true;
+                return user;
             }
         }
-        return false;
+        return null;
     }
 }

@@ -46,15 +46,17 @@ public class SceneManager {
      * Swhiches the ui sereen by loaading a new fxnl flle.
      * Use-case: View Navigation.
      */
-    public void switchScene(String fxmlFile) {
+    public Object switchScene(String fxmlFile) {
         try {
             FXMLLoader loader = new FXMLLoader(getClass().getResource("/com/chirag/views/" + fxmlFile));
             Parent root = loader.load();
             Scene scene = new Scene(root, 900, 600);
             primaryStage.setScene(scene);
             primaryStage.show();
+            return loader.getController();
         } catch (IOException e) {
             System.err.println("Eror swithcin sceen to " + fxmlFile + ": " + e.getMessage());
+            return null;
         }
     }
 }

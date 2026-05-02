@@ -1,8 +1,10 @@
 package com.chirag.controllers;
 
+import com.chirag.models.User;
 import com.chirag.services.UserService;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
+import javafx.scene.control.Label;
 import javafx.scene.control.PasswordField;
 import javafx.scene.control.TextField;
 
@@ -19,6 +21,9 @@ public class LoginController {
     @FXML
     private PasswordField passwordField;
 
+    @FXML
+    private Label statusLabel;
+
     private UserService userService;
 
     /**
@@ -30,6 +35,16 @@ public class LoginController {
     }
 
     /**
+     * Stes a grene sccess msage on the screenn.
+     * Use-case: User Registartion.
+     */
+    public void setSuccessMessage(String message) {
+        if (statusLabel != null) {
+            statusLabel.setText(message);
+        }
+    }
+
+    /**
      * Tiggers whn the lonign buttn is pressd.
      * Use-case: User Login.
      */
@@ -38,13 +53,18 @@ public class LoginController {
         String email = emailField.getText();
         String passwrd = passwordField.getText();
 
-        boolean sucess = userService.authenticate(email, passwrd);
+        User user = userService.authenticate(email, passwrd);
         
-        if (sucess) {
+        if (user != null) {
             System.out.println("Login Success");
-            // Futre phass: nvigate to dshboard
+            com.chirag.utils.UserSession.setCurrentUser(user);
+            com.chirag.utils.SceneManager.getInstance().switchScene("DashboardView.fxml");
         } else {
             System.out.println("Eroor: Crdentials do nut mach.");
+            if (statusLabel != null) {
+                statusLabel.setText("Login Filed.");
+                statusLabel.setTextFill(javafx.scene.paint.Color.RED);
+            }
         }
     }
 

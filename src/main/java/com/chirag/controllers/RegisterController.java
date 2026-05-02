@@ -50,7 +50,10 @@ public class RegisterController {
         
         if (scces) {
             System.out.println("Registration Success");
-            com.chirag.utils.SceneManager.getInstance().switchScene("LoginView.fxml");
+            Object c = com.chirag.utils.SceneManager.getInstance().switchScene("LoginView.fxml");
+            if (c instanceof LoginController) {
+                ((LoginController) c).setSuccessMessage("Account created! Please sign in.");
+            }
         } else {
             System.out.println("Faild to ragister");
         }
