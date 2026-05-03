@@ -47,6 +47,7 @@ public class CourseDetailController {
     private PaymentService paymentService;
     private LectureRepository lectureRepository;
     private com.chirag.repositories.ReviewRepository reviewRepository;
+    private com.chirag.repositories.ReportRepository reportRepository;
 
     /**
      * Sets up payment dependencies.
@@ -56,6 +57,7 @@ public class CourseDetailController {
         this.paymentService = new PaymentService();
         this.lectureRepository = new LectureRepository();
         this.reviewRepository = new com.chirag.repositories.ReviewRepository();
+        this.reportRepository = new com.chirag.repositories.ReportRepository();
     }
 
     /**
@@ -165,6 +167,38 @@ public class CourseDetailController {
             double avg = sum / reviews.size();
             ratingLabel.setText(String.format("⭐ %.1f/5 (%d reviews)", avg, reviews.size()));
         }
+    }
+
+    /**
+     * Opens a dialog for the user to report the course.
+     * Use-case: Report Course.
+     */
+    @FXML
+    public void handleReport(ActionEvent event) {
+        javafx.scene.control.TextInputDialog dialog = new javafx.scene.control.TextInputDialog();
+        dialog.setTitle("Report Course");
+        dialog.setHeaderText("Reason for Reporting");
+        dialog.setContentText("Please explain why you are reporting this course:");
+
+        java.util.Optional<String> result = dialog.showAndWait();
+        result.ifPresent(complaint -> {
+            if (complaint.trim().isEmpty()) return;
+            try {
+                com.chirag.models.Report report = new com.chirag.models.Report();
+                report.setReporter(UserSession.getCurrentUser());
+                report.setReportedCourse(currentCourse);
+                report.setComplaintText(complaint);
+                reportRepository.create(report);
+
+                Alert alert = new Alert(Alert.AlertType.INFORMATION);
+                alert.setTitle("Report Submitted");
+                alert.setHeaderText(null);
+                alert.setContentText("Thank you for your report. Our team will investigate this course shortly.");
+                alert.showAndWait();
+            } catch (SQLException e) {
+                System.err.println("Error saving report: " + e.getMessage());
+            }
+        });
     }
 
     /**

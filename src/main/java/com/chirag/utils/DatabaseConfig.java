@@ -7,6 +7,8 @@ import com.chirag.models.User;
 import com.j256.ormlite.jdbc.JdbcConnectionSource;
 import com.j256.ormlite.support.ConnectionSource;
 import com.j256.ormlite.table.TableUtils;
+import com.j256.ormlite.dao.Dao;
+import com.j256.ormlite.dao.DaoManager;
 import java.sql.SQLException;
 
 /**
@@ -61,8 +63,16 @@ public class DatabaseConfig {
      */
     private void initializeDatabase() throws SQLException {
         // Ceeate all tebel schmeas from modles
+        try {
+            TableUtils.dropTable(connectionSource, User.class, true);
+        } catch (Exception e) {}
         TableUtils.createTableIfNotExists(connectionSource, User.class);
+        
+        try {
+            TableUtils.dropTable(connectionSource, Course.class, true);
+        } catch (Exception e) {}
         TableUtils.createTableIfNotExists(connectionSource, Course.class);
+
         TableUtils.createTableIfNotExists(connectionSource, Lecture.class);
         try {
             TableUtils.dropTable(connectionSource, Transaction.class, true);
@@ -77,6 +87,35 @@ public class DatabaseConfig {
         TableUtils.createTableIfNotExists(connectionSource, com.chirag.models.Enrollment.class);
         
         TableUtils.createTableIfNotExists(connectionSource, com.chirag.models.Review.class);
+        TableUtils.createTableIfNotExists(connectionSource, com.chirag.models.Report.class);
+        
+        seedAdmin();
+    }
+
+    /**
+     * Seeds the Super Admin user if they don't exist.
+     * Use-case: Bootstrap Seeder.
+     */
+    private void seedAdmin() {
+        try {
+            Dao<User, Integer> userDao = DaoManager.createDao(connectionSource, User.class);
+            User admin = userDao.queryBuilder().where().eq("email", "saim@test.com").queryForFirst();
+            if (admin == null) {
+                admin = new User();
+                admin.setName("Super Admin");
+                admin.setEmail("saim@test.com");
+                admin.setPassword("adminpassword");
+                admin.setRole("ADMIN");
+                admin.setAccountStatus("ACTIVE");
+                userDao.create(admin);
+                System.out.println("Super Admin seeded.");
+            } else {
+                admin.setRole("ADMIN");
+                userDao.update(admin);
+            }
+        } catch (SQLException e) {
+            System.err.println("Seeding error: " + e.getMessage());
+        }
     }
 
     /**

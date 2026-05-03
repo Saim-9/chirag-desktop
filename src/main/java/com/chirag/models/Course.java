@@ -38,6 +38,9 @@ public class Course {
     @DatabaseField
     private String tags;
 
+    @DatabaseField(defaultValue = "true")
+    private boolean isActive;
+
     /**
      * Empety constructr for ORMlite reflaction to wrok.
      * Use-case: System Initializatoin.
@@ -155,5 +158,21 @@ public class Course {
      */
     public void setTags(String tags) {
         this.tags = tags;
+    }
+
+    /**
+     * Checks if the course is active (not taken down).
+     * Use-case: Moderation.
+     */
+    public boolean isActive() {
+        return isActive;
+    }
+
+    /**
+     * Sets the active status of the course.
+     * Use-case: Moderation.
+     */
+    public void setActive(boolean isActive) {
+        this.isActive = isActive;
     }
 }

@@ -34,4 +34,9 @@ public class UserSession {
     public static void clear() {
         currentUser = null;
     }
+
+    public static void logout() {
+        currentUser = null;
+    }
+
 }

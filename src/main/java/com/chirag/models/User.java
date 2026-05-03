@@ -29,6 +29,9 @@ public class User {
     @DatabaseField(canBeNull = false)
     private double virtualWalletBalance;
 
+    @DatabaseField(defaultValue = "ACTIVE")
+    private String accountStatus;
+
     /**
      * Empety constructor requireed by ORMLite.
      * It does noting but is necessery for DB operations.
@@ -132,5 +135,21 @@ public class User {
      */
     public void setVirtualWalletBalance(double virtualWalletBalance) {
         this.virtualWalletBalance = virtualWalletBalance;
+    }
+
+    /**
+     * Retrieves the current account status.
+     * Use-case: Account Management.
+     */
+    public String getAccountStatus() {
+        return accountStatus;
+    }
+
+    /**
+     * Updates the account status.
+     * Use-case: Account Management.
+     */
+    public void setAccountStatus(String accountStatus) {
+        this.accountStatus = accountStatus;
     }
 }

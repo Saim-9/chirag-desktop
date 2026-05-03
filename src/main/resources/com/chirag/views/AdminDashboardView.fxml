@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.chart.*?>
+<?import javafx.geometry.Insets?>
+
+<BorderPane stylesheets="@styles.css" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.chirag.controllers.AdminDashboardController">
+    <top>
+        <HBox alignment="CENTER_LEFT" spacing="20.0" styleClass="sidebar" style="-fx-padding: 15 30; -fx-background-color: #1B263B;">
+            <Label text="Admin Command Center" style="-fx-text-fill: white; -fx-font-size: 20px; -fx-font-weight: bold;" />
+            <Region HBox.hgrow="ALWAYS" />
+            <Button text="Logout" onAction="#handleLogout" styleClass="nav-button" style="-fx-text-fill: white;" />
+        </HBox>
+    </top>
+    <center>
+        <TabPane tabClosingPolicy="UNAVAILABLE">
+            <tabs>
+                <!-- Tab 1: Financial Reports -->
+                <Tab text="Financial Reports">
+                    <VBox spacing="20.0" styleClass="content-area">
+                        <Label text="Platform Revenue" styleClass="label-header" />
+                        <Label fx:id="totalRevenueLabel" style="-fx-font-size: 24px; -fx-font-weight: bold; -fx-text-fill: #2D6A4F;" />
+                        <BarChart fx:id="revenueChart" title="Transaction Volume">
+                            <xAxis><CategoryAxis label="Date" /></xAxis>
+                            <yAxis><NumberAxis label="Amount ($)" /></yAxis>
+                        </BarChart>
+                    </VBox>
+                </Tab>
+
+                <!-- Tab 2: Content Moderation -->
+                <Tab text="Content Moderation">
+                    <VBox spacing="20.0" styleClass="content-area">
+                        <Label text="Reported Courses" styleClass="label-header" />
+                        <ScrollPane fitToWidth="true" VBox.vgrow="ALWAYS" style="-fx-background-color: transparent;">
+                            <VBox fx:id="reportsContainer" spacing="10.0" />
+                        </ScrollPane>
+                    </VBox>
+                </Tab>
+
+                <!-- Tab 3: Manage Users -->
+                <Tab text="Manage Users">
+                    <VBox spacing="20.0" styleClass="content-area">
+                        <Label text="User Directory" styleClass="label-header" />
+                        <ScrollPane fitToWidth="true" VBox.vgrow="ALWAYS" style="-fx-background-color: transparent;">
+                            <VBox fx:id="usersContainer" spacing="10.0" />
+                        </ScrollPane>
+                    </VBox>
+                </Tab>
+
+                <!-- Tab 4: Provision Admin -->
+                <Tab text="Provision Admin">
+                    <VBox spacing="20.0" styleClass="content-area" alignment="TOP_CENTER">
+                        <Label text="Create New Administrator" styleClass="label-header" />
+                        <VBox spacing="15.0" maxWidth="400.0" alignment="CENTER" styleClass="card-container">
+                            <TextField fx:id="adminNameField" promptText="Full Name" />
+                            <TextField fx:id="adminEmailField" promptText="Email Address" />
+                            <PasswordField fx:id="adminPasswordField" promptText="Temporary Password" />
+                            <Button text="Create Admin" onAction="#handleCreateAdmin" styleClass="button-primary" maxWidth="Infinity" />
+                        </VBox>
+                    </VBox>
+                </Tab>
+            </tabs>
+        </TabPane>
+    </center>
+</BorderPane>

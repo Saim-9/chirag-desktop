@@ -2,6 +2,7 @@
 
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
+<?import javafx.scene.layout.Region?>
 
 <ScrollPane fitToWidth="true" stylesheets="@styles.css" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.chirag.controllers.CourseDetailController">
     <VBox spacing="30.0" styleClass="content-area">
@@ -21,6 +22,8 @@
                 <Label fx:id="priceLabel" style="-fx-font-size: 24px; -fx-font-weight: bold; -fx-text-fill: #2D6A4F;" />
                 <Button fx:id="buyButton" text="Buy Course" styleClass="button-primary" onAction="#handleBuy" />
                 <Label fx:id="statusMsgLabel" textFill="#2D6A4F" />
+                <Region HBox.hgrow="ALWAYS" />
+                <Hyperlink text="Report this Course" onAction="#handleReport" style="-fx-text-fill: #E63946; -fx-font-size: 12px;" />
             </HBox>
         </VBox>
 

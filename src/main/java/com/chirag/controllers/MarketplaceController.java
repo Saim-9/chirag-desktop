@@ -44,7 +44,9 @@ public class MarketplaceController {
      */
     @FXML
     public void initialize() {
-        allCourses = courseService.getMarketplaceCourses();
+        allCourses = courseService.getMarketplaceCourses().stream()
+            .filter(Course::isActive)
+            .toList();
         renderCourses(allCourses);
 
         searchField.textProperty().addListener((observable, oldValue, newValue) -> {

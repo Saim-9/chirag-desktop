@@ -56,9 +56,23 @@ public class LoginController {
         User user = userService.authenticate(email, passwrd);
         
         if (user != null) {
+            if ("SUSPENDED".equals(user.getAccountStatus())) {
+                javafx.scene.control.Alert alert = new javafx.scene.control.Alert(javafx.scene.control.Alert.AlertType.ERROR);
+                alert.setTitle("Account Suspended");
+                alert.setHeaderText(null);
+                alert.setContentText("Your account has been suspended by an administrator.");
+                alert.showAndWait();
+                return;
+            }
+
             System.out.println("Login Success");
             com.chirag.utils.UserSession.setCurrentUser(user);
-            com.chirag.utils.SceneManager.getInstance().switchScene("DashboardView.fxml");
+            
+            if ("ADMIN".equals(user.getRole())) {
+                com.chirag.utils.SceneManager.getInstance().switchScene("AdminDashboardView.fxml");
+            } else {
+                com.chirag.utils.SceneManager.getInstance().switchScene("DashboardView.fxml");
+            }
         } else {
             System.out.println("Eroor: Crdentials do nut mach.");
             if (statusLabel != null) {
