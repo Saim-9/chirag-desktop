@@ -23,19 +23,50 @@ public class Enrollment {
     @DatabaseField(defaultValue = "false")
     private boolean isCompleted;
 
+    @DatabaseField(defaultValue = "")
+    private String completedLectureIds;
+
     public Enrollment() {
         // ORMLite requires a no-argument constructor
     }
 
-    public int getId() { return id; }
-    public void setId(int id) { this.id = id; }
-    
-    public User getUser() { return user; }
-    public void setUser(User user) { this.user = user; }
-    
-    public Course getCourse() { return course; }
-    public void setCourse(Course course) { this.course = course; }
-    
-    public boolean isCompleted() { return isCompleted; }
-    public void setCompleted(boolean isCompleted) { this.isCompleted = isCompleted; }
+    public int getId() {
+        return id;
+    }
+
+    public void setId(int id) {
+        this.id = id;
+    }
+
+    public User getUser() {
+        return user;
+    }
+
+    public void setUser(User user) {
+        this.user = user;
+    }
+
+    public Course getCourse() {
+        return course;
+    }
+
+    public void setCourse(Course course) {
+        this.course = course;
+    }
+
+    public boolean isCompleted() {
+        return isCompleted;
+    }
+
+    public void setCompleted(boolean isCompleted) {
+        this.isCompleted = isCompleted;
+    }
+
+    public String getCompletedLectureIds() {
+        return completedLectureIds != null ? completedLectureIds : "";
+    }
+
+    public void setCompletedLectureIds(String completedLectureIds) {
+        this.completedLectureIds = completedLectureIds;
+    }
 }

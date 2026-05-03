@@ -14,6 +14,9 @@
     <center>
         <VBox styleClass="content-area" style="-fx-background-color: #0B0F19;">
             <WebView fx:id="videoEngine" prefWidth="800" prefHeight="450" />
+            <HBox alignment="CENTER" style="-fx-padding: 10 0;">
+                <Button fx:id="externalLaunchBtn" text="Launch External Player" onAction="#launchExternalPlayer" styleClass="button-secondary" style="-fx-background-color: #1B263B; -fx-text-fill: #FAF8F5; -fx-padding: 8 20;" />
+            </HBox>
             <HBox alignment="CENTER" style="-fx-padding: 20 0;">
                 <Button text="Mark as Complete" styleClass="button-primary" onAction="#handleMarkAsComplete" />
                 <Label fx:id="progressLabel" style="-fx-padding: 0 0 0 20; -fx-text-fill: #2D6A4F;" />

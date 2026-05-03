@@ -33,6 +33,8 @@ public class CoursePlayerController {
     private Label progressLabel;
 
     private Course currentCourse;
+    private Lecture currentLecture;
+    private int totalLecturesCount;
     private LectureRepository lectureRepository;
     private EnrollmentRepository enrollmentRepository;
 
@@ -56,21 +58,46 @@ public class CoursePlayerController {
     }
 
     /**
+     * Gets the current enrollment for the user and course.
+     */
+    private Enrollment getEnrollment() throws SQLException {
+        List<Enrollment> enrs = enrollmentRepository.getDao().queryBuilder().where()
+                .eq("user_id", UserSession.getCurrentUser().getId())
+                .and()
+                .eq("course_id", currentCourse.getId())
+                .query();
+        return enrs.isEmpty() ? null : enrs.get(0);
+    }
+
+    /**
      * Loads the list of lectures into the sidebar.
      * Use-case: Consume Content.
      */
     private void loadCurriculum() {
         try {
-            List<Lecture> lecs = lectureRepository.getDao().queryBuilder().where().eq("course_id", currentCourse.getId()).query();
+            List<Lecture> lecs = lectureRepository.getDao().queryBuilder().where()
+                    .eq("course_id", currentCourse.getId()).query();
+            totalLecturesCount = lecs.size();
+            lecturesList.getChildren().clear();
+
+            Enrollment enrollment = getEnrollment();
+            String completedIds = enrollment != null ? enrollment.getCompletedLectureIds() : "";
+
             for (Lecture l : lecs) {
-                Button btn = new Button(l.getTitle());
+                String title = l.getTitle();
+                if (completedIds.contains(String.valueOf(l.getId()))) {
+                    title = "✅ " + title;
+                }
+                Button btn = new Button(title);
                 btn.getStyleClass().add("nav-button");
                 btn.setStyle("-fx-text-fill: #1B263B; -fx-padding: 5 0;");
-                btn.setOnAction(e -> loadVideo(l.getDriveLink()));
+                btn.setOnAction(e -> loadVideo(l));
                 lecturesList.getChildren().add(btn);
             }
             if (!lecs.isEmpty()) {
-                loadVideo(lecs.get(0).getDriveLink()); // Load first video automatically
+                if (currentLecture == null) {
+                    loadVideo(lecs.get(0));
+                }
             }
         } catch (SQLException e) {
             System.err.println("Failed to fetch lectures: " + e.getMessage());
@@ -81,8 +108,11 @@ public class CoursePlayerController {
      * Injects the iframe URL into the webview.
      * Use-case: Consume Content.
      */
-    private void loadVideo(String driveLink) {
-        String html = "<html><body style='margin:0;padding:0;background-color:#0B0F19;'><iframe width='100%' height='100%' src='" + driveLink + "?autoplay=1' frameborder='0' allowfullscreen></iframe></body></html>";
+    private void loadVideo(Lecture lecture) {
+        this.currentLecture = lecture;
+        String driveLink = lecture.getDriveLink();
+        String html = "<html><body style='margin:0;padding:0;background-color:#0B0F19;'><iframe width='100%' height='100%' src='"
+                + driveLink + "?autoplay=1' frameborder='0' allowfullscreen></iframe></body></html>";
         videoEngine.getEngine().loadContent(html);
     }
 
@@ -93,20 +123,70 @@ public class CoursePlayerController {
     @FXML
     public void handleMarkAsComplete(ActionEvent event) {
         try {
-            List<Enrollment> enrs = enrollmentRepository.getDao().queryBuilder().where()
-                .eq("user_id", UserSession.getCurrentUser().getId())
-                .and()
-                .eq("course_id", currentCourse.getId())
-                .query();
-            
-            if (!enrs.isEmpty()) {
-                Enrollment e = enrs.get(0);
-                e.setCompleted(true);
-                enrollmentRepository.update(e);
-                progressLabel.setText("Progress Saved");
+            Enrollment e = getEnrollment();
+            if (e != null && currentLecture != null) {
+                String completedIds = e.getCompletedLectureIds();
+                String currentIdStr = String.valueOf(currentLecture.getId());
+
+                if (!completedIds.contains(currentIdStr)) {
+                    if (completedIds.isEmpty()) {
+                        completedIds = currentIdStr;
+                    } else {
+                        completedIds += "," + currentIdStr;
+                    }
+                    e.setCompletedLectureIds(completedIds);
+
+                    int completedCount = completedIds.split(",").length;
+                    if (completedCount >= totalLecturesCount) {
+                        e.setCompleted(true);
+                        enrollmentRepository.update(e);
+                        progressLabel.setText("Course Completed!");
+                        openReviewDialog();
+                    } else {
+                        enrollmentRepository.update(e);
+                        progressLabel.setText("Progress Saved");
+                    }
+                    loadCurriculum();
+                } else {
+                    progressLabel.setText("Already Completed");
+                }
             }
-        } catch (SQLException e) {
-            System.err.println("Error marking complete: " + e.getMessage());
+        } catch (SQLException ex) {
+            System.err.println("Error marking complete: " + ex.getMessage());
+        }
+    }
+
+    private void openReviewDialog() {
+        try {
+            javafx.fxml.FXMLLoader loader = new javafx.fxml.FXMLLoader(getClass().getResource("/com/chirag/views/ReviewPopupView.fxml"));
+            javafx.scene.Parent root = loader.load();
+
+            ReviewPopupController popupController = loader.getController();
+            popupController.setCourse(currentCourse);
+
+            javafx.stage.Stage popupStage = new javafx.stage.Stage();
+            popupStage.initModality(javafx.stage.Modality.APPLICATION_MODAL);
+            popupStage.setTitle("Rate Course");
+            popupStage.setScene(new javafx.scene.Scene(root));
+            popupStage.showAndWait();
+        } catch (Exception e) {
+            System.err.println("Failed to open review popup: " + e.getMessage());
+        }
+    }
+
+    /**
+     * Launches the video in an external browser if WebView fails.
+     * Use-case: Video Safety Valve.
+     */
+    @FXML
+    public void launchExternalPlayer(ActionEvent event) {
+        if (currentLecture != null) {
+            try {
+                java.awt.Desktop.getDesktop().browse(new java.net.URI(currentLecture.getDriveLink()));
+                videoEngine.getEngine().loadContent("<h2 style='color:#E0DCD3; text-align:center; margin-top:20%; font-family:sans-serif;'>Video playing in your external browser...</h2>");
+            } catch (Exception e) {
+                System.err.println("Failed to launch browser: " + e.getMessage());
+            }
         }
     }
 

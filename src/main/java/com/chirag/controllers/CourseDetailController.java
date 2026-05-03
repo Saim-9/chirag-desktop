@@ -38,10 +38,15 @@ public class CourseDetailController {
     private Label statusMsgLabel;
     @FXML
     private VBox lecturesList;
+    @FXML
+    private Label ratingLabel;
+    @FXML
+    private VBox reviewsList;
 
     private Course currentCourse;
     private PaymentService paymentService;
     private LectureRepository lectureRepository;
+    private com.chirag.repositories.ReviewRepository reviewRepository;
 
     /**
      * Sets up payment dependencies.
@@ -50,6 +55,7 @@ public class CourseDetailController {
     public CourseDetailController() {
         this.paymentService = new PaymentService();
         this.lectureRepository = new LectureRepository();
+        this.reviewRepository = new com.chirag.repositories.ReviewRepository();
     }
 
     /**
@@ -64,7 +70,7 @@ public class CourseDetailController {
         descriptionLabel.setText(course.getDescription());
         priceLabel.setText("$" + String.format("%.2f", course.getPrice()));
         buyButton.setText("Buy Course for $" + String.format("%.2f", course.getPrice()));
-        
+
         if (course.getTags() != null && !course.getTags().isEmpty()) {
             for (String tag : course.getTags().split(",")) {
                 Label tLbl = new Label(tag.trim());
@@ -74,6 +80,7 @@ public class CourseDetailController {
         }
 
         loadLectures();
+        loadReviews();
     }
 
     /**
@@ -82,7 +89,8 @@ public class CourseDetailController {
      */
     private void loadLectures() {
         try {
-            List<Lecture> lecs = lectureRepository.getDao().queryBuilder().where().eq("course_id", currentCourse.getId()).query();
+            List<Lecture> lecs = lectureRepository.getDao().queryBuilder().where()
+                    .eq("course_id", currentCourse.getId()).query();
             for (Lecture l : lecs) {
                 Label lbl = new Label("- " + l.getTitle());
                 lbl.setStyle("-fx-font-size: 14px;");
@@ -99,19 +107,21 @@ public class CourseDetailController {
      */
     @FXML
     public void handleBuy(ActionEvent event) {
-        if (currentCourse == null) return;
+        if (currentCourse == null)
+            return;
 
         boolean success = paymentService.processCoursePurchase(UserSession.getCurrentUser(), currentCourse);
         if (success) {
             statusMsgLabel.setText("Purchase Successful!");
             statusMsgLabel.setTextFill(javafx.scene.paint.Color.GREEN);
-            
+
             Alert alert = new Alert(Alert.AlertType.INFORMATION);
             alert.setTitle("Enrollment Success");
             alert.setHeaderText(null);
-            alert.setContentText("Enrollment Successful! Your course '" + currentCourse.getTitle() + "' is now available in your Classroom.");
+            alert.setContentText("Enrollment Successful! Your course '" + currentCourse.getTitle()
+                    + "' is now available in your Classroom.");
             alert.showAndWait();
-            
+
             Object ctrl = SceneManager.getInstance().switchScene("CoursePlayerView.fxml");
             if (ctrl instanceof CoursePlayerController) {
                 ((CoursePlayerController) ctrl).setCourse(currentCourse);
@@ -119,6 +129,41 @@ public class CourseDetailController {
         } else {
             statusMsgLabel.setText("Error: Insufficient balance or failure!");
             statusMsgLabel.setTextFill(javafx.scene.paint.Color.RED);
+        }
+    }
+
+    /**
+     * Loads the social proof and reviews.
+     * Use-case: Social Proof.
+     */
+    private void loadReviews() {
+        List<com.chirag.models.Review> reviews = reviewRepository.findByCourseId(currentCourse.getId());
+
+        if (reviews.isEmpty()) {
+            ratingLabel.setText("⭐ No reviews yet");
+            Label noRev = new Label("Be the first to review after completing the course!");
+            noRev.setStyle("-fx-text-fill: #8D99AE; -fx-font-style: italic;");
+            reviewsList.getChildren().add(noRev);
+        } else {
+            double sum = 0;
+            for (com.chirag.models.Review r : reviews) {
+                sum += r.getRating();
+
+                VBox reviewCard = new VBox(5.0);
+                reviewCard.setStyle("-fx-padding: 10; -fx-background-color: #FAF8F5; -fx-border-color: #E0DCD3; -fx-border-radius: 5;");
+
+                String userName = r.getUser() != null ? r.getUser().getName() : "Anonymous";
+                Label nameLabel = new Label(userName + " (⭐ " + r.getRating() + "/5)");
+                nameLabel.setStyle("-fx-font-weight: bold; -fx-text-fill: #1B263B;");
+
+                Label textLabel = new Label(r.getComment());
+                textLabel.setWrapText(true);
+
+                reviewCard.getChildren().addAll(nameLabel, textLabel);
+                reviewsList.getChildren().add(reviewCard);
+            }
+            double avg = sum / reviews.size();
+            ratingLabel.setText(String.format("⭐ %.1f/5 (%d reviews)", avg, reviews.size()));
         }
     }
 

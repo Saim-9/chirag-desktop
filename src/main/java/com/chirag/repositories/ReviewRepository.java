@@ -1,0 +1,43 @@
+package com.chirag.repositories;
+
+import com.chirag.models.Review;
+import com.chirag.utils.DatabaseConfig;
+import com.j256.ormlite.dao.Dao;
+import com.j256.ormlite.dao.DaoManager;
+import java.sql.SQLException;
+import java.util.Collections;
+import java.util.List;
+
+/**
+ * Repository class to manage all database queries related to the Review model.
+ * Use-cases: Social Proof.
+ */
+public class ReviewRepository {
+
+    private Dao<Review, Integer> reviewDao;
+
+    public ReviewRepository() {
+        try {
+            reviewDao = DaoManager.createDao(DatabaseConfig.getInstance().getConnectionSource(), Review.class);
+        } catch (SQLException e) {
+            System.err.println("Failed to initialize Review repository: " + e.getMessage());
+        }
+    }
+
+    public Dao<Review, Integer> getDao() {
+        return reviewDao;
+    }
+
+    public void create(Review review) throws SQLException {
+        reviewDao.create(review);
+    }
+
+    public List<Review> findByCourseId(int courseId) {
+        try {
+            return reviewDao.queryBuilder().where().eq("course_id", courseId).query();
+        } catch (SQLException e) {
+            System.err.println("Error fetching reviews: " + e.getMessage());
+            return Collections.emptyList();
+        }
+    }
+}

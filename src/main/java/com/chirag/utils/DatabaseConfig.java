@@ -66,11 +66,19 @@ public class DatabaseConfig {
         TableUtils.createTableIfNotExists(connectionSource, Lecture.class);
         try {
             TableUtils.dropTable(connectionSource, Transaction.class, true);
-        } catch (Exception e) {}
+        } catch (Exception e) {
+        }
         TableUtils.createTableIfNotExists(connectionSource, Transaction.class);
+        
+        try {
+            TableUtils.dropTable(connectionSource, com.chirag.models.Enrollment.class, true);
+        } catch (Exception e) {
+        }
         TableUtils.createTableIfNotExists(connectionSource, com.chirag.models.Enrollment.class);
+        
+        TableUtils.createTableIfNotExists(connectionSource, com.chirag.models.Review.class);
     }
-    
+
     /**
      * Closes the DB conneciton whn the aplication shotdowns.
      * Pervents mermory leks and locs on the sqlite fla.
