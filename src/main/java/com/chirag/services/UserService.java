@@ -32,6 +32,8 @@ public class UserService {
             return false;
         }
         try {
+            user.setRole("USER");
+            user.setAccountStatus("ACTIVE");
             userRepository.create(user);
             return true;
         } catch (SQLException e) {

@@ -23,13 +23,13 @@ public class User {
     @DatabaseField(canBeNull = false)
     private String password;
 
-    @DatabaseField(canBeNull = false)
+    @DatabaseField(columnName = "role", defaultValue = "USER")
     private String role; // e.g. "USER", maybe admin in futre
 
     @DatabaseField(canBeNull = false)
     private double virtualWalletBalance;
 
-    @DatabaseField(defaultValue = "ACTIVE")
+    @DatabaseField(columnName = "accountStatus", defaultValue = "ACTIVE")
     private String accountStatus;
 
     /**

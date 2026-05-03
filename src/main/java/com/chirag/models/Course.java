@@ -38,7 +38,7 @@ public class Course {
     @DatabaseField
     private String tags;
 
-    @DatabaseField(defaultValue = "true")
+    @DatabaseField(columnName = "isActive", defaultValue = "true")
     private boolean isActive;
 
     /**

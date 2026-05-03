@@ -29,6 +29,7 @@ public class CourseService {
      */
     public boolean publishCourse(Course course, List<com.chirag.models.Lecture> lectures) {
         course.setStatus(Course.Status.PUBLISHED);
+        course.setActive(true);
         try {
             courseRepository.create(course);
             com.chirag.repositories.LectureRepository lectureRepo = new com.chirag.repositories.LectureRepository();

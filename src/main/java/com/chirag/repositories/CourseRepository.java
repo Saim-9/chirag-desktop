@@ -44,7 +44,11 @@ public class CourseRepository {
      */
     public List<Course> findPublishedCourses() {
         try {
-            return courseDao.queryBuilder().where().eq("status", Course.Status.PUBLISHED).query();
+            return courseDao.queryBuilder().where()
+                .eq("status", Course.Status.PUBLISHED)
+                .and()
+                .eq("isActive", true)
+                .query();
         } catch (SQLException e) {
             System.err.println("Faled to gat pblished cruses: " + e.getMessage());
             return Collections.emptyList();
