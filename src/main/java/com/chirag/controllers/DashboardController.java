@@ -79,8 +79,14 @@ public class DashboardController {
                 Label title = new Label(c.getTitle());
                 title.setStyle("-fx-font-weight: bold; -fx-font-size: 16px; -fx-text-fill: #1B263B;");
                 
-                Label status = new Label("Status: " + c.getStatus().toString());
-                status.setStyle("-fx-text-fill: #8D99AE;");
+                Label status = new Label();
+                if (!c.isActive()) {
+                    status.setText("Status: Suspended by Admin");
+                    status.setStyle("-fx-text-fill: #E63946; -fx-font-weight: bold;");
+                } else {
+                    status.setText("Status: " + c.getStatus().toString());
+                    status.setStyle("-fx-text-fill: #2D6A4F;");
+                }
                 
                 card.getChildren().addAll(title, status);
                 uploadedCoursesContainer.getChildren().add(card);

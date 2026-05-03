@@ -75,10 +75,10 @@ public class CoursePlayerController {
      */
     private void loadCurriculum() {
         try {
+            lecturesList.getChildren().clear();
             List<Lecture> lecs = lectureRepository.getDao().queryBuilder().where()
                     .eq("course_id", currentCourse.getId()).query();
             totalLecturesCount = lecs.size();
-            lecturesList.getChildren().clear();
 
             Enrollment enrollment = getEnrollment();
             String completedIds = enrollment != null ? enrollment.getCompletedLectureIds() : "";

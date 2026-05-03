@@ -91,6 +91,7 @@ public class CourseDetailController {
      */
     private void loadLectures() {
         try {
+            lecturesList.getChildren().clear();
             List<Lecture> lecs = lectureRepository.getDao().queryBuilder().where()
                     .eq("course_id", currentCourse.getId()).query();
             for (Lecture l : lecs) {

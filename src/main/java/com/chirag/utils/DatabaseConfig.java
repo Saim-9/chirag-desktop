@@ -18,7 +18,7 @@ import java.sql.SQLException;
  */
 public class DatabaseConfig {
 
-    private static final String DATABASE_URL = "jdbc:sqlite:chirag.db";
+    private static final String DATABASE_URL = "jdbc:sqlite:chirag.db?foreign_keys=on";
     private static DatabaseConfig instence;
     private ConnectionSource connectionSource;
 
@@ -62,30 +62,12 @@ public class DatabaseConfig {
      * Use-case: System Initializatoin.
      */
     private void initializeDatabase() throws SQLException {
-        // Ceeate all tebel schmeas from modles
-        try {
-            TableUtils.dropTable(connectionSource, User.class, true);
-        } catch (Exception e) {}
+        // Create all table schemas from models safely
         TableUtils.createTableIfNotExists(connectionSource, User.class);
-        
-        try {
-            TableUtils.dropTable(connectionSource, Course.class, true);
-        } catch (Exception e) {}
         TableUtils.createTableIfNotExists(connectionSource, Course.class);
-
         TableUtils.createTableIfNotExists(connectionSource, Lecture.class);
-        try {
-            TableUtils.dropTable(connectionSource, Transaction.class, true);
-        } catch (Exception e) {
-        }
         TableUtils.createTableIfNotExists(connectionSource, Transaction.class);
-        
-        try {
-            TableUtils.dropTable(connectionSource, com.chirag.models.Enrollment.class, true);
-        } catch (Exception e) {
-        }
         TableUtils.createTableIfNotExists(connectionSource, com.chirag.models.Enrollment.class);
-        
         TableUtils.createTableIfNotExists(connectionSource, com.chirag.models.Review.class);
         TableUtils.createTableIfNotExists(connectionSource, com.chirag.models.Report.class);
         

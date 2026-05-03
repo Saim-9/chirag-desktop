@@ -35,6 +35,7 @@ public class CourseCreationController {
     private VBox lectureEntryContainer;
 
     private CourseService courseService;
+    private boolean isSubmitting = false;
 
     /**
      * Setus up srivice dtat.
@@ -69,6 +70,9 @@ public class CourseCreationController {
      */
     @FXML
     public void handlePublish(ActionEvent event) {
+        if (isSubmitting) return;
+        isSubmitting = true;
+
         Course course = new Course();
         course.setTitle(titleField.getText());
         course.setDescription(descriptionField.getText());
@@ -124,6 +128,8 @@ public class CourseCreationController {
         if (scces) {
             System.out.println("Crse Publsihed Sucesfully");
             SceneManager.getInstance().switchScene("DashboardView.fxml");
+        } else {
+            isSubmitting = false;
         }
     }
 

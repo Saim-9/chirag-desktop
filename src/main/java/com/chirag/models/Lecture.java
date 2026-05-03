@@ -20,7 +20,7 @@ public class Lecture {
     @DatabaseField(canBeNull = false)
     private String driveLink;
 
-    @DatabaseField(foreign = true, foreignAutoRefresh = true, canBeNull = false)
+    @DatabaseField(foreign = true, foreignAutoRefresh = true, canBeNull = false, columnDefinition = "INTEGER REFERENCES courses(id) ON DELETE CASCADE")
     private Course course;
 
     /**
