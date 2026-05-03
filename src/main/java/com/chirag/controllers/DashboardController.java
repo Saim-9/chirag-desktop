@@ -113,48 +113,57 @@ public class DashboardController {
             }
 
             // Fetch recent transactions
-            // Use-case: Purchase History.
-            try {
-                com.j256.ormlite.stmt.QueryBuilder<Transaction, Integer> qb = transactionRepository.getDao().queryBuilder();
-                qb.orderBy("transactionDate", false);
-                qb.where().eq("buyer_id", user.getId()).or().eq("instructor_id", user.getId());
+            loadTransactions(user);
+        }
+    }
+
+    /**
+     * Loads the recent transactions for the user.
+     * Use-case: Dashboard Refresh, Purchase History.
+     */
+    private void loadTransactions(User user) {
+        try {
+            com.j256.ormlite.stmt.QueryBuilder<Transaction, Integer> qb = transactionRepository.getDao().queryBuilder();
+            qb.orderBy("transactionDate", false);
+            qb.where().eq("buyer_id", user.getId()).or().eq("instructor_id", user.getId());
+            
+            List<Transaction> transactions = qb.query();
+            int limit = Math.min(5, transactions.size());
+            transactionsList.getItems().clear();
+            
+            for (int i = 0; i < limit; i++) {
+                Transaction t = transactions.get(i);
+                boolean isIncome = (t.getInstructor() != null && t.getInstructor().getId() == user.getId() && (t.getBuyer() == null || t.getBuyer().getId() != user.getId()));
                 
-                List<Transaction> transactions = qb.query();
-                int limit = Math.min(5, transactions.size());
-                transactionsList.getItems().clear();
-                
-                for (int i = 0; i < limit; i++) {
-                    Transaction t = transactions.get(i);
-                    boolean isIncome = (t.getInstructor() != null && t.getInstructor().getId() == user.getId() && (t.getBuyer() == null || t.getBuyer().getId() != user.getId()));
-                    
-                    if (isIncome) {
-                        transactionsList.getItems().add(t.getDescription() + " - +$" + String.format("%.2f", t.getAmount()));
-                    } else {
-                        transactionsList.getItems().add(t.getDescription() + " - -$" + String.format("%.2f", t.getAmount()));
-                    }
+                if (isIncome) {
+                    transactionsList.getItems().add("+$" + String.format("%.2f", t.getAmount()) + " (" + t.getDescription() + ")");
+                } else {
+                    transactionsList.getItems().add("-$" + String.format("%.2f", t.getAmount()) + " (" + t.getDescription() + ")");
                 }
-                
-                transactionsList.setCellFactory(lv -> new javafx.scene.control.ListCell<String>() {
-                    @Override
-                    protected void updateItem(String item, boolean empty) {
-                        super.updateItem(item, empty);
-                        if (empty || item == null) {
-                            setText(null);
-                            setStyle("");
+            }
+            
+            transactionsList.setCellFactory(lv -> new javafx.scene.control.ListCell<String>() {
+                @Override
+                protected void updateItem(String item, boolean empty) {
+                    super.updateItem(item, empty);
+                    if (empty || item == null) {
+                        setText(null);
+                        setStyle("");
+                    } else {
+                        setText(item);
+                        if (item.startsWith("+$")) {
+                            setStyle("-fx-text-fill: #2D6A4F; -fx-font-weight: bold;"); // Green for income
+                        } else if (item.startsWith("-$")) {
+                            setStyle("-fx-text-fill: #E63946; -fx-font-weight: bold;"); // Red for expense
                         } else {
-                            setText(item);
-                            if (item.contains("+$")) {
-                                setStyle("-fx-text-fill: #2D6A4F; -fx-font-weight: bold;"); // Green for income
-                            } else {
-                                setStyle("-fx-text-fill: #1B263B;");
-                            }
+                            setStyle("-fx-text-fill: #1B263B;");
                         }
                     }
-                });
-                
-            } catch (java.sql.SQLException e) {
-                System.err.println("Failed to load transactions: " + e.getMessage());
-            }
+                }
+            });
+            
+        } catch (java.sql.SQLException e) {
+            System.err.println("Failed to load transactions: " + e.getMessage());
         }
     }
 
@@ -200,13 +209,14 @@ public class DashboardController {
     }
 
     /**
-     * Refreshes the wallet label after a top up.
-     * Use-case: Top Up Virtual Wallet.
+     * Refreshes the wallet label and transactions after a top up.
+     * Use-case: Top Up Virtual Wallet, Dashboard Refresh.
      */
     public void refreshWalletDisplay() {
         User user = UserSession.getCurrentUser();
         if (user != null) {
             walletLabel.setText("Wallet Balance: $" + String.format("%.2f", user.getVirtualWalletBalance()));
+            loadTransactions(user);
         }
     }
 

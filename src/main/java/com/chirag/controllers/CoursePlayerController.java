@@ -82,7 +82,8 @@ public class CoursePlayerController {
      * Use-case: Consume Content.
      */
     private void loadVideo(String driveLink) {
-        videoEngine.getEngine().load(driveLink);
+        String html = "<html><body style='margin:0;padding:0;background-color:#0B0F19;'><iframe width='100%' height='100%' src='" + driveLink + "?autoplay=1' frameborder='0' allowfullscreen></iframe></body></html>";
+        videoEngine.getEngine().loadContent(html);
     }
 
     /**
@@ -110,11 +111,20 @@ public class CoursePlayerController {
     }
 
     /**
+     * Stops the video playback to prevent background audio bleed.
+     * Use-case: Audio Kill Switch
+     */
+    public void stopVideo() {
+        videoEngine.getEngine().load(null);
+    }
+
+    /**
      * Goes back to the dashboard.
      * Use-case: View Navigation.
      */
     @FXML
     public void goBack(ActionEvent event) {
+        stopVideo();
         SceneManager.getInstance().switchScene("DashboardView.fxml");
     }
 }
