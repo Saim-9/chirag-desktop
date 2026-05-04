@@ -12,6 +12,7 @@ import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.control.Label;
 import javafx.scene.control.ListView;
+import javafx.scene.control.Button;
 import javafx.scene.layout.FlowPane;
 import javafx.scene.layout.VBox;
 import java.util.List;
@@ -88,7 +89,23 @@ public class DashboardController {
                     status.setStyle("-fx-text-fill: #2D6A4F;");
                 }
                 
-                card.getChildren().addAll(title, status);
+                Button editBtn = new Button("Edit Course");
+                editBtn.getStyleClass().add("nav-button");
+                editBtn.setStyle("-fx-background-color: #E0DCD3; -fx-text-fill: #1B263B; -fx-padding: 5 15;");
+                
+                // Lockout Rule: Disable if course is inactive
+                if (!c.isActive()) {
+                    editBtn.setDisable(true);
+                }
+
+                editBtn.setOnAction(e -> {
+                    Object ctrl = com.chirag.utils.SceneManager.getInstance().switchScene("EditCourseView.fxml");
+                    if (ctrl instanceof EditCourseController) {
+                        ((EditCourseController) ctrl).setCourse(c);
+                    }
+                });
+
+                card.getChildren().addAll(title, status, editBtn);
                 uploadedCoursesContainer.getChildren().add(card);
             }
             

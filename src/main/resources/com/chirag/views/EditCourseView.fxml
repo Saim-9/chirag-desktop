@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.geometry.Insets?>
+
+<ScrollPane fitToWidth="true" stylesheets="@styles.css" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.chirag.controllers.EditCourseController">
+    <VBox spacing="20.0" styleClass="content-area">
+        <VBox styleClass="card-container" spacing="15.0">
+            <Label text="Creator Studio - Edit Course" styleClass="label-header" />
+            <Label text="Update course metadata. Video curriculum cannot be altered here." style="-fx-text-fill: #8D99AE;" />
+            
+            <Label text="Course Title" styleClass="section-header" />
+            <TextField fx:id="titleField" promptText="Course Title" />
+            
+            <Label text="Price ($)" styleClass="section-header" />
+            <TextField fx:id="priceField" promptText="Price (e.g. 19.99)" />
+            
+            <Label text="Description" styleClass="section-header" />
+            <TextArea fx:id="descriptionField" promptText="Course Description" prefRowCount="6" wrapText="true" style="-fx-border-color: #E0DCD3; -fx-background-color: transparent;" />
+            
+            <Label text="Category Tags" styleClass="section-header" />
+            <TextField fx:id="tagsField" promptText="Tags (comma-separated, e.g. JAVA, UI)" />
+        </VBox>
+        
+        <HBox alignment="CENTER_RIGHT" spacing="15.0">
+            <Button text="Cancel" onAction="#handleCancel" styleClass="nav-button" style="-fx-text-fill: #1B263B;" />
+            <Button text="Save Changes" onAction="#handleSave" styleClass="button-primary" />
+        </HBox>
+    </VBox>
+</ScrollPane>

@@ -51,4 +51,19 @@ public class CourseService {
     public List<Course> getMarketplaceCourses() {
         return courseRepository.findPublishedCourses();
     }
+
+    /**
+     * Updates an existing course's metadata in the database.
+     * Uses ORMLite to overwrite the record.
+     * Use-case: Edit Course.
+     */
+    public boolean updateCourse(Course course) {
+        try {
+            courseRepository.update(course);
+            return true;
+        } catch (SQLException e) {
+            System.err.println("Faled to updat corse: " + e.getMessage());
+            return false;
+        }
+    }
 }
