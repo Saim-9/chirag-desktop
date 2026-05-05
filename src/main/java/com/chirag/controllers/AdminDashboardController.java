@@ -62,7 +62,7 @@ public class AdminDashboardController {
             series.setName("Transaction Cut");
 
             for (Transaction t : txs) {
-                double cut = t.getAmount() * 0.10;
+                double cut = t.getPlatformFee();
                 totalRevenue += cut;
                 series.getData().add(new XYChart.Data<>(t.getTransactionDate().toString(), cut));
             }

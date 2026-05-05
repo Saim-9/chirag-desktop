@@ -159,7 +159,7 @@ public class DashboardController {
                 boolean isIncome = (t.getInstructor() != null && t.getInstructor().getId() == user.getId() && (t.getBuyer() == null || t.getBuyer().getId() != user.getId()));
                 
                 if (isIncome) {
-                    transactionsList.getItems().add("+$" + String.format("%.2f", t.getAmount()) + " (" + t.getDescription() + ")");
+                    transactionsList.getItems().add("+$" + String.format("%.2f", t.getNetAmount()) + " (" + t.getDescription() + ")");
                 } else {
                     transactionsList.getItems().add("-$" + String.format("%.2f", t.getAmount()) + " (" + t.getDescription() + ")");
                 }

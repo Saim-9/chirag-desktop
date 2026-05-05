@@ -19,6 +19,12 @@ public class Transaction {
     private double amount;
 
     @DatabaseField(canBeNull = false)
+    private double platformFee;
+
+    @DatabaseField(canBeNull = false)
+    private double netAmount;
+
+    @DatabaseField(canBeNull = false)
     private String description;
 
     @DatabaseField(canBeNull = false)
@@ -42,6 +48,12 @@ public class Transaction {
 
     public double getAmount() { return amount; }
     public void setAmount(double amount) { this.amount = amount; }
+
+    public double getPlatformFee() { return platformFee; }
+    public void setPlatformFee(double platformFee) { this.platformFee = platformFee; }
+
+    public double getNetAmount() { return netAmount; }
+    public void setNetAmount(double netAmount) { this.netAmount = netAmount; }
 
     public String getDescription() { return description; }
     public void setDescription(String description) { this.description = description; }

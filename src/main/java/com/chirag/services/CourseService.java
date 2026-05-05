@@ -39,7 +39,7 @@ public class CourseService {
             }
             return true;
         } catch (SQLException e) {
-            System.err.println("Faled to puulish crse wit letures: " + e.getMessage());
+            System.err.println("Failed to publish course with lectures: " + e.getMessage());
             return false;
         }
     }
@@ -62,7 +62,7 @@ public class CourseService {
             courseRepository.update(course);
             return true;
         } catch (SQLException e) {
-            System.err.println("Faled to updat corse: " + e.getMessage());
+            System.err.println("Failed to update course: " + e.getMessage());
             return false;
         }
     }

@@ -64,6 +64,8 @@ public class PaymentService {
         // Create transaction record
         Transaction transaction = new Transaction();
         transaction.setAmount(price);
+        transaction.setPlatformFee(adminCut);
+        transaction.setNetAmount(instructorCut);
         transaction.setDescription("Bought course: " + course.getTitle());
         transaction.setTransactionDate(new Date());
         transaction.setBuyer(buyer);
