@@ -182,7 +182,12 @@ public class CoursePlayerController {
     public void launchExternalPlayer(ActionEvent event) {
         if (currentLecture != null) {
             try {
-                java.awt.Desktop.getDesktop().browse(new java.net.URI(currentLecture.getDriveLink()));
+                String url = currentLecture.getDriveLink();
+                // Converts embed link back to standard YouTube link for the external browser
+                if (url != null && url.contains("embed/")) {
+                    url = url.replace("embed/", "watch?v=");
+                }
+                java.awt.Desktop.getDesktop().browse(new java.net.URI(url));
                 videoEngine.getEngine().loadContent("<h2 style='color:#E0DCD3; text-align:center; margin-top:20%; font-family:sans-serif;'>Video playing in your external browser...</h2>");
             } catch (Exception e) {
                 System.err.println("Failed to launch browser: " + e.getMessage());

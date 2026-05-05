@@ -38,7 +38,7 @@ public class CourseCreationController {
     private boolean isSubmitting = false;
 
     /**
-     * Setus up srivice dtat.
+     * Sets up service data.
      * Use-case: Course Creation.
      */
     public CourseCreationController() {
@@ -46,7 +46,7 @@ public class CourseCreationController {
     }
 
     /**
-     * Dnamicaly inejcts neaw lcture inputs to thr box.
+     * Dynamically injects new lecture inputs to the box.
      * Use-case: Course Creation.
      */
     @FXML
@@ -65,7 +65,7 @@ public class CourseCreationController {
     }
 
     /**
-     * Presists the cors ad letures into the dtabse.
+     * Persists the cors ad lectures into the database.
      * Use-case: Course Creation.
      */
     @FXML
@@ -73,18 +73,24 @@ public class CourseCreationController {
         if (isSubmitting) return;
         isSubmitting = true;
 
+        String priceText = priceField.getText().trim();
+        // Regex: Must be digits, optionally followed by a decimal and 1 or 2 digits
+        if (!priceText.matches("\\d+(\\.\\d{1,2})?")) {
+            javafx.scene.control.Alert alert = new javafx.scene.control.Alert(javafx.scene.control.Alert.AlertType.ERROR);
+            alert.setTitle("Invalid Price");
+            alert.setHeaderText(null);
+            alert.setContentText("Price must be a valid number (e.g., 19.99). Do not include the $ sign or letters.");
+            alert.showAndWait();
+            isSubmitting = false; // Reset the button lockout
+            return; // Stop the upload process
+        }
+
         Course course = new Course();
         course.setTitle(titleField.getText());
         course.setDescription(descriptionField.getText());
         course.setTags(tagsField.getText());
         course.setInstructor(UserSession.getCurrentUser());
-        
-        try {
-            course.setPrice(Double.parseDouble(priceField.getText()));
-        } catch (NumberFormatException e) {
-            System.err.println("Ivalid pirce fomrat");
-            return;
-        }
+        course.setPrice(Double.parseDouble(priceText));
 
         List<Lecture> lectures = new ArrayList<>();
         for (Node node : lectureEntryContainer.getChildren()) {
@@ -126,7 +132,7 @@ public class CourseCreationController {
 
         boolean scces = courseService.publishCourse(course, lectures);
         if (scces) {
-            System.out.println("Crse Publsihed Sucesfully");
+            System.out.println("Course Published Successfully");
             SceneManager.getInstance().switchScene("DashboardView.fxml");
         } else {
             isSubmitting = false;
@@ -134,7 +140,7 @@ public class CourseCreationController {
     }
 
     /**
-     * Gose bkck to dashborad.
+     * Goes back to dashboard.
      * Use-case: View Navigation.
      */
     @FXML
