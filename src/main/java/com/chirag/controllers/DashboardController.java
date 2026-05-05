@@ -22,6 +22,7 @@ import javafx.scene.Scene;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
 
+
 /**
  * Central hub controller for the unified dashboard.
  * Loads both learner and teacher data in one screen.
@@ -63,23 +64,24 @@ public class DashboardController {
      * Use-case: Manage Creator Dashboard, Consume Content.
      */
     @FXML
-    public void initialize() {
+     public void initialize() {
         User user = UserSession.getCurrentUser();
         if (user != null) {
             welcomeLabel.setText("Welcome, " + user.getName() + "!");
             walletLabel.setText("Wallet Balance: $" + String.format("%.2f", user.getVirtualWalletBalance()));
-            
-            // Fetch uploaded courses
+
+            // --- 1. Fetch uploaded courses (Creator Studio) ---
             List<Course> instructorCourses = courseRepository.findByInstructor(user);
             uploadedCoursesContainer.getChildren().clear();
             for (Course c : instructorCourses) {
-                VBox card = new VBox(5.0);
+                VBox card = new VBox(10.0); // Increased spacing
                 card.getStyleClass().add("item-card");
-                card.setPrefWidth(250.0);
-                
+                card.setPrefWidth(300.0); // Wider card for enterprise feel
+
                 Label title = new Label(c.getTitle());
+                title.setWrapText(true); // Let long titles wrap
                 title.setStyle("-fx-font-weight: bold; -fx-font-size: 16px; -fx-text-fill: #1B263B;");
-                
+
                 Label status = new Label();
                 if (!c.isActive()) {
                     status.setText("Status: Suspended by Admin");
@@ -88,12 +90,12 @@ public class DashboardController {
                     status.setText("Status: " + c.getStatus().toString());
                     status.setStyle("-fx-text-fill: #2D6A4F;");
                 }
-                
+
                 Button editBtn = new Button("Edit Course");
                 editBtn.getStyleClass().add("nav-button");
                 editBtn.setStyle("-fx-background-color: #E0DCD3; -fx-text-fill: #1B263B; -fx-padding: 5 15;");
-                
-                // Lockout Rule: Disable if course is inactive
+
+
                 if (!c.isActive()) {
                     editBtn.setDisable(true);
                 }
@@ -108,7 +110,8 @@ public class DashboardController {
                 card.getChildren().addAll(title, status, editBtn);
                 uploadedCoursesContainer.getChildren().add(card);
             }
-            
+
+            // --- 2. Fetch enrolled courses (My Learning) ---
             // Fetch enrolled courses from db
             List<Enrollment> enrollments = enrollmentRepository.findByUser(user);
             enrolledCoursesContainer.getChildren().clear();
@@ -117,14 +120,22 @@ public class DashboardController {
                 VBox card = new VBox(5.0);
                 card.getStyleClass().add("item-card");
                 card.setPrefWidth(250.0);
-                
+
                 Label title = new Label(c.getTitle());
                 title.setStyle("-fx-font-weight: bold; -fx-font-size: 16px; -fx-text-fill: #1B263B;");
-                
-                Label prog = new Label(enr.isCompleted() ? "Status: Completed" : "Status: In Progress");
-                prog.setStyle("-fx-text-fill: " + (enr.isCompleted() ? "#2D6A4F" : "#8D99AE") + ";");
-                
-                card.getChildren().addAll(title, prog);
+
+                // TODO: Replace 45.0 with actual math: (completedVideos / totalVideos) * 100
+                double progressValue = enr.isCompleted() ? 100.0 : 45.0;
+
+                Label percentLabel = new Label("Progress: " + (int)progressValue + "%");
+                percentLabel.setStyle("-fx-font-weight: bold; -fx-text-fill: #1B263B;");
+
+                Label progStatus = new Label(enr.isCompleted() ? "Status: Completed" : "Status: In Progress");
+                progStatus.setStyle("-fx-text-fill: " + (enr.isCompleted() ? "#2D6A4F" : "#8D99AE") + ";");
+
+                // Add the title, percentage, and status to the card
+                card.getChildren().addAll(title, percentLabel, progStatus);
+
                 card.setOnMouseClicked(e -> {
                     Object ctrl = com.chirag.utils.SceneManager.getInstance().switchScene("CoursePlayerView.fxml");
                     if (ctrl instanceof CoursePlayerController) {
@@ -149,22 +160,25 @@ public class DashboardController {
             com.j256.ormlite.stmt.QueryBuilder<Transaction, Integer> qb = transactionRepository.getDao().queryBuilder();
             qb.orderBy("transactionDate", false);
             qb.where().eq("buyer_id", user.getId()).or().eq("instructor_id", user.getId());
-            
+
             List<Transaction> transactions = qb.query();
             int limit = Math.min(5, transactions.size());
             transactionsList.getItems().clear();
-            
+
             for (int i = 0; i < limit; i++) {
                 Transaction t = transactions.get(i);
-                boolean isIncome = (t.getInstructor() != null && t.getInstructor().getId() == user.getId() && (t.getBuyer() == null || t.getBuyer().getId() != user.getId()));
-                
+                boolean isIncome = (t.getInstructor() != null && t.getInstructor().getId() == user.getId()
+                        && (t.getBuyer() == null || t.getBuyer().getId() != user.getId()));
+
                 if (isIncome) {
-                    transactionsList.getItems().add("+$" + String.format("%.2f", t.getNetAmount()) + " (" + t.getDescription() + ")");
+                    transactionsList.getItems()
+                            .add("+$" + String.format("%.2f", t.getNetAmount()) + " (" + t.getDescription() + ")");
                 } else {
-                    transactionsList.getItems().add("-$" + String.format("%.2f", t.getAmount()) + " (" + t.getDescription() + ")");
+                    transactionsList.getItems()
+                            .add("-$" + String.format("%.2f", t.getAmount()) + " (" + t.getDescription() + ")");
                 }
             }
-            
+
             transactionsList.setCellFactory(lv -> new javafx.scene.control.ListCell<String>() {
                 @Override
                 protected void updateItem(String item, boolean empty) {
@@ -184,7 +198,7 @@ public class DashboardController {
                     }
                 }
             });
-            
+
         } catch (java.sql.SQLException e) {
             System.err.println("Failed to load transactions: " + e.getMessage());
         }
@@ -217,10 +231,10 @@ public class DashboardController {
         try {
             FXMLLoader loader = new FXMLLoader(getClass().getResource("/com/chirag/views/WalletPopupView.fxml"));
             Parent root = loader.load();
-            
+
             WalletPopupController popupController = loader.getController();
             popupController.setParentController(this);
-            
+
             Stage popupStage = new Stage();
             popupStage.initModality(Modality.APPLICATION_MODAL);
             popupStage.setTitle("Top Up Wallet");

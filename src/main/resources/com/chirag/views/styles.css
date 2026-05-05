@@ -1,38 +1,207 @@
-.root { -fx-background-color: #FAF8F5; -fx-font-family: "Segoe UI", sans-serif; }
-.card-container { 
-    -fx-background-color: #FFFFFF; 
-    -fx-padding: 50; 
+.root {
+
+    -fx-background-color: #FAF8F5;
+
+    -fx-font-family: "Segoe UI", sans-serif;
+
+}
+
+
+
+.card-container {
+
+    -fx-background-color: #FFFFFF;
+
+    -fx-padding: 50;
+
     -fx-spacing: 20;
-    -fx-effect: dropshadow(three-pass-box, rgba(27,38,59,0.1), 15, 0, 0, 5); 
+
+    -fx-effect: dropshadow(three-pass-box, rgba(27, 38, 59, 0.1), 15, 0, 0, 5);
+
 }
-.label-header { -fx-text-fill: #1B263B; -fx-font-size: 24px; -fx-font-weight: bold; }
-.text-field, .password-field { 
-    -fx-background-color: #F8F9FA; 
-    -fx-border-color: transparent transparent #E0DCD3 transparent; 
-    -fx-border-width: 0 0 2 0; 
-    -fx-text-fill: #1B263B; 
+
+
+
+.label-header {
+
+    -fx-text-fill: #1B263B;
+
+    -fx-font-size: 24px;
+
+    -fx-font-weight: bold;
+
+}
+
+
+
+.text-field,
+
+.password-field {
+
+    -fx-background-color: #F8F9FA;
+
+    -fx-border-color: transparent transparent #E0DCD3 transparent;
+
+    -fx-border-width: 0 0 2 0;
+
+    -fx-text-fill: #1B263B;
+
     -fx-padding: 12 10;
+
     -fx-font-size: 14px;
+
 }
-.text-field:focused, .password-field:focused { -fx-border-color: transparent transparent #1B263B transparent; -fx-background-color: #FFFFFF;}
-.button-primary { 
-    -fx-background-color: #1B263B; -fx-text-fill: #FAF8F5; 
-    -fx-background-radius: 0; -fx-padding: 12 30; 
-    -fx-font-weight: bold; -fx-cursor: hand; -fx-min-width: 250px;
+
+
+
+.text-field:focused,
+
+.password-field:focused {
+
+    -fx-border-color: transparent transparent #1B263B transparent;
+
+    -fx-background-color: #FFFFFF;
+
 }
-.button-primary:hover { -fx-background-color: #2D3E5A; }
-.link-text { -fx-text-fill: #8D99AE; -fx-underline: true; -fx-cursor: hand; }
-.sidebar { -fx-background-color: #1B263B; -fx-padding: 30 20; -fx-spacing: 15; }
-.nav-button { 
-    -fx-background-color: transparent; -fx-text-fill: #8D99AE; 
-    -fx-font-size: 14px; -fx-cursor: hand; -fx-alignment: CENTER_LEFT; -fx-max-width: Infinity;
+
+
+
+.button-primary {
+
+    -fx-background-color: #1B263B;
+
+    -fx-text-fill: #FAF8F5;
+
+    -fx-background-radius: 0;
+
+    -fx-padding: 12 30;
+
+    -fx-font-weight: bold;
+
+    -fx-cursor: hand;
+
+    -fx-min-width: 250px;
+
 }
-.nav-button:hover { -fx-text-fill: #FAF8F5; -fx-background-color: #2D3E5A; }
-.section-header { -fx-font-size: 20px; -fx-font-weight: bold; -fx-text-fill: #1B263B; -fx-padding: 10 0; }
-.content-area { -fx-background-color: #FAF8F5; -fx-padding: 30; }
-.item-card { -fx-background-color: white; -fx-padding: 15; -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.05), 10, 0, 0, 5); }
-.item-card:hover { -fx-translate-y: -5; -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.15), 15, 0, 0, 8); }
-.tag-chip { 
-    -fx-background-color: #E0DCD3; -fx-text-fill: #1B263B; 
-    -fx-padding: 4 8; -fx-font-size: 11px; -fx-background-radius: 0; 
+
+
+
+.button-primary:hover {
+
+    -fx-background-color: #2D3E5A;
+
+}
+
+
+
+.link-text {
+
+    -fx-text-fill: #8D99AE;
+
+    -fx-underline: true;
+
+    -fx-cursor: hand;
+
+}
+
+
+
+.sidebar {
+
+    -fx-background-color: #1B263B;
+
+    -fx-padding: 30 20;
+
+    -fx-spacing: 15;
+
+}
+
+
+
+.nav-button {
+
+    -fx-background-color: transparent;
+
+    -fx-text-fill: #8D99AE;
+
+    -fx-font-size: 14px;
+
+    -fx-cursor: hand;
+
+    -fx-alignment: CENTER_LEFT;
+
+    -fx-max-width: Infinity;
+
+}
+
+
+
+.nav-button:hover {
+
+    -fx-text-fill: #FAF8F5;
+
+    -fx-background-color: #2D3E5A;
+
+}
+
+
+
+.section-header {
+
+    -fx-font-size: 20px;
+
+    -fx-font-weight: bold;
+
+    -fx-text-fill: #1B263B;
+
+    -fx-padding: 10 0;
+
+}
+
+
+
+.content-area {
+
+    -fx-background-color: #FAF8F5;
+
+    -fx-padding: 30;
+
+}
+
+
+
+.item-card {
+
+    -fx-background-color: white;
+
+    -fx-padding: 15;
+
+    -fx-effect: dropshadow(three-pass-box, rgba(0, 0, 0, 0.05), 10, 0, 0, 5);
+
+}
+
+
+
+.item-card:hover {
+
+    -fx-translate-y: -5;
+
+    -fx-effect: dropshadow(three-pass-box, rgba(0, 0, 0, 0.15), 15, 0, 0, 8);
+
+}
+
+
+
+.tag-chip {
+
+    -fx-background-color: #E0DCD3;
+
+    -fx-text-fill: #1B263B;
+
+    -fx-padding: 4 8;
+
+    -fx-font-size: 11px;
+
+    -fx-background-radius: 0;
+
 }

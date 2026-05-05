@@ -9,7 +9,7 @@
         <VBox styleClass="sidebar" prefWidth="250.0">
             <ImageView fitWidth="150" preserveRatio="true">
                 <image>
-                    <Image url="@../assets/logo.png" />
+                    <Image url="@../assets/logo.PNG" />
                 </image>
             </ImageView>
             <Region prefHeight="40.0" />

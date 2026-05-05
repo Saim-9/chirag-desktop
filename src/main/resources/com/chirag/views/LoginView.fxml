@@ -8,7 +8,7 @@
     <VBox alignment="CENTER" spacing="20.0" maxWidth="400.0" styleClass="card-container">
         <ImageView fitWidth="150" preserveRatio="true">
             <image>
-                <Image url="@../assets/logo.png" />
+                <Image url="@../assets/logo.PNG" />
             </image>
         </ImageView>
         <Label text="Login" styleClass="label-header" />

@@ -1,19 +1,20 @@
 package com.chirag;
 
 /**
- * Thiss clas is a woraround to lunch JavaFX appliactions from 
- * standrad IDEs wihtout facing the modue-path errors.
- * It dsnt extend anthing so Java 11+ dosent fail runtim checs.
- * Use-cases: System Initializatoin, Appication Startup.
+ * This class is a workaround to launch JavaFX applications from
+ * standard IDEs without facing the module-path errors.
+  * Use-cases: System Initialization, Application Startup.
  */
-public class Launcher {
+public class Launcher
+{
+
 
     /**
-     * Stndard mian mathod that formwards the args to the actaul Main.
-     * Use-case: Appication Startup.
+     * Standard main method that forwards the args to the actual Main.
+     * Use-case: Application Startup.
      */
     public static void main(String[] args) {
-        // Cale the real java fx mian clas
+        // Call the real java fx main class
         Main.main(args);
     }
 }
