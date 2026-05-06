@@ -15,6 +15,7 @@ import javafx.scene.layout.Region;
 import javafx.scene.layout.VBox;
 import java.sql.SQLException;
 import java.util.List;
+import com.chirag.services.UserService;
 
 /**
  * Controller for the Admin Command Center.
@@ -35,12 +36,14 @@ public class AdminDashboardController {
     private ReportRepository reportRepository;
     private UserRepository userRepository;
     private CourseRepository courseRepository;
+    private UserService userService;
 
     public AdminDashboardController() {
         this.transactionRepository = new TransactionRepository();
         this.reportRepository = new ReportRepository();
         this.userRepository = new UserRepository();
         this.courseRepository = new CourseRepository();
+        this.userService = new UserService();
     }
 
     @FXML
@@ -175,28 +178,32 @@ public class AdminDashboardController {
 
         if (name.isEmpty() || email.isEmpty() || pass.isEmpty()) return;
 
-        try {
-            User newAdmin = new User();
-            newAdmin.setName(name);
-            newAdmin.setEmail(email);
-            newAdmin.setPassword(pass);
-            newAdmin.setRole("ADMIN");
-            newAdmin.setAccountStatus("ACTIVE");
-            userRepository.getDao().create(newAdmin);
-            
+        User newAdmin = new User();
+        newAdmin.setName(name);
+        newAdmin.setEmail(email);
+        newAdmin.setPassword(pass); // Still plain text here, UserService will intercept it
+
+        // Send it to the Service layer for hashing and saving
+        boolean success = userService.registerNewAdmin(newAdmin);
+
+        if (success) {
             adminNameField.clear();
             adminEmailField.clear();
             adminPasswordField.clear();
-            
+
             Alert alert = new Alert(Alert.AlertType.INFORMATION);
             alert.setTitle("Success");
             alert.setHeaderText(null);
             alert.setContentText("New administrator created successfully.");
             alert.showAndWait();
-            
+
             loadUsers();
-        } catch (SQLException e) {
-            System.err.println("Admin creation error: " + e.getMessage());
+        } else {
+            Alert alert = new Alert(Alert.AlertType.ERROR);
+            alert.setTitle("Error");
+            alert.setHeaderText(null);
+            alert.setContentText("Could not create admin. Email might be taken.");
+            alert.showAndWait();
         }
     }
 

@@ -21,6 +21,8 @@ import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
+import com.chirag.models.Lecture;
+import com.chirag.repositories.LectureRepository;
 
 
 /**
@@ -48,6 +50,7 @@ public class DashboardController {
     private CourseRepository courseRepository;
     private EnrollmentRepository enrollmentRepository;
     private TransactionRepository transactionRepository;
+    private LectureRepository lectureRepository;
 
     /**
      * Sets up the dependencies for fetching courses.
@@ -57,6 +60,7 @@ public class DashboardController {
         this.courseRepository = new CourseRepository();
         this.enrollmentRepository = new EnrollmentRepository();
         this.transactionRepository = new TransactionRepository();
+        this.lectureRepository = new LectureRepository();
     }
 
     /**
@@ -124,8 +128,34 @@ public class DashboardController {
                 Label title = new Label(c.getTitle());
                 title.setStyle("-fx-font-weight: bold; -fx-font-size: 16px; -fx-text-fill: #1B263B;");
 
-                // TODO: Replace 45.0 with actual math: (completedVideos / totalVideos) * 100
-                double progressValue = enr.isCompleted() ? 100.0 : 45.0;
+                double progressValue = 0.0;
+                if (enr.isCompleted()) {
+                    progressValue = 100.0;
+                } else {
+                    try {
+                        // Get the total number of lectures for this specific course
+                        int totalLectures = lectureRepository.getDao().queryBuilder()
+                                .where().eq("course_id", c.getId()).query().size();
+
+                        // 2. Count how many the user has actually finished
+                        String completedIds = enr.getCompletedLectureIds();
+                        int completedCount = 0;
+                        if (completedIds != null && !completedIds.trim().isEmpty()) {
+                            // If they completed IDs "1,5,7", splitting by comma gives us a count of 3
+                            completedCount = completedIds.split(",").length;
+                        }
+
+                        // Calculate the percentage safely (preventing divide-by-zero)
+                        if (totalLectures > 0) {
+                            progressValue = ((double) completedCount / totalLectures) * 100.0;
+                        }
+                    }
+
+                    catch (Exception ex)
+                    {
+                        System.err.println("Error calculating progress math: " + ex.getMessage());
+                    }
+                }
 
                 Label percentLabel = new Label("Progress: " + (int)progressValue + "%");
                 percentLabel.setStyle("-fx-font-weight: bold; -fx-text-fill: #1B263B;");

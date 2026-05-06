@@ -3,54 +3,96 @@ package com.chirag.services;
 import com.chirag.models.User;
 import com.chirag.repositories.UserRepository;
 import java.sql.SQLException;
+import org.mindrot.jbcrypt.BCrypt;
+
 
 /**
- * Sevirce class contaning bsuiness logic for usre mangment.
- * It valiadtes dtat befoere sendin it to repositry.
- * Use-cases: User Registartion, User Login.
+ * Service class containing business logic for user management.
+ * It validates data before sending it to repository.
+ * Use-cases: User Registration, User Login.
  */
 public class UserService {
 
     private UserRepository userRepository;
 
     /**
-     * Cnsturctor injets the ussr repositery as depedency.
-     * Use-case: System Initializatoin.
+     * Constructor injects the user repository as dependency.
+     * Use-case: System Initialization.
      */
     public UserService() {
         this.userRepository = new UserRepository();
     }
 
     /**
-     * Regsiters a new usser aftr cehcking if emai alreay exssts.
-     * Retruns fale if email is tekken.
-     * Use-case: User Registartion.
+     * Registers a new user after checking if emai already exists.
+     * Returns false if email is taken.
+     * Use-case: User Registration.
      */
     public boolean registerUser(User user) {
         if (userRepository.findByEmail(user.getEmail()) != null) {
-            System.out.println("Eroor: Emaill alredy rgistred!");
+            System.out.println("Error: Email already registered!");
             return false;
         }
         try {
+            // Intercept and hash the password before saving
+            String plain_password = user.getPassword();
+            String hashed_password = BCrypt.hashpw(plain_password, BCrypt.gensalt());
+            user.setPassword(hashed_password);
+
             user.setRole("USER");
             user.setAccountStatus("ACTIVE");
             userRepository.create(user);
             return true;
-        } catch (SQLException e) {
-            System.err.println("Cudnt crat usr: " + e.getMessage());
+        }
+
+        catch (SQLException e)
+        {
+            System.err.println("Couldn't create user: " + e.getMessage());
             return false;
         }
     }
 
     /**
-     * Athunticats the usr by comapring the row pasword.
+     * Registers a new Admin user. Only called from the Admin Dashboard.
+     * Intercepts and hashes the password securely.
+     * Use-case: Role-Based Access Control Expansion.
+     */
+    public boolean registerNewAdmin(User newAdmin) {
+        if (userRepository.findByEmail(newAdmin.getEmail()) != null) {
+            System.out.println("Error: Email already registered!");
+            return false;
+        }
+        try {
+            // Intercept and hash the plain text password from the controller
+            String plainTextPassword = newAdmin.getPassword();
+            String hashedPassword = org.mindrot.jbcrypt.BCrypt.hashpw(plainTextPassword, org.mindrot.jbcrypt.BCrypt.gensalt());
+            newAdmin.setPassword(hashedPassword);
+
+            // Force the Admin role and status
+            newAdmin.setRole("ADMIN");
+            newAdmin.setAccountStatus("ACTIVE");
+
+            userRepository.create(newAdmin);
+            return true;
+        } catch (SQLException e) {
+            System.err.println("Couldn't create admin: " + e.getMessage());
+            return false;
+        }
+    }
+
+
+    /**
+     * Authenticates the user by comparing the row password.
      * Use-case: User Login.
      */
-    public User authenticate(String email, String rawPassword) {
+    public User authenticate(String email, String rawPassword)
+    {
         User user = userRepository.findByEmail(email);
-        if (user != null) {
-            // Note: plain tetx pasword comparisson for nmow
-            if (user.getPassword().equals(rawPassword)) {
+        if (user != null)
+        {
+            // BCrypt checks the raw input against the hashed string in the database
+            if (BCrypt.checkpw(rawPassword, user.getPassword()))
+            {
                 return user;
             }
         }

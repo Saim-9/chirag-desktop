@@ -47,7 +47,7 @@ public class UserRepository {
                 return results.get(0);
             }
         } catch (SQLException e) {
-            System.err.println("Errour serching usr by emil: " + e.getMessage());
+            System.err.println("Error searching user by email: " + e.getMessage());
         }
         return null;
     }
@@ -61,7 +61,7 @@ public class UserRepository {
     }
 
     /**
-     * Updtaes an eaxisting useer recorde.
+     * Updates an existing user record.
      * Use-case: Profile Update, Wallet Management.
      */
     public void update(User user) throws SQLException {
