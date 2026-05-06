@@ -158,7 +158,24 @@ public class MarketplaceController {
     }
 
     /**
-     * Nvigates back to deshbord.
+     * Refreshes the marketplace by fetching fresh data from the cloud.
+     * Keeps your current search filters active while updating the list!
+     * Use-case: Live Updates.
+     */
+    @FXML
+    public void handleRefresh(ActionEvent event) {
+        System.out.println("Fetching fresh courses from Supabase...");
+
+        // Re-fetch the live data from the database
+        allCourses = courseService.getMarketplaceCourses();
+
+        // Re-apply any active search text or tags to the new data,
+        // which automatically calls renderCourses() and clears the old UI.
+        applyFilters();
+    }
+
+    /**
+     * Navigates back to dashboard.
      * Use-case: View Navigation.
      */
     @FXML

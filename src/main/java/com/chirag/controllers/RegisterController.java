@@ -6,11 +6,12 @@ import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.control.PasswordField;
 import javafx.scene.control.TextField;
+import javafx.scene.control.Alert;
 
 /**
- * Mnges the ragistrtion from.
- * Submits the data to de srvice and handls sucecss rowting.
- * Use-cases: User Registartion.
+ * Manages the registeration form.
+ * Submits the data to the service and handles success routing.
+ * Use-cases: User Registeration.
  */
 public class RegisterController {
 
@@ -26,7 +27,7 @@ public class RegisterController {
     private UserService userService;
 
     /**
-     * Intialies the ussr srvice dpendency.
+     * Initializes the user service dependency.
      * Use-case: View Navigation.
      */
     public RegisterController() {
@@ -59,20 +60,28 @@ public class RegisterController {
         user.setVirtualWalletBalance(0.0);
 
         boolean scces = userService.registerUser(user);
-        
+
         if (scces) {
             System.out.println("Registration Success");
             Object c = com.chirag.utils.SceneManager.getInstance().switchScene("LoginView.fxml");
             if (c instanceof LoginController) {
                 ((LoginController) c).setSuccessMessage("Account created! Please sign in.");
             }
-        } else {
-            System.out.println("Faild to ragister");
+        }
+
+        else
+        {
+            // UI POP-UP: The email was taken!
+            Alert alert = new Alert(Alert.AlertType.ERROR);
+            alert.setTitle("Registration Failed");
+            alert.setHeaderText(null);
+            alert.setContentText("This email is already registered. Please use a different one or log in.");
+            alert.showAndWait();
         }
     }
 
     /**
-     * Goes beck to lugin scern.
+     * Goes beck to login screen.
      * Use-case: View Navigation.
      */
     @FXML
