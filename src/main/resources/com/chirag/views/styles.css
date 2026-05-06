@@ -205,3 +205,25 @@
     -fx-background-radius: 0;
 
 }
+
+/* --- Dynamic Secondary Buttons (Back/Refresh) --- */
+.dynamic-btn {
+    -fx-background-color: #E0DCD3;
+    -fx-text-fill: #1B263B;
+    -fx-padding: 6px 16px;
+    -fx-font-weight: bold;
+    -fx-background-radius: 4px;
+    -fx-cursor: hand;
+    -fx-transition: all 0.2s ease;
+}
+
+.dynamic-btn:hover {
+    -fx-background-color: #D1CCC1;
+    -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.1), 5, 0, 0, 2);
+}
+
+.dynamic-btn:pressed {
+    -fx-background-color: #C2BCAE;
+    -fx-translate-y: 1px; /* Gives a physical 'pushed down' effect */
+    -fx-effect: none;
+}

@@ -8,9 +8,12 @@
     <top>
         <VBox styleClass="card-container" spacing="15.0">
             <HBox alignment="CENTER_LEFT" spacing="20.0">
-                <Button text="Back" onAction="#goBack" styleClass="nav-button" style="-fx-text-fill: #1B263B; -fx-background-color: #E0DCD3; -fx-padding: 5 15;" />
+                <Button text="Back" onAction="#goBack" styleClass="dynamic-btn" />
                 <Label text="Marketplace" styleClass="label-header" />
-                <Button text="Refresh" onAction="#handleRefresh" styleClass="nav-button" style="-fx-background-color: #E0DCD3; -fx-text-fill: #1B263B;"/>
+
+                <Region HBox.hgrow="ALWAYS" />
+
+                <Button text="Refresh" onAction="#handleRefresh" styleClass="dynamic-btn" />
             </HBox>
             <TextField fx:id="searchField" promptText="Search courses by title..." style="-fx-font-size: 16px;" />
             <HBox spacing="10.0" alignment="CENTER_LEFT">
