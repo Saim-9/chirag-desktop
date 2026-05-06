@@ -136,13 +136,14 @@ public class AdminDashboardController {
                 if ("ADMIN".equals(u.getRole())) continue;
 
                 HBox row = new HBox(15.0);
-                row.setStyle("-fx-padding: 10; -fx-background-color: #FAF8F5; -fx-border-color: #E0DCD3;");
+                row.getStyleClass().add("admin-row");
                 row.setAlignment(javafx.geometry.Pos.CENTER_LEFT);
 
                 Label text = new Label(u.getName() + " (" + u.getEmail() + ") - Status: " + u.getAccountStatus());
                 HBox.setHgrow(text, Priority.ALWAYS);
 
                 Button suspendBtn = new Button("Suspend");
+                suspendBtn.getStyleClass().add("dynamic-btn");
                 suspendBtn.setDisable("SUSPENDED".equals(u.getAccountStatus()));
                 suspendBtn.setOnAction(e -> {
                     try {
@@ -195,6 +196,10 @@ public class AdminDashboardController {
             alert.setTitle("Success");
             alert.setHeaderText(null);
             alert.setContentText("New administrator created successfully.");
+            java.net.URL cssUrl = getClass().getResource("/com/chirag/views/styles.css");
+            if (cssUrl != null) {
+                alert.getDialogPane().getStylesheets().add(cssUrl.toExternalForm());
+            }
             alert.showAndWait();
 
             loadUsers();
@@ -203,6 +208,10 @@ public class AdminDashboardController {
             alert.setTitle("Error");
             alert.setHeaderText(null);
             alert.setContentText("Could not create admin. Email might be taken.");
+            java.net.URL cssUrl = getClass().getResource("/com/chirag/views/styles.css");
+            if (cssUrl != null) {
+                alert.getDialogPane().getStylesheets().add(cssUrl.toExternalForm());
+            }
             alert.showAndWait();
         }
     }

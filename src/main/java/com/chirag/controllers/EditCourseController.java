@@ -87,6 +87,10 @@ public class EditCourseController {
             alert.setTitle("Success");
             alert.setHeaderText(null);
             alert.setContentText("Course Updated Successfully");
+            java.net.URL cssUrl = getClass().getResource("/com/chirag/views/styles.css");
+            if (cssUrl != null) {
+                alert.getDialogPane().getStylesheets().add(cssUrl.toExternalForm());
+            }
             alert.showAndWait();
             
             // Navigate back to Dashboard (Use Case 9, Step 4)
@@ -113,6 +117,10 @@ public class EditCourseController {
         alert.setTitle(title);
         alert.setHeaderText(null);
         alert.setContentText(content);
+        java.net.URL cssUrl = getClass().getResource("/com/chirag/views/styles.css");
+        if (cssUrl != null) {
+            alert.getDialogPane().getStylesheets().add(cssUrl.toExternalForm());
+        }
         alert.showAndWait();
     }
 

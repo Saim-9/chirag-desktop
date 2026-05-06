@@ -96,8 +96,8 @@ public class DashboardController {
                 }
 
                 Button editBtn = new Button("Edit Course");
-                editBtn.getStyleClass().add("nav-button");
-                editBtn.setStyle("-fx-background-color: #E0DCD3; -fx-text-fill: #1B263B; -fx-padding: 5 15;");
+                editBtn.getStyleClass().add("dynamic-btn");
+
 
 
                 if (!c.isActive()) {

@@ -80,6 +80,10 @@ public class CourseCreationController {
             alert.setTitle("Invalid Price");
             alert.setHeaderText(null);
             alert.setContentText("Price must be a valid number (e.g., 19.99). Do not include the $ sign or letters.");
+            java.net.URL cssUrl = getClass().getResource("/com/chirag/views/styles.css");
+            if (cssUrl != null) {
+                alert.getDialogPane().getStylesheets().add(cssUrl.toExternalForm());
+            }
             alert.showAndWait();
             isSubmitting = false; // Reset the button lockout
             return; // Stop the upload process
@@ -118,6 +122,10 @@ public class CourseCreationController {
                         alert.setTitle("Invalid Link");
                         alert.setHeaderText(null);
                         alert.setContentText("Only YouTube links are supported. Please provide a valid YouTube link.");
+                        java.net.URL cssUrl = getClass().getResource("/com/chirag/views/styles.css");
+                        if (cssUrl != null) {
+                            alert.getDialogPane().getStylesheets().add(cssUrl.toExternalForm());
+                        }
                         alert.showAndWait();
                         return; // Block submission
                     }

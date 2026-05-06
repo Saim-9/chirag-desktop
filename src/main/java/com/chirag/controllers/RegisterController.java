@@ -48,6 +48,12 @@ public class RegisterController {
             alert.setTitle("Invalid Email");
             alert.setHeaderText(null);
             alert.setContentText("Please enter a valid email address (e.g., user@domain.com).");
+
+            java.net.URL cssUrl = getClass().getResource("/com/chirag/views/styles.css");
+            if (cssUrl != null) {
+                alert.getDialogPane().getStylesheets().add(cssUrl.toExternalForm());
+            }
+
             alert.showAndWait();
             return; // Stop registration process
         }
@@ -76,6 +82,10 @@ public class RegisterController {
             alert.setTitle("Registration Failed");
             alert.setHeaderText(null);
             alert.setContentText("This email is already registered. Please use a different one or log in.");
+            java.net.URL cssUrl = getClass().getResource("/com/chirag/views/styles.css");
+            if (cssUrl != null) {
+                alert.getDialogPane().getStylesheets().add(cssUrl.toExternalForm());
+            }
             alert.showAndWait();
         }
     }

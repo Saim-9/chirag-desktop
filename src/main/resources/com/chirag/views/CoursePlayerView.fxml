@@ -7,20 +7,40 @@
 <BorderPane stylesheets="@styles.css" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.chirag.controllers.CoursePlayerController">
     <top>
         <HBox spacing="20.0" alignment="CENTER_LEFT" styleClass="card-container" style="-fx-padding: 15;">
-            <Button text="Back to Dashboard" onAction="#goBack" styleClass="nav-button" style="-fx-text-fill: #1B263B; -fx-background-color: #E0DCD3; -fx-padding: 5 15;" />
+            <Button text="Back to Dashboard" onAction="#goBack" styleClass="dynamic-btn" style="-fx-text-fill: #1B263B; -fx-background-color: #E0DCD3; -fx-padding: 5 15;" />
             <Label fx:id="courseTitleLabel" styleClass="label-header" />
         </HBox>
     </top>
     <center>
-        <VBox styleClass="content-area" style="-fx-background-color: #0B0F19;">
+        <VBox styleClass="content-area" style="-fx-background-color: #0B0F19;" alignment="CENTER">
+
             <WebView fx:id="videoEngine" prefWidth="800" prefHeight="450" />
-            <HBox alignment="CENTER" style="-fx-padding: 10 0;">
-                <Button fx:id="externalLaunchBtn" text="Launch External Player" onAction="#launchExternalPlayer" styleClass="button-secondary" style="-fx-background-color: #1B263B; -fx-text-fill: #FAF8F5; -fx-padding: 8 20;" />
-            </HBox>
-            <HBox alignment="CENTER" style="-fx-padding: 20 0;">
-                <Button text="Mark as Complete" styleClass="button-primary" onAction="#handleMarkAsComplete" />
-                <Label fx:id="progressLabel" style="-fx-padding: 0 0 0 20; -fx-text-fill: #2D6A4F;" />
-            </HBox>
+
+            <!-- Single VBox for ALL buttons to ensure same width -->
+            <VBox alignment="CENTER" style="-fx-padding: 20 0;" spacing="12">
+
+                <!-- Launch External Player Button -->
+                <Button fx:id="externalLaunchBtn"
+                        text="Launch External Player"
+                        onAction="#launchExternalPlayer"
+                        styleClass="button-primary"
+                        maxWidth="300"
+                        prefWidth="300" />
+
+                <!-- Mark as Complete Button -->
+                <Button text="Mark as Complete"
+                        styleClass="button-primary"
+                        onAction="#handleMarkAsComplete"
+                        maxWidth="300"
+                        prefWidth="300" />
+
+                <!-- Progress Label (optional, can be moved elsewhere) -->
+                <Label fx:id="progressLabel"
+                       style="-fx-text-fill: #2D6A4F; -fx-font-weight: bold;"
+                       alignment="CENTER" />
+
+            </VBox>
+
         </VBox>
     </center>
     <right>

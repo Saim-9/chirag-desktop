@@ -123,6 +123,10 @@ public class CourseDetailController {
             alert.setHeaderText(null);
             alert.setContentText("Enrollment Successful! Your course '" + currentCourse.getTitle()
                     + "' is now available in your Classroom.");
+            java.net.URL cssUrl = getClass().getResource("/com/chirag/views/styles.css");
+            if (cssUrl != null) {
+                alert.getDialogPane().getStylesheets().add(cssUrl.toExternalForm());
+            }
             alert.showAndWait();
 
             Object ctrl = SceneManager.getInstance().switchScene("CoursePlayerView.fxml");
@@ -195,6 +199,10 @@ public class CourseDetailController {
                 alert.setTitle("Report Submitted");
                 alert.setHeaderText(null);
                 alert.setContentText("Thank you for your report. Our team will investigate this course shortly.");
+                java.net.URL cssUrl = getClass().getResource("/com/chirag/views/styles.css");
+                if (cssUrl != null) {
+                    alert.getDialogPane().getStylesheets().add(cssUrl.toExternalForm());
+                }
                 alert.showAndWait();
             } catch (SQLException e) {
                 System.err.println("Error saving report: " + e.getMessage());

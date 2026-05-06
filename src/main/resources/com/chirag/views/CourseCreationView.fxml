@@ -23,11 +23,11 @@
                     <TextField promptText="YouTube Link" HBox.hgrow="ALWAYS" />
                 </HBox>
             </VBox>
-            <Button text="Add Another Lecture" onAction="#addLectureField" styleClass="nav-button" style="-fx-background-color: #E0DCD3; -fx-text-fill: #1B263B; -fx-padding: 5 15;" />
+            <Button text="Add Another Lecture" onAction="#addLectureField" styleClass="dynamic-btn" style="-fx-background-color: #E0DCD3; -fx-text-fill: #1B263B; -fx-padding: 5 15;" />
         </VBox>
         
         <HBox alignment="CENTER_RIGHT" spacing="15.0">
-            <Button text="Cancel" onAction="#cancelCreation" styleClass="nav-button" style="-fx-text-fill: #1B263B;" />
+            <Button text="Cancel" onAction="#cancelCreation" styleClass="dynamic-btn" style="-fx-text-fill: #1B263B;" />
             <Button text="Publish Course" onAction="#handlePublish" styleClass="button-primary" />
         </HBox>
     </VBox>

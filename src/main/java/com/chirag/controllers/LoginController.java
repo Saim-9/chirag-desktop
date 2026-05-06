@@ -61,6 +61,10 @@ public class LoginController {
                 alert.setTitle("Account Suspended");
                 alert.setHeaderText(null);
                 alert.setContentText("Your account has been suspended by an administrator.");
+                java.net.URL cssUrl = getClass().getResource("/com/chirag/views/styles.css");
+                if (cssUrl != null) {
+                    alert.getDialogPane().getStylesheets().add(cssUrl.toExternalForm());
+                }
                 alert.showAndWait();
                 return;
             }

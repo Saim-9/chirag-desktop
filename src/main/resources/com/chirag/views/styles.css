@@ -3,7 +3,8 @@
     -fx-background-color: #FAF8F5;
 
     -fx-font-family: "Segoe UI", sans-serif;
-
+    -fx-focus-color: transparent;
+    -fx-faint-focus-color: transparent;
 }
 
 
@@ -59,7 +60,7 @@
 .password-field:focused {
 
     -fx-border-color: transparent transparent #1B263B transparent;
-
+    -fx-prompt-text-fill: #B4B2A9;
     -fx-background-color: #FFFFFF;
 
 }
@@ -226,4 +227,92 @@
     -fx-background-color: #C2BCAE;
     -fx-translate-y: 1px; /* Gives a physical 'pushed down' effect */
     -fx-effect: none;
+}
+
+/* --- Dialog & Alert Styling --- */
+.dialog-pane {
+    -fx-background-color: #FAF8F5;
+}
+
+.dialog-pane .label {
+    -fx-text-fill: #1B263B;
+}
+
+/* Correct structural selector for the Dialog Header */
+.dialog-pane > .header-panel {
+    -fx-background-color: #FFFFFF;
+}
+
+/* Ensure the text inside the header looks clean */
+.dialog-pane > .header-panel > .label {
+    -fx-font-size: 18px;
+    -fx-font-weight: bold;
+    -fx-text-fill: #1B263B;
+}
+
+.dialog-pane .button {
+    -fx-background-color: #E0DCD3;
+    -fx-text-fill: #1B263B;
+    -fx-background-radius: 4px;
+    -fx-cursor: hand;
+}
+
+.dialog-pane .button:hover {
+    -fx-background-color: #D1CCC1;
+}
+
+/* --- Admin Tab Styling --- */
+.tab-pane .tab-header-area .tab-header-background {
+    -fx-background-color: #1B263B; /* Navy header to match sidebar */
+}
+
+.tab {
+    -fx-background-color: #2D3E5A;
+    -fx-background-radius: 0;
+    -fx-padding: 10 20;
+}
+
+.tab:selected {
+    -fx-background-color: #FAF8F5;
+    -fx-border-color: #FAF8F5 #FAF8F5 transparent #FAF8F5;
+    -fx-focus-color: transparent;
+}
+
+.tab .tab-label {
+    -fx-text-fill: #8D99AE;
+}
+
+.tab:selected .tab-label {
+    -fx-text-fill: #1B263B;
+    -fx-font-weight: bold;
+}
+
+.tab-label:selected {
+    -fx-focus-color: transparent;
+}
+
+/* --- The Admin User Row Container --- */
+.admin-row {
+    -fx-background-color: white;
+    -fx-padding: 15;
+    -fx-border-color: transparent transparent #E0DCD3 transparent;
+    -fx-border-width: 0 0 1 0;
+}
+
+/* --- Final Ledger Polish --- */
+.list-view {
+    -fx-background-color: transparent;
+    -fx-border-color: transparent;
+}
+
+.list-cell {
+    -fx-background-color: transparent;
+    -fx-text-fill: #1B263B;
+    -fx-padding: 10 5;
+    -fx-border-color: transparent transparent #EAE8E3 transparent;
+    -fx-border-width: 0 0 1 0;
+}
+
+.list-cell:empty {
+    -fx-border-color: transparent;
 }

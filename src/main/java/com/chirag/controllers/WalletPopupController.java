@@ -86,6 +86,10 @@ public class WalletPopupController {
         alert.setTitle(title);
         alert.setHeaderText(null);
         alert.setContentText(content);
+        java.net.URL cssUrl = getClass().getResource("/com/chirag/views/styles.css");
+        if (cssUrl != null) {
+            alert.getDialogPane().getStylesheets().add(cssUrl.toExternalForm());
+        }
         alert.showAndWait();
     }
 }
