@@ -54,6 +54,8 @@ public class SceneManager {
             loader.setControllerFactory(controllerClass -> {
                 if (controllerClass == com.chirag.controllers.DashboardController.class) {
                     return new com.chirag.controllers.DashboardController(new com.chirag.services.DashboardService());
+                } else if (controllerClass == com.chirag.controllers.CourseDetailController.class) {
+                    return new com.chirag.controllers.CourseDetailController(new com.chirag.services.CourseInteractionService());
                 }
                 try {
                     return controllerClass.getDeclaredConstructor().newInstance();

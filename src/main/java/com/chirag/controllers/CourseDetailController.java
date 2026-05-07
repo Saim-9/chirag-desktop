@@ -1,7 +1,7 @@
 package com.chirag.controllers;
 
 import com.chirag.models.Course;
-import com.chirag.repositories.LectureRepository;
+import com.chirag.services.CourseInteractionService;
 import com.chirag.services.PaymentServiceImpl;
 import com.chirag.utils.SceneManager;
 import com.chirag.utils.UserSession;
@@ -44,19 +44,22 @@ public class CourseDetailController {
 
     private Course currentCourse;
     private PaymentServiceImpl paymentServiceImpl;
-    private LectureRepository lectureRepository;
-    private com.chirag.repositories.ReviewRepository reviewRepository;
-    private com.chirag.repositories.ReportRepository reportRepository;
+    private CourseInteractionService interactionService;
 
     /**
-     * Sets up payment dependencies.
-     * Use-case: Course Purchase.
+     * Default constructor for fallback.
      */
     public CourseDetailController() {
         this.paymentServiceImpl = new PaymentServiceImpl();
-        this.lectureRepository = new LectureRepository();
-        this.reviewRepository = new com.chirag.repositories.ReviewRepository();
-        this.reportRepository = new com.chirag.repositories.ReportRepository();
+    }
+
+    /**
+     * Injected constructor for course interactions.
+     * Use-case: Course Purchase.
+     */
+    public CourseDetailController(CourseInteractionService interactionService) {
+        this.paymentServiceImpl = new PaymentServiceImpl();
+        this.interactionService = interactionService;
     }
 
     /**
@@ -92,7 +95,7 @@ public class CourseDetailController {
         lecturesList.getChildren().clear();
 
 
-        java.util.List<com.chirag.models.Lecture> lecs = lectureRepository.findByCourse(currentCourse);
+        java.util.List<com.chirag.models.Lecture> lecs = interactionService.getLecturesForCourse(currentCourse);
 
         for (com.chirag.models.Lecture l : lecs) {
             Label lbl = new Label("- " + l.getTitle());
@@ -141,7 +144,7 @@ public class CourseDetailController {
      * Use-case: Social Proof.
      */
     private void loadReviews() {
-        List<com.chirag.models.Review> reviews = reviewRepository.findByCourseId(currentCourse.getId());
+        List<com.chirag.models.Review> reviews = interactionService.getReviewsForCourse(currentCourse.getId());
 
         if (reviews.isEmpty()) {
             ratingLabel.setText("⭐ No reviews yet");
@@ -185,13 +188,14 @@ public class CourseDetailController {
         java.util.Optional<String> result = dialog.showAndWait();
         result.ifPresent(complaint -> {
             if (complaint.trim().isEmpty()) return;
-            try {
-                com.chirag.models.Report report = new com.chirag.models.Report();
-                report.setReporter(UserSession.getCurrentUser());
-                report.setReportedCourse(currentCourse);
-                report.setComplaintText(complaint);
-                reportRepository.create(report);
-
+            com.chirag.models.Report report = new com.chirag.models.Report();
+            report.setReporter(UserSession.getCurrentUser());
+            report.setReportedCourse(currentCourse);
+            report.setComplaintText(complaint);
+            
+            boolean success = interactionService.submitReport(report);
+            
+            if (success) {
                 Alert alert = new Alert(Alert.AlertType.INFORMATION);
                 alert.setTitle("Report Submitted");
                 alert.setHeaderText(null);
@@ -201,8 +205,6 @@ public class CourseDetailController {
                     alert.getDialogPane().getStylesheets().add(cssUrl.toExternalForm());
                 }
                 alert.showAndWait();
-            } catch (SQLException e) {
-                System.err.println("Error saving report: " + e.getMessage());
             }
         });
     }
