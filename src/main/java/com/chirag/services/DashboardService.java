@@ -23,14 +23,23 @@ public class DashboardService extends AbstractService {
     private LectureRepository lectureRepository;
 
     public DashboardService() {
-        this.courseRepository = new CourseRepository();
+        try {
+            this.courseRepository = new CourseRepository();
+        } catch (com.chirag.exceptions.DatabaseException e) {
+            this.courseRepository = null;
+        }
         this.enrollmentRepository = new EnrollmentRepository();
         this.transactionRepository = new TransactionRepository();
         this.lectureRepository = new LectureRepository();
     }
 
     public List<Course> getInstructorCourses(User instructor) {
-        return courseRepository.findByInstructor(instructor);
+        if (courseRepository == null) return Collections.emptyList();
+        try {
+            return courseRepository.findByInstructor(instructor);
+        } catch (com.chirag.exceptions.DatabaseException e) {
+            return Collections.emptyList();
+        }
     }
 
     public List<Enrollment> getEnrolledCourses(User user) {

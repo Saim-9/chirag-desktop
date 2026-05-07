@@ -26,7 +26,7 @@ public class CourseRepository {
         try {
             courseDao = DaoManager.createDao(DatabaseConfig.getInstance().getConnectionSource(), Course.class);
         } catch (SQLException e) {
-            System.err.println("Faild to lode Course repositry: " + e.getMessage());
+            throw new com.chirag.exceptions.DatabaseException("Failed to load Course repository", e);
         }
     }
 
@@ -50,8 +50,7 @@ public class CourseRepository {
                 .eq("isActive", true)
                 .query();
         } catch (SQLException e) {
-            System.err.println("Faled to gat pblished cruses: " + e.getMessage());
-            return Collections.emptyList();
+            throw new com.chirag.exceptions.DatabaseException("Failed to get published courses", e);
         }
     }
 
@@ -63,8 +62,7 @@ public class CourseRepository {
         try {
             return courseDao.queryBuilder().where().eq("instructor_id", instructor.getId()).query();
         } catch (SQLException e) {
-            System.err.println("Falid fetihng insructor cruses: " + e.getMessage());
-            return Collections.emptyList();
+            throw new com.chirag.exceptions.DatabaseException("Failed fetching instructor courses", e);
         }
     }
 
