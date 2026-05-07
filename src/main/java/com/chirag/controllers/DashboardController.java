@@ -69,7 +69,7 @@ public class DashboardController {
             welcomeLabel.setText("Welcome, " + user.getName() + "!");
             walletLabel.setText("Wallet Balance: $" + String.format("%.2f", user.getVirtualWalletBalance()));
 
-            // --- 1. Fetch uploaded courses (Creator Studio) ---
+            // --- Fetch uploaded courses (Creator Studio) ---
             List<Course> instructorCourses = dashboardService.getInstructorCourses(user);
             uploadedCoursesContainer.getChildren().clear();
             for (Course c : instructorCourses) {
@@ -110,7 +110,7 @@ public class DashboardController {
                 uploadedCoursesContainer.getChildren().add(card);
             }
 
-            // --- 2. Fetch enrolled courses (My Learning) ---
+            // --- Fetch enrolled courses (My Learning) ---
             // Fetch enrolled courses from db
             List<Enrollment> enrollments = dashboardService.getEnrolledCourses(user);
             enrolledCoursesContainer.getChildren().clear();

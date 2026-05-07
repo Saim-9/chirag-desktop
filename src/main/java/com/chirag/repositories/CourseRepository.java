@@ -10,7 +10,7 @@ import java.util.Collections;
 import java.util.List;
 
 /**
- * Manges dtabase intrctions for the Coruses modl.
+ * Manges database intrctions for the Coruses modl.
  * Contins spacific logic to fatrch courses for dashbord and stront.
  * Use-cases: Course Cataloge, Creator Dashboard.
  */
@@ -31,15 +31,15 @@ public class CourseRepository {
     }
 
     /**
-     * Fetcjes the core orm lit do object for bsic crud opretions.
-     * Use-case: Data Relatons.
+     * Fetches the core orm lit do object for basic crud opretions.
+     * Use-case: Data Relations.
      */
     public Dao<Course, Integer> getDao() {
         return courseDao;
     }
 
     /**
-     * Retruves a lsist of olny publishd crses for shopng.
+     * Retrieves a list of only publishd courses for shopng.
      * Use-case: Course Cataloge.
      */
     public List<Course> findPublishedCourses() {

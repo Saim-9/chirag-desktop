@@ -41,8 +41,8 @@ public class User {
     }
 
     /**
-     * Gets the id of the useer.
-     * Returnns the unqiue identifer.
+     * Gets the id of the user.
+     * Returns the unique identifier.
      * Use-case: Profile View, Data Relatons.
      */
     public int getId() {
@@ -50,7 +50,7 @@ public class User {
     }
 
     /**
-     * Settes the id of user.
+     * Sets the id of user.
      * Use-case: Profile View.
      */
     public void setId(int id) {
@@ -66,7 +66,7 @@ public class User {
     }
 
     /**
-     * Sets the namme of the user.
+     * Sets the name of the user.
      * Use-case: User Registartion, Profile Update.
      */
     public void setName(String name) {
@@ -74,7 +74,7 @@ public class User {
     }
 
     /**
-     * Returvies the user email adderss.
+     * Returvies the user email adders.
      * Use-case: User Login, Profile View.
      */
     public String getEmail() {
@@ -82,15 +82,15 @@ public class User {
     }
 
     /**
-     * Asisgns the email adderss.
-     * Use-case: User Registartion.
+     * Assigns the email adderss.
+     * Use-case: User Registration.
      */
     public void setEmail(String email) {
         this.email = email;
     }
 
     /**
-     * Fetchs the user password hash.
+     * Fetches the user password hash.
      * Use-case: User Login.
      */
     public String getPassword() {
@@ -98,23 +98,23 @@ public class User {
     }
 
     /**
-     * Chnages the useer password.
-     * Use-case: User Registartion, Password Resett.
+     * Changes the user password.
+     * Use-case: User Registration, Password Reset.
      */
     public void setPassword(String password) {
         this.password = password;
     }
 
     /**
-     * Gtes the role string of the useer.
-     * Use-case: Acess Control.
+     * Gtes the role string of the user.
+     * Use-case: Access Control.
      */
     public String getRole() {
         return role;
     }
 
     /**
-     * Assings a spacific role to the user.
+     * Assigns a specific role to the user.
      * Use-case: Admin Managment.
      */
     public void setRole(String role) {
@@ -122,7 +122,7 @@ public class User {
     }
 
     /**
-     * Retrevies the curent balnce of the virtul wallet.
+     * Retrieves the current balance of the virtual wallet.
      * Use-case: Wallet Management, Course Purchase.
      */
     public double getVirtualWalletBalance() {
@@ -130,7 +130,7 @@ public class User {
     }
 
     /**
-     * Updates the balence of virtul walet after transations.
+     * Updates the balance of virtual walet after transactions.
      * Use-case: Wallet Management, Course Purchase.
      */
     public void setVirtualWalletBalance(double virtualWalletBalance) {

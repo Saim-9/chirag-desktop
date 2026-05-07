@@ -58,7 +58,7 @@ public class EditCourseController {
     public void handleSave(ActionEvent event) {
         if (currentCourse == null) return;
 
-        // Validation logic for Price field (Use Case 9, Step 2)
+        // Validation logic for Price field
         String priceText = priceField.getText();
         double price = -1;
         try {
@@ -80,7 +80,7 @@ public class EditCourseController {
         currentCourse.setPrice(price);
         currentCourse.setTags(tagsField.getText());
 
-        // Overwrite in database (Use Case 9, Step 3)
+        // Overwrite in database
         boolean success = courseService.updateCourse(currentCourse);
         if (success) {
             Alert alert = new Alert(Alert.AlertType.INFORMATION);
@@ -93,7 +93,7 @@ public class EditCourseController {
             }
             alert.showAndWait();
             
-            // Navigate back to Dashboard (Use Case 9, Step 4)
+            // Navigate back to Dashboard
             SceneManager.getInstance().switchScene("DashboardView.fxml");
         } else {
             showError("Update Failed", "There was an error updating the course in the database.");

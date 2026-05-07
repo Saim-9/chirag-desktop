@@ -4,9 +4,9 @@ import com.j256.ormlite.field.DatabaseField;
 import com.j256.ormlite.table.DatabaseTable;
 
 /**
- * Rperesents a corse that can be purhcased or teached by a unified usre.
- * Contains detials like the ttile and pricing informataion.
- * Use-cases: Course Creation, Course Purhcase, Course Cataloge.
+ * Represents a course that can be purchased or teached by a unified uesr.
+ * Contains details like the ttile and pricing information.
+ * Use-cases: Course Creation, Course Purchase, Course Cataloge.
  */
 @DatabaseTable(tableName = "courses")
 public class Course implements IReviewable {
@@ -42,14 +42,14 @@ public class Course implements IReviewable {
     private boolean isActive;
 
     /**
-     * Empety constructr for ORMlite reflaction to wrok.
-     * Use-case: System Initializatoin.
+     * Empty constructor for ORMlite reflection to wrok.
+     * Use-case: System Initialization.
      */
     public Course() {
     }
 
     /**
-     * Gtes the uniqu id of this cors.
+     * Gets the unique id of this cors.
      * Use-case: Course View.
      */
     public int getId() {
@@ -57,7 +57,7 @@ public class Course implements IReviewable {
     }
 
     /**
-     * Sattes the corse identifer.
+     * Settes the course identifier.
      * Use-case: Course View.
      */
     public void setId(int id) {
@@ -89,7 +89,7 @@ public class Course implements IReviewable {
     }
 
     /**
-     * Settes the descripton details of cors.
+     * Sets the descripton details of cors.
      * Use-case: Course Creation.
      */
     public void setDescription(String description) {
@@ -97,15 +97,15 @@ public class Course implements IReviewable {
     }
 
     /**
-     * Fetches the pircing of this corse in doubel format.
-     * Use-case: Course Purhcase.
+     * Fetches the pricing of this course in doubel format.
+     * Use-case: Course Purchase.
      */
     public double getPrice() {
         return price;
     }
 
     /**
-     * Updtaes the cors pircing amoount.
+     * Updates the cors pricing amoount.
      * Use-case: Course Creation.
      */
     public void setPrice(double price) {
@@ -113,7 +113,7 @@ public class Course implements IReviewable {
     }
 
     /**
-     * Retrvies the curretn publicaiton sttaus of this corse.
+     * Retrvies the current publication status of this corse.
      * Use-case: Course Cataloge.
      */
     public Status getStatus() {
@@ -129,7 +129,7 @@ public class Course implements IReviewable {
     }
 
     /**
-     * Gtes the insrtuctor user object assocaited wth this cors.
+     * Gets the instructor user object assocaited wth this cors.
      * Use-case: Course View.
      */
     public User getInstructor() {
@@ -137,7 +137,7 @@ public class Course implements IReviewable {
     }
 
     /**
-     * Settes the tacher for this corse as a forgien key.
+     * Sets the teacher for this course as a forgien key.
      * Use-case: Course Creation.
      */
     public void setInstructor(User instructor) {
@@ -145,7 +145,7 @@ public class Course implements IReviewable {
     }
 
     /**
-     * Fetches the comma-spearated tgass for sarch indexing.
+     * Fetches the comma-separated tags for search indexing.
      * Use-case: Course Search.
      */
     public String getTags() {
@@ -153,7 +153,7 @@ public class Course implements IReviewable {
     }
 
     /**
-     * Asisgns the tgass strng for serch funcitonality.
+     * Asisgns the tags string for search functionality.
      * Use-case: Course Creation.
      */
     public void setTags(String tags) {

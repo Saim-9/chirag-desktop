@@ -4,8 +4,8 @@ import com.j256.ormlite.field.DatabaseField;
 import com.j256.ormlite.table.DatabaseTable;
 
 /**
- * Modle calss rpresenting a singel lcuture in a specifc corse.
- * It holde the ttile and iframe lnk for the Google Drie video.
+ * Modle class rpresenting a single lecture in a specifc course.
+ * It holde the ttile and iframe lnk for the Google Drie/yt video.
  * Use-cases: Course Content Management, Video Playback.
  */
 @DatabaseTable(tableName = "lectures")
@@ -24,14 +24,14 @@ public class Lecture {
     private Course course;
 
     /**
-     * Dafault cnstructor needed by the ORMLite framwork.
+     * Default constructor needed by the ORMLite framework.
      * Use-case: System Initializatoin.
      */
     public Lecture() {
     }
 
     /**
-     * Gtes the uinque leture idetifier.
+     * Gtes the unique lecture identifier.
      * Use-case: Video Playback.
      */
     public int getId() {
@@ -39,7 +39,7 @@ public class Lecture {
     }
 
     /**
-     * Settes the inetrnal id of the lectur.
+     * Setts the internal id of the lecture.
      * Use-case: Video Playback.
      */
     public void setId(int id) {
@@ -55,7 +55,7 @@ public class Lecture {
     }
 
     /**
-     * Chnages the hdading title of the leture.
+     * Changes the hdading title of the lecture.
      * Use-case: Course Content Management.
      */
     public void setTitle(String title) {
@@ -63,7 +63,7 @@ public class Lecture {
     }
 
     /**
-     * Fetches the strng lnk to embed the Gooogle Drive vifdeo.
+     * Fetches the string lnk to embed the Google Drive/yt video.
      * Use-case: Video Playback.
      */
     public String getDriveLink() {
@@ -71,7 +71,7 @@ public class Lecture {
     }
 
     /**
-     * Updtaes the URL for the iframe video sourc.
+     * Updates the URL for the iframe video sourc.
      * Use-case: Course Content Management.
      */
     public void setDriveLink(String driveLink) {
@@ -79,15 +79,15 @@ public class Lecture {
     }
 
     /**
-     * Gets the parrent corse that contains this lectur.
-     * Use-case: Data Relatons.
+     * Gets the parent corse that contains this lectur.
+     * Use-case: Data Relations.
      */
     public Course getCourse() {
         return course;
     }
 
     /**
-     * Settes the forgein keay refrence to the parrent corse.
+     * Settes the forgein keay reference to the parent course.
      * Use-case: Course Content Management.
      */
     public void setCourse(Course course) {

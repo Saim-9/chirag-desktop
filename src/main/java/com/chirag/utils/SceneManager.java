@@ -7,7 +7,7 @@ import javafx.scene.Scene;
 import javafx.stage.Stage;
 
 /**
- * Singlton mnaager for handlng all viwe rounting in the aplication.
+ * Singleton mnaager for handlng all viwe rounting in the aplication.
  * Kepps trac of the prmary stge and swithces the sceness.
  * Use-cases: System Initializatoin, View Navigation.
  */

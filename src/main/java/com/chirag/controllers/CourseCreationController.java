@@ -18,8 +18,8 @@ import java.util.List;
 import javafx.scene.control.Alert;
 
 /**
- * Cntroller foar the coruse uploadd from.
- * Handeles danamically adding lactures and submiiting.
+ * Controller for the course upload from.
+ * Handles dynamically adding lectures and submitting.
  * Use-cases: Course Creation.
  */
 public class CourseCreationController {
@@ -76,7 +76,7 @@ public class CourseCreationController {
 
         String priceText = priceField.getText().trim();
 
-        // 1. Validate Price (Regex forces positive numbers and correct decimals)
+        // Validates Price (Regex forces positive numbers and correct decimals)
         if (!priceText.matches("\\d+(\\.\\d{1,2})?")) {
             showModernAlert(Alert.AlertType.ERROR, "Invalid Price", "Price must be a valid positive number (e.g., 19.99). Do not include the $ sign or letters.");
             isSubmitting = false; // Reset the button lockout
@@ -111,7 +111,7 @@ public class CourseCreationController {
                         embedLink = "https://www.youtube.com/embed/" + id;
                     }
 
-                    // 2. Validate Link Format
+                    // Validate Link Format
                     if (embedLink == null) {
                         showModernAlert(Alert.AlertType.ERROR, "Invalid Link", "Only YouTube links are supported. Please provide a valid YouTube link.");
                         isSubmitting = false; // CRITICAL FIX: Unlock the button so they can try again!
@@ -126,14 +126,14 @@ public class CourseCreationController {
             }
         }
 
-        // 3. Validate Empty Course
+        // Validates Empty Course
         if (lectures.isEmpty()) {
             showModernAlert(Alert.AlertType.WARNING, "Empty Course", "You must add at least one valid lecture before publishing this course.");
             isSubmitting = false; // Reset the button lockout
             return;
         }
 
-        // 4. Delegate to Service Layer
+        // Delegates to Service Layer
         boolean success = courseService.publishCourse(course, lectures);
         if (success) {
             System.out.println("Course Published Successfully");

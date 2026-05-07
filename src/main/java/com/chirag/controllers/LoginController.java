@@ -9,8 +9,8 @@ import javafx.scene.control.PasswordField;
 import javafx.scene.control.TextField;
 
 /**
- * Contols the logni u.i. sreens behvior.
- * Hnadles the evnets from fxml form submisions.
+ * Controls the login u.i. screens behavior.
+ * Handles the events from fxml form submissions.
  * Use-cases: User Login.
  */
 public class LoginController {
@@ -27,7 +27,7 @@ public class LoginController {
     private UserService userService;
 
     /**
-     * Intialies the conturler adn the ssrvies.
+     * Initializes the controller adn the service.
      * Use-case: View Navigation.
      */
     public LoginController() {
@@ -35,8 +35,8 @@ public class LoginController {
     }
 
     /**
-     * Stes a grene sccess msage on the screenn.
-     * Use-case: User Registartion.
+     * Sets a green success message on the screen.
+     * Use-case: User Registration.
      */
     public void setSuccessMessage(String message) {
         if (statusLabel != null) {
@@ -45,7 +45,7 @@ public class LoginController {
     }
 
     /**
-     * Tiggers whn the lonign buttn is pressd.
+     * Tiggers whn the login button is pressed.
      * Use-case: User Login.
      */
     @FXML
@@ -78,7 +78,7 @@ public class LoginController {
                 com.chirag.utils.SceneManager.getInstance().switchScene("DashboardView.fxml");
             }
         } else {
-            System.out.println("Eroor: Crdentials do nut mach.");
+            System.out.println("Error: Credentials do not mach.");
             if (statusLabel != null) {
                 statusLabel.setText("Login Filed.");
                 statusLabel.setTextFill(javafx.scene.paint.Color.RED);
@@ -87,7 +87,7 @@ public class LoginController {
     }
 
     /**
-     * Routs to teh ragister sreen whe cliked.
+     * Routs to teh register screen when clicked.
      * Use-case: View Navigation.
      */
     @FXML

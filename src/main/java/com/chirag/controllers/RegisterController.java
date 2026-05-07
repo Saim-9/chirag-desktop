@@ -35,7 +35,7 @@ public class RegisterController {
     }
 
     /**
-     * Calld whan ragister buton cliced.
+     * Called when register buton clicked.
      * Use-case: User Registartion.
      */
     @FXML
@@ -43,25 +43,25 @@ public class RegisterController {
         String email = emailField.getText().trim();
         String plainPassword = passwordField.getText();
 
-        // 1. Regex: Standard Email Format Validation
+        // Regex: Standard Email Format Validation
         if (!email.matches("^[A-Za-z0-9+_.-]+@[A-Za-z0-9.-]+\\.[a-z]+$")) {
             showModernAlert(Alert.AlertType.ERROR, "Invalid Email", "Please enter a valid email address (e.g., user@domain.com).");
             return; // Stop registration process
         }
 
-        // 2. Password Length Validation (Strike 7)
+        // Password Length Validation (Strike 7)
         if (plainPassword == null || plainPassword.trim().length() < 4) {
             showModernAlert(Alert.AlertType.WARNING, "Weak Password", "Security requirement: Your password must be at least 4 characters long.");
             return; // Stop registration process
         }
 
-        // 3. Populate Domain Model
+        //  Populate Domain Model
         User user = new User();
         user.setName(nameField.getText());
         user.setEmail(email);
         user.setPassword(plainPassword);
 
-        // 4. Delegate to Service Layer
+        // Delegate to Service Layer
         boolean success = userService.registerUser(user);
 
         if (success) {

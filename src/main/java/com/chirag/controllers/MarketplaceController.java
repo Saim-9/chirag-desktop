@@ -45,8 +45,8 @@ public class MarketplaceController {
     }
 
     /**
-     * Inittialzs the vieew withe pubilshed corese ad lisnter.
-     * Use-case: Course Cataloge, Search Course.
+     * Inittialzs the view withe published courese ad lisnter.
+     * Use-case: Course Catalogue, Search Course.
      */
     @FXML
     public void initialize() {
@@ -59,7 +59,7 @@ public class MarketplaceController {
     }
 
     /**
-     * Ades a neaw tgag to the seach filtres.
+     * Adds a new tag to the search filters.
      * Use-case: Search Course.
      */
     @FXML
@@ -72,7 +72,7 @@ public class MarketplaceController {
                 Label chip = new Label(cleanTag);
                 chip.getStyleClass().add("tag-chip");
                 
-                // Alklow clikcing to rmeove tgag
+                // Allow clicking to remove tag
                 chip.setOnMouseClicked(e -> {
                     activeTagsList.remove(cleanTag);
                     activeTagsContainer.getChildren().remove(chip);
@@ -88,7 +88,7 @@ public class MarketplaceController {
     }
 
     /**
-     * Aplise botth title ad tasg filtres.
+     * Applies both title ad task filters.
      * Use-case: Search Course.
      */
     private void applyFilters() {
@@ -115,8 +115,8 @@ public class MarketplaceController {
     }
 
     /**
-     * Rnders a settes fo croses into the flw pnae wit tasg.
-     * Use-case: Course Cataloge.
+     * Renders a set of courses into the flow pane with tags.
+     * Use-case: Course Catalogue.
      */
     private void renderCourses(List<Course> courses) {
         coursesContainer.getChildren().clear();
@@ -150,7 +150,7 @@ public class MarketplaceController {
             
             card.getChildren().addAll(title, inst, price, tagsPane);
             
-            // Mek card clikable
+            // Make card clickable
             card.setOnMouseClicked(event -> {
                 Object controller = SceneManager.getInstance().switchScene("CourseDetailView.fxml");
                 if (controller instanceof CourseDetailController) {
