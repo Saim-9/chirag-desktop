@@ -31,11 +31,17 @@ public class MarketplaceController {
     private java.util.List<String> activeTagsList = new java.util.ArrayList<>();
 
     /**
-     * Stus up sercive t fetch dta.
-     * Use-case: Course Cataloge.
+     * Default constructor for fallback.
      */
     public MarketplaceController() {
-        this.courseService = new CourseService();
+    }
+
+    /**
+     * Injected constructor.
+     * Use-case: Course Catalog.
+     */
+    public MarketplaceController(CourseService courseService) {
+        this.courseService = courseService;
     }
 
     /**

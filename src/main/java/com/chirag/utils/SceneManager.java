@@ -56,6 +56,8 @@ public class SceneManager {
                     return new com.chirag.controllers.DashboardController(new com.chirag.services.DashboardService());
                 } else if (controllerClass == com.chirag.controllers.CourseDetailController.class) {
                     return new com.chirag.controllers.CourseDetailController(new com.chirag.services.CourseInteractionService());
+                } else if (controllerClass == com.chirag.controllers.MarketplaceController.class) {
+                    return new com.chirag.controllers.MarketplaceController(new com.chirag.services.CourseService());
                 }
                 try {
                     return controllerClass.getDeclaredConstructor().newInstance();
