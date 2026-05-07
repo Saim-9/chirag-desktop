@@ -23,7 +23,7 @@ public class LectureRepository {
         try {
             lectureDao = DaoManager.createDao(DatabaseConfig.getInstance().getConnectionSource(), Lecture.class);
         } catch (SQLException e) {
-            System.err.println("Faiel on lcture dao cration: " + e.getMessage());
+            throw new com.chirag.exceptions.DatabaseException("Failed on lecture dao creation", e);
         }
     }
 
@@ -67,8 +67,7 @@ public class LectureRepository {
         try {
             return getDao().queryBuilder().where().eq("course_id", course.getId()).query();
         } catch (java.sql.SQLException e) {
-            System.err.println("Error loading lectures: " + e.getMessage());
-            return java.util.Collections.emptyList();
+            throw new com.chirag.exceptions.DatabaseException("Error loading lectures", e);
         }
     }
 }

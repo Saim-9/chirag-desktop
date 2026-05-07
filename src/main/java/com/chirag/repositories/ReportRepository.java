@@ -18,7 +18,7 @@ public class ReportRepository {
         try {
             reportDao = DaoManager.createDao(DatabaseConfig.getInstance().getConnectionSource(), Report.class);
         } catch (SQLException e) {
-            System.err.println("Failed to initialize Report repository: " + e.getMessage());
+            throw new com.chirag.exceptions.DatabaseException("Failed to initialize Report repository", e);
         }
     }
 

@@ -20,7 +20,7 @@ public class ReviewRepository {
         try {
             reviewDao = DaoManager.createDao(DatabaseConfig.getInstance().getConnectionSource(), Review.class);
         } catch (SQLException e) {
-            System.err.println("Failed to initialize Review repository: " + e.getMessage());
+            throw new com.chirag.exceptions.DatabaseException("Failed to initialize Review repository", e);
         }
     }
 
@@ -36,8 +36,7 @@ public class ReviewRepository {
         try {
             return reviewDao.queryBuilder().where().eq("course_id", courseId).query();
         } catch (SQLException e) {
-            System.err.println("Error fetching reviews: " + e.getMessage());
-            return Collections.emptyList();
+            throw new com.chirag.exceptions.DatabaseException("Error fetching reviews", e);
         }
     }
 }
