@@ -14,7 +14,7 @@ import java.util.Date;
  * Simulates purchasing by deducting funds and giving 90% to teacher.
  * Use-cases: Course Purchase, Wallet Management.
  */
-public class PaymentService {
+public class PaymentServiceImpl implements IPaymentService {
 
     private UserRepository userRepository;
     private TransactionRepository transactionRepository;
@@ -25,7 +25,7 @@ public class PaymentService {
      * Sets up dependencies for user, transaction, and enrollment repos.
      * Use-case: System Initialization.
      */
-    public PaymentService() {
+    public PaymentServiceImpl() {
         this.userRepository = new UserRepository();
         this.transactionRepository = new TransactionRepository();
         this.enrollmentRepository = new com.chirag.repositories.EnrollmentRepository();

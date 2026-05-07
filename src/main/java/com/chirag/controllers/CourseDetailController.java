@@ -1,9 +1,8 @@
 package com.chirag.controllers;
 
 import com.chirag.models.Course;
-import com.chirag.models.Lecture;
 import com.chirag.repositories.LectureRepository;
-import com.chirag.services.PaymentService;
+import com.chirag.services.PaymentServiceImpl;
 import com.chirag.utils.SceneManager;
 import com.chirag.utils.UserSession;
 import javafx.event.ActionEvent;
@@ -44,7 +43,7 @@ public class CourseDetailController {
     private VBox reviewsList;
 
     private Course currentCourse;
-    private PaymentService paymentService;
+    private PaymentServiceImpl paymentServiceImpl;
     private LectureRepository lectureRepository;
     private com.chirag.repositories.ReviewRepository reviewRepository;
     private com.chirag.repositories.ReportRepository reportRepository;
@@ -54,7 +53,7 @@ public class CourseDetailController {
      * Use-case: Course Purchase.
      */
     public CourseDetailController() {
-        this.paymentService = new PaymentService();
+        this.paymentServiceImpl = new PaymentServiceImpl();
         this.lectureRepository = new LectureRepository();
         this.reviewRepository = new com.chirag.repositories.ReviewRepository();
         this.reportRepository = new com.chirag.repositories.ReportRepository();
@@ -103,7 +102,7 @@ public class CourseDetailController {
     }
 
     /**
-     * Executes purchase using PaymentService and shows alert.
+     * Executes purchase using PaymentServiceImpl and shows alert.
      * Use-case: Course Purchase.
      */
     @FXML
@@ -111,7 +110,7 @@ public class CourseDetailController {
         if (currentCourse == null)
             return;
 
-        boolean success = paymentService.processCoursePurchase(UserSession.getCurrentUser(), currentCourse);
+        boolean success = paymentServiceImpl.processCoursePurchase(UserSession.getCurrentUser(), currentCourse);
         if (success) {
             statusMsgLabel.setText("Purchase Successful!");
             statusMsgLabel.setTextFill(javafx.scene.paint.Color.GREEN);

@@ -9,7 +9,7 @@ import com.j256.ormlite.table.DatabaseTable;
  * Use-cases: Course Creation, Course Purhcase, Course Cataloge.
  */
 @DatabaseTable(tableName = "courses")
-public class Course {
+public class Course implements IReviewable {
 
     public enum Status {
         DRAFT,
