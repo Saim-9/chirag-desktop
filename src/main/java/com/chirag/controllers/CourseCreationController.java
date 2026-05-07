@@ -15,6 +15,7 @@ import javafx.scene.layout.Priority;
 import javafx.scene.layout.VBox;
 import java.util.ArrayList;
 import java.util.List;
+import javafx.scene.control.Alert;
 
 /**
  * Cntroller foar the coruse uploadd from.
@@ -74,17 +75,10 @@ public class CourseCreationController {
         isSubmitting = true;
 
         String priceText = priceField.getText().trim();
-        // Regex: Must be digits, optionally followed by a decimal and 1 or 2 digits
+
+        // 1. Validate Price (Regex forces positive numbers and correct decimals)
         if (!priceText.matches("\\d+(\\.\\d{1,2})?")) {
-            javafx.scene.control.Alert alert = new javafx.scene.control.Alert(javafx.scene.control.Alert.AlertType.ERROR);
-            alert.setTitle("Invalid Price");
-            alert.setHeaderText(null);
-            alert.setContentText("Price must be a valid number (e.g., 19.99). Do not include the $ sign or letters.");
-            java.net.URL cssUrl = getClass().getResource("/com/chirag/views/styles.css");
-            if (cssUrl != null) {
-                alert.getDialogPane().getStylesheets().add(cssUrl.toExternalForm());
-            }
-            alert.showAndWait();
+            showModernAlert(Alert.AlertType.ERROR, "Invalid Price", "Price must be a valid positive number (e.g., 19.99). Do not include the $ sign or letters.");
             isSubmitting = false; // Reset the button lockout
             return; // Stop the upload process
         }
@@ -102,11 +96,11 @@ public class CourseCreationController {
                 HBox hbox = (HBox) node;
                 TextField tFld = (TextField) hbox.getChildren().get(0);
                 TextField lFld = (TextField) hbox.getChildren().get(1);
-                
+
                 if (!tFld.getText().trim().isEmpty() && !lFld.getText().trim().isEmpty()) {
                     String rawLink = lFld.getText().trim();
-                    // Use-case: Course Creation (Link Formatting).
                     String embedLink = null;
+
                     if (rawLink.contains("youtube.com/watch?v=")) {
                         String id = rawLink.substring(rawLink.indexOf("v=") + 2);
                         if (id.contains("&")) id = id.substring(0, id.indexOf("&"));
@@ -116,17 +110,11 @@ public class CourseCreationController {
                         if (id.contains("?")) id = id.substring(0, id.indexOf("?"));
                         embedLink = "https://www.youtube.com/embed/" + id;
                     }
-                    
+
+                    // 2. Validate Link Format
                     if (embedLink == null) {
-                        javafx.scene.control.Alert alert = new javafx.scene.control.Alert(javafx.scene.control.Alert.AlertType.ERROR);
-                        alert.setTitle("Invalid Link");
-                        alert.setHeaderText(null);
-                        alert.setContentText("Only YouTube links are supported. Please provide a valid YouTube link.");
-                        java.net.URL cssUrl = getClass().getResource("/com/chirag/views/styles.css");
-                        if (cssUrl != null) {
-                            alert.getDialogPane().getStylesheets().add(cssUrl.toExternalForm());
-                        }
-                        alert.showAndWait();
+                        showModernAlert(Alert.AlertType.ERROR, "Invalid Link", "Only YouTube links are supported. Please provide a valid YouTube link.");
+                        isSubmitting = false; // CRITICAL FIX: Unlock the button so they can try again!
                         return; // Block submission
                     }
 
@@ -138,14 +126,42 @@ public class CourseCreationController {
             }
         }
 
-        boolean scces = courseService.publishCourse(course, lectures);
-        if (scces) {
+        // 3. Validate Empty Course
+        if (lectures.isEmpty()) {
+            showModernAlert(Alert.AlertType.WARNING, "Empty Course", "You must add at least one valid lecture before publishing this course.");
+            isSubmitting = false; // Reset the button lockout
+            return;
+        }
+
+        // 4. Delegate to Service Layer
+        boolean success = courseService.publishCourse(course, lectures);
+        if (success) {
             System.out.println("Course Published Successfully");
             SceneManager.getInstance().switchScene("DashboardView.fxml");
         } else {
+            showModernAlert(Alert.AlertType.ERROR, "Publish Failed", "An error occurred while saving the course to the database.");
             isSubmitting = false;
         }
     }
+
+
+    /**
+     * Spawns a modern, CSS-styled alert dialog.
+     */
+    private void showModernAlert(Alert.AlertType type, String title, String message) {
+        Alert alert = new Alert(type);
+        alert.setTitle(title);
+        alert.setHeaderText(null);
+        alert.setContentText(message);
+
+
+        java.net.URL cssUrl = getClass().getResource("/com/chirag/views/styles.css");
+        if (cssUrl != null) {
+            alert.getDialogPane().getStylesheets().add(cssUrl.toExternalForm());
+        }
+        alert.showAndWait();
+    }
+
 
     /**
      * Goes back to dashboard.

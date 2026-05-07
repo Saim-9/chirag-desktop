@@ -39,53 +39,39 @@ public class RegisterController {
      * Use-case: User Registartion.
      */
     @FXML
-    public void handleRegister(ActionEvent event) {
+    public void handleRegister(javafx.event.ActionEvent event) {
         String email = emailField.getText().trim();
+        String plainPassword = passwordField.getText();
 
-        // Regex: Standard Email Format Validation
+        // 1. Regex: Standard Email Format Validation
         if (!email.matches("^[A-Za-z0-9+_.-]+@[A-Za-z0-9.-]+\\.[a-z]+$")) {
-            javafx.scene.control.Alert alert = new javafx.scene.control.Alert(javafx.scene.control.Alert.AlertType.ERROR);
-            alert.setTitle("Invalid Email");
-            alert.setHeaderText(null);
-            alert.setContentText("Please enter a valid email address (e.g., user@domain.com).");
-
-            java.net.URL cssUrl = getClass().getResource("/com/chirag/views/styles.css");
-            if (cssUrl != null) {
-                alert.getDialogPane().getStylesheets().add(cssUrl.toExternalForm());
-            }
-
-            alert.showAndWait();
+            showModernAlert(Alert.AlertType.ERROR, "Invalid Email", "Please enter a valid email address (e.g., user@domain.com).");
             return; // Stop registration process
         }
 
+        // 2. Password Length Validation (Strike 7)
+        if (plainPassword == null || plainPassword.trim().length() < 4) {
+            showModernAlert(Alert.AlertType.WARNING, "Weak Password", "Security requirement: Your password must be at least 4 characters long.");
+            return; // Stop registration process
+        }
+
+        // 3. Populate Domain Model
         User user = new User();
         user.setName(nameField.getText());
-        user.setEmail(email); // Uses the validated email
-        user.setPassword(passwordField.getText());
+        user.setEmail(email);
+        user.setPassword(plainPassword);
 
+        // 4. Delegate to Service Layer
+        boolean success = userService.registerUser(user);
 
-        boolean scces = userService.registerUser(user);
-
-        if (scces) {
+        if (success) {
             System.out.println("Registration Success");
             Object c = com.chirag.utils.SceneManager.getInstance().switchScene("LoginView.fxml");
             if (c instanceof LoginController) {
                 ((LoginController) c).setSuccessMessage("Account created! Please sign in.");
             }
-        }
-
-        else
-        {
-            // UI POP-UP: The email was taken!
-            Alert alert = new Alert(Alert.AlertType.ERROR);
-            alert.setTitle("Registration Failed");
-            alert.setHeaderText(null);
-            alert.setContentText("This email is already registered. Please use a different one or log in.");
-            java.net.URL cssUrl = getClass().getResource("/com/chirag/views/styles.css");
-            if (cssUrl != null) {
-                alert.getDialogPane().getStylesheets().add(cssUrl.toExternalForm());
-            }
-            alert.showAndWait();
+        } else {
+            showModernAlert(Alert.AlertType.ERROR, "Registration Failed", "This email is already registered. Please use a different one or log in.");
         }
     }
 
@@ -96,5 +82,22 @@ public class RegisterController {
     @FXML
     public void goToLogin(ActionEvent event) {
         com.chirag.utils.SceneManager.getInstance().switchScene("LoginView.fxml");
+    }
+
+    /**
+     * Spawns a modern, CSS-styled alert dialog.
+     */
+    private void showModernAlert(Alert.AlertType type, String title, String message) {
+        Alert alert = new Alert(type);
+        alert.setTitle(title);
+        alert.setHeaderText(null);
+        alert.setContentText(message);
+
+
+        java.net.URL cssUrl = getClass().getResource("/com/chirag/views/styles.css");
+        if (cssUrl != null) {
+            alert.getDialogPane().getStylesheets().add(cssUrl.toExternalForm());
+        }
+        alert.showAndWait();
     }
 }
