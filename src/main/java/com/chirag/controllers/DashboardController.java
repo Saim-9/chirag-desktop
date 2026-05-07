@@ -4,9 +4,7 @@ import com.chirag.models.Course;
 import com.chirag.models.Enrollment;
 import com.chirag.models.Transaction;
 import com.chirag.models.User;
-import com.chirag.repositories.CourseRepository;
-import com.chirag.repositories.EnrollmentRepository;
-import com.chirag.repositories.TransactionRepository;
+import com.chirag.services.DashboardService;
 import com.chirag.utils.UserSession;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
@@ -21,9 +19,6 @@ import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
-import com.chirag.models.Lecture;
-import com.chirag.repositories.LectureRepository;
-
 
 /**
  * Central hub controller for the unified dashboard.
@@ -47,20 +42,14 @@ public class DashboardController {
     @FXML
     private ListView<String> transactionsList;
 
-    private CourseRepository courseRepository;
-    private EnrollmentRepository enrollmentRepository;
-    private TransactionRepository transactionRepository;
-    private LectureRepository lectureRepository;
+    private DashboardService dashboardService;
 
     /**
      * Sets up the dependencies for fetching courses.
      * Use-case: Manage Creator Dashboard.
      */
     public DashboardController() {
-        this.courseRepository = new CourseRepository();
-        this.enrollmentRepository = new EnrollmentRepository();
-        this.transactionRepository = new TransactionRepository();
-        this.lectureRepository = new LectureRepository();
+        this.dashboardService = new DashboardService();
     }
 
     /**
@@ -75,7 +64,7 @@ public class DashboardController {
             walletLabel.setText("Wallet Balance: $" + String.format("%.2f", user.getVirtualWalletBalance()));
 
             // --- 1. Fetch uploaded courses (Creator Studio) ---
-            List<Course> instructorCourses = courseRepository.findByInstructor(user);
+            List<Course> instructorCourses = dashboardService.getInstructorCourses(user);
             uploadedCoursesContainer.getChildren().clear();
             for (Course c : instructorCourses) {
                 VBox card = new VBox(10.0); // Increased spacing
@@ -117,7 +106,7 @@ public class DashboardController {
 
             // --- 2. Fetch enrolled courses (My Learning) ---
             // Fetch enrolled courses from db
-            List<Enrollment> enrollments = enrollmentRepository.findByUser(user);
+            List<Enrollment> enrollments = dashboardService.getEnrolledCourses(user);
             enrolledCoursesContainer.getChildren().clear();
             for (Enrollment enr : enrollments) {
                 Course c = enr.getCourse();
@@ -131,8 +120,7 @@ public class DashboardController {
                 double progressValue = 0.0;
                 try {
                     // Get the total number of lectures for this specific course
-                    int totalLectures = lectureRepository.getDao().queryBuilder()
-                            .where().eq("course_id", c.getId()).query().size();
+                    int totalLectures = dashboardService.getTotalLecturesForCourse(c.getId());
 
                     // Delegate the calculation logic to the Enrollment model (Information Expert)
                     progressValue = enr.calculateProgressPercentage(totalLectures);
@@ -170,16 +158,10 @@ public class DashboardController {
      */
     private void loadTransactions(User user) {
         try {
-            com.j256.ormlite.stmt.QueryBuilder<Transaction, Integer> qb = transactionRepository.getDao().queryBuilder();
-            qb.orderBy("transactionDate", false);
-            qb.where().eq("buyer_id", user.getId()).or().eq("instructor_id", user.getId());
-
-            List<Transaction> transactions = qb.query();
-            int limit = Math.min(5, transactions.size());
+            List<Transaction> transactions = dashboardService.getRecentTransactions(user, 5);
             transactionsList.getItems().clear();
 
-            for (int i = 0; i < limit; i++) {
-                Transaction t = transactions.get(i);
+            for (Transaction t : transactions) {
                 boolean isIncome = (t.getInstructor() != null && t.getInstructor().getId() == user.getId()
                         && (t.getBuyer() == null || t.getBuyer().getId() != user.getId()));
 
@@ -212,7 +194,7 @@ public class DashboardController {
                 }
             });
 
-        } catch (java.sql.SQLException e) {
+        } catch (Exception e) {
             System.err.println("Failed to load transactions: " + e.getMessage());
         }
     }
