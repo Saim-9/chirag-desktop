@@ -58,4 +58,17 @@ public class LectureRepository {
     public void delete(Lecture lecture) throws SQLException {
         lectureDao.delete(lecture);
     }
+
+    /**
+     * Fetches all lectures for a specific course.
+     * Decouples the UI from the database logic.
+     */
+    public java.util.List<com.chirag.models.Lecture> findByCourse(com.chirag.models.Course course) {
+        try {
+            return getDao().queryBuilder().where().eq("course_id", course.getId()).query();
+        } catch (java.sql.SQLException e) {
+            System.err.println("Error loading lectures: " + e.getMessage());
+            return java.util.Collections.emptyList();
+        }
+    }
 }

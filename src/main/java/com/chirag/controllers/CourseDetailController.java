@@ -90,17 +90,15 @@ public class CourseDetailController {
      * Use-case: Course View.
      */
     private void loadLectures() {
-        try {
-            lecturesList.getChildren().clear();
-            List<Lecture> lecs = lectureRepository.getDao().queryBuilder().where()
-                    .eq("course_id", currentCourse.getId()).query();
-            for (Lecture l : lecs) {
-                Label lbl = new Label("- " + l.getTitle());
-                lbl.setStyle("-fx-font-size: 14px;");
-                lecturesList.getChildren().add(lbl);
-            }
-        } catch (SQLException e) {
-            System.err.println("Error loading lectures: " + e.getMessage());
+        lecturesList.getChildren().clear();
+
+
+        java.util.List<com.chirag.models.Lecture> lecs = lectureRepository.findByCourse(currentCourse);
+
+        for (com.chirag.models.Lecture l : lecs) {
+            Label lbl = new Label("- " + l.getTitle());
+            lbl.setStyle("-fx-font-size: 14px;");
+            lecturesList.getChildren().add(lbl);
         }
     }
 

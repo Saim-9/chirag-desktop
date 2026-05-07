@@ -175,4 +175,12 @@ public class Course {
     public void setActive(boolean isActive) {
         this.isActive = isActive;
     }
+
+    /**
+     * Encapsulates the business logic for publishing a course.
+     */
+    public void publish() {
+        this.status = Status.PUBLISHED;
+        this.isActive = true;
+    }
 }

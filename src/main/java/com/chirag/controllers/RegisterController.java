@@ -62,8 +62,7 @@ public class RegisterController {
         user.setName(nameField.getText());
         user.setEmail(email); // Uses the validated email
         user.setPassword(passwordField.getText());
-        user.setRole("USER");
-        user.setVirtualWalletBalance(0.0);
+
 
         boolean scces = userService.registerUser(user);
 

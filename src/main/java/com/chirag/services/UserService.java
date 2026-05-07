@@ -34,10 +34,8 @@ public class UserService {
             return false;
         }
         try {
-            // Intercept and hash the password before saving
-            String plain_password = user.getPassword();
-            String hashed_password = BCrypt.hashpw(plain_password, BCrypt.gensalt());
-            user.setPassword(hashed_password);
+            // Hash password using encapsulated DRY helper
+            user.setPassword(hashPassword(user.getPassword()));
 
             user.setRole("USER");
             user.setAccountStatus("ACTIVE");
@@ -63,10 +61,9 @@ public class UserService {
             return false;
         }
         try {
-            // Intercept and hash the plain text password from the controller
-            String plainTextPassword = newAdmin.getPassword();
-            String hashedPassword = org.mindrot.jbcrypt.BCrypt.hashpw(plainTextPassword, org.mindrot.jbcrypt.BCrypt.gensalt());
-            newAdmin.setPassword(hashedPassword);
+
+            // Hash password using encapsulated DRY helper
+            newAdmin.setPassword(hashPassword(newAdmin.getPassword()));
 
             // Force the Admin role and status
             newAdmin.setRole("ADMIN");
@@ -113,5 +110,12 @@ public class UserService {
             System.err.println("Failed to update user balance: " + e.getMessage());
             return false;
         }
+    }
+
+    /**
+     * Encapsulates password hashing logic (DRY Principle).
+     */
+    private String hashPassword(String plainPassword) {
+        return org.mindrot.jbcrypt.BCrypt.hashpw(plainPassword, org.mindrot.jbcrypt.BCrypt.gensalt());
     }
 }

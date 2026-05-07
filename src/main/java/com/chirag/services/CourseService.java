@@ -28,24 +28,38 @@ public class CourseService {
      * Use-case: Course Creation.
      */
     public boolean publishCourse(Course course, List<com.chirag.models.Lecture> lectures) {
-        course.setStatus(Course.Status.PUBLISHED);
-        course.setActive(true);
+        //  Use the OOP method
+        course.publish();
+
         try {
+            // Save the course first
             courseRepository.create(course);
             com.chirag.repositories.LectureRepository lectureRepo = new com.chirag.repositories.LectureRepository();
+
+            // Save the lectures
             for (com.chirag.models.Lecture lec : lectures) {
                 lec.setCourse(course);
                 lectureRepo.create(lec);
             }
             return true;
+
         } catch (SQLException e) {
-            System.err.println("Failed to publish course with lectures: " + e.getMessage());
+            System.err.println("Failed to publish course. Executing Rollback... Error: " + e.getMessage());
+            //  If lectures fail, delete the course so we don't have an empty ghost course.
+            try {
+                if (course.getId() != 0) {
+
+                    courseRepository.getDao().delete(course);
+                }
+            } catch (Exception rollbackEx) {
+                System.err.println("Critical Error during rollback.");
+            }
             return false;
         }
     }
 
     /**
-     * Feches al publsehd corosses to be shwon on teh merkatplace.
+     * Fetches all publisehd corosses to be shwon on teh merkatplace.
      * Use-case: Course Cataloge.
      */
     public List<Course> getMarketplaceCourses() {
