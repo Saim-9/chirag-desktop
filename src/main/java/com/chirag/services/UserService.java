@@ -11,7 +11,7 @@ import org.mindrot.jbcrypt.BCrypt;
  * It validates data before sending it to repository.
  * Use-cases: User Registration, User Login.
  */
-public class UserService {
+public class UserService extends AbstractService {
 
     private UserRepository userRepository;
 
@@ -40,6 +40,7 @@ public class UserService {
             user.setRole("USER");
             user.setAccountStatus("ACTIVE");
             userRepository.create(user);
+            logServiceAction("User", "Register", true);
             return true;
         }
 

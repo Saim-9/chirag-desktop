@@ -69,4 +69,23 @@ public class Enrollment {
     public void setCompletedLectureIds(String completedLectureIds) {
         this.completedLectureIds = completedLectureIds;
     }
+
+    /**
+     * Calculates the progress percentage for this enrollment.
+     * Use-case: Consume Content.
+     */
+    public double calculateProgressPercentage(int totalLectures) {
+        if (isCompleted) {
+            return 100.0;
+        }
+        if (totalLectures <= 0) {
+            return 0.0;
+        }
+        String completedIds = getCompletedLectureIds();
+        int completedCount = 0;
+        if (completedIds != null && !completedIds.trim().isEmpty()) {
+            completedCount = completedIds.split(",").length;
+        }
+        return ((double) completedCount / totalLectures) * 100.0;
+    }
 }

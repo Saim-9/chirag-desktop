@@ -10,12 +10,10 @@ import java.sql.SQLException;
 import java.util.Date;
 
 /**
- * Manages payment splitting and wallet updates.
- * Simulates purchasing by deducting funds and giving 90% to teacher.
- * Use-cases: Course Purchase, Wallet Management.
+ * Demonstrates the Facade Pattern, Strategy Pattern (via IPaymentService),
+ * and Inheritance (via AbstractService).
  */
-public class PaymentServiceImpl implements IPaymentService {
-
+public class PaymentServiceImpl extends AbstractService implements IPaymentService {
     private UserRepository userRepository;
     private TransactionRepository transactionRepository;
     private com.chirag.repositories.EnrollmentRepository enrollmentRepository;
@@ -35,14 +33,16 @@ public class PaymentServiceImpl implements IPaymentService {
     /**
      * Processes the full payment event logic.
      * Checks balance, deducts, splits revenue, and saves records.
-     * Use-case: Course Purchase (Circular Payment Fix).
+     * Use-case: Course Purchase.
      */
+    @Override
     public boolean processCoursePurchase(User buyer, Course course) {
         double price = course.getPrice();
-        
+
         // Check balance
         if (buyer.getVirtualWalletBalance() < price) {
             System.out.println("Error: Not enough balance!");
+            logServiceAction("Payment", "Purchase Course", false); // INHERITANCE LOG
             return false;
         }
 
@@ -74,19 +74,21 @@ public class PaymentServiceImpl implements IPaymentService {
         // Save to database through repositories
         try {
             transactionRepository.create(transaction);
-            
+
             com.chirag.models.Enrollment enr = new com.chirag.models.Enrollment();
             enr.setUser(buyer);
             enr.setCourse(course);
             enr.setCompleted(false);
             enrollmentRepository.create(enr);
-            
+
             // Refresh UserSession from DB directly
             UserSession.setCurrentUser(userRepository.getDao().queryForId(buyer.getId()));
-            
+
+            logServiceAction("Payment", "Purchase Course", true); // INHERITANCE LOG
             return true;
         } catch (SQLException e) {
             System.err.println("Oops, transaction failed to persist: " + e.getMessage());
+            logServiceAction("Payment", "Purchase Course", false); // INHERITANCE LOG
             return false;
         }
     }
