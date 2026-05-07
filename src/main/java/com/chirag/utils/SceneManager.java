@@ -49,6 +49,19 @@ public class SceneManager {
     public Object switchScene(String fxmlFile) {
         try {
             FXMLLoader loader = new FXMLLoader(getClass().getResource("/com/chirag/views/" + fxmlFile));
+            
+            // Apply Factory Pattern for Controller Dependency Injection
+            loader.setControllerFactory(controllerClass -> {
+                if (controllerClass == com.chirag.controllers.DashboardController.class) {
+                    return new com.chirag.controllers.DashboardController(new com.chirag.services.DashboardService());
+                }
+                try {
+                    return controllerClass.getDeclaredConstructor().newInstance();
+                } catch (Exception exc) {
+                    throw new RuntimeException("Failed to instantiate controller: " + controllerClass.getName(), exc);
+                }
+            });
+
             Parent root = loader.load();
             Scene scene = new Scene(root, 900, 600);
             primaryStage.setScene(scene);

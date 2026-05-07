@@ -45,11 +45,17 @@ public class DashboardController {
     private DashboardService dashboardService;
 
     /**
-     * Sets up the dependencies for fetching courses.
-     * Use-case: Manage Creator Dashboard.
+     * Default constructor for fallback.
      */
     public DashboardController() {
-        this.dashboardService = new DashboardService();
+    }
+
+    /**
+     * Injected constructor for fetching courses.
+     * Use-case: Manage Creator Dashboard.
+     */
+    public DashboardController(DashboardService dashboardService) {
+        this.dashboardService = dashboardService;
     }
 
     /**
