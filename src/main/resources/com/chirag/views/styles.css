@@ -316,3 +316,31 @@
 .list-cell:empty {
     -fx-border-color: transparent;
 }
+
+/* Forces the main button of the combo box to be solid */
+.solid-combo-box {
+    -fx-background-color: #FFFFFF;
+    -fx-border-color: #E0DCD3;
+    -fx-border-radius: 3;
+    -fx-font-size: 14px;
+    -fx-opacity: 1.0;
+}
+
+/* Forces the popup dropdown list to be solid white */
+.solid-combo-box .list-view {
+    -fx-background-color: #FFFFFF;
+    -fx-border-color: #E0DCD3;
+}
+
+/* Forces the individual numbers inside the dropdown to be solid and readable */
+.solid-combo-box .list-cell {
+    -fx-background-color: #FFFFFF;
+    -fx-text-fill: #1B263B;
+    -fx-font-size: 14px;
+}
+
+/* Adds a nice hover effect so users know what they are selecting */
+.solid-combo-box .list-cell:filled:hover {
+    -fx-background-color: #E0DCD3;
+    -fx-text-fill: #000000;
+}
