@@ -7,12 +7,18 @@ import com.chirag.repositories.EnrollmentRepository;
 import com.chirag.repositories.LectureRepository;
 import com.chirag.utils.SceneManager;
 import com.chirag.utils.UserSession;
+import javafx.application.Platform;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
+import javafx.scene.control.Slider;
+import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
-import javafx.scene.web.WebView;
+import javafx.scene.media.Media;
+import javafx.scene.media.MediaPlayer;
+import javafx.scene.media.MediaView;
+import javafx.util.Duration;
 import java.sql.SQLException;
 import java.util.Arrays;
 import java.util.HashSet;
@@ -21,6 +27,7 @@ import java.util.Set;
 
 /**
  * Manages the view for the course player classroom.
+ * Uses native JavaFX MediaPlayer for Google Drive video playback.
  * Also handles progress tracking manually.
  * Use-cases: Consume Content, Track Progress.
  */
@@ -29,17 +36,31 @@ public class CoursePlayerController {
     @FXML
     private Label courseTitleLabel;
     @FXML
-    private WebView videoEngine;
+    private MediaView mediaView;
+    @FXML
+    private StackPane videoContainer;
+    @FXML
+    private Label videoStatusLabel;
     @FXML
     private VBox lecturesList;
     @FXML
     private Label progressLabel;
+    @FXML
+    private Button playPauseBtn;
+    @FXML
+    private Label timeLabel;
+    @FXML
+    private Slider seekSlider;
+    @FXML
+    private Slider volumeSlider;
 
     private Course currentCourse;
     private Lecture currentLecture;
     private int totalLecturesCount;
     private LectureRepository lectureRepository;
     private EnrollmentRepository enrollmentRepository;
+    private MediaPlayer currentMediaPlayer;
+    private boolean isSeeking = false;
 
     /**
      * Sets up dependencies for lecture and enrollment data.
@@ -57,7 +78,37 @@ public class CoursePlayerController {
     public void setCourse(Course course) {
         this.currentCourse = course;
         courseTitleLabel.setText(course.getTitle());
+        initializeControls();
         loadCurriculum();
+    }
+
+    /**
+     * Wires up the volume slider and seek bar interactions.
+     * Use-case: Consume Content.
+     */
+    private void initializeControls() {
+        // Bind mediaView size to container
+        mediaView.fitWidthProperty().bind(videoContainer.widthProperty());
+        mediaView.fitHeightProperty().bind(videoContainer.heightProperty().subtract(10));
+
+        // Volume slider listener
+        volumeSlider.valueProperty().addListener((obs, oldVal, newVal) -> {
+            if (currentMediaPlayer != null) {
+                currentMediaPlayer.setVolume(newVal.doubleValue() / 100.0);
+            }
+        });
+
+        // Seek slider: user is dragging
+        seekSlider.setOnMousePressed(e -> isSeeking = true);
+        seekSlider.setOnMouseReleased(e -> {
+            isSeeking = false;
+            if (currentMediaPlayer != null) {
+                currentMediaPlayer.seek(Duration.seconds(seekSlider.getValue()));
+            }
+        });
+        seekSlider.valueChangingProperty().addListener((obs, wasChanging, isNowChanging) -> {
+            isSeeking = isNowChanging;
+        });
     }
 
     /**
@@ -113,30 +164,141 @@ public class CoursePlayerController {
     }
 
     /**
-     * Injects the Google Drive preview iframe into the webview.
-     * Shows only the video player interface, no browser chrome.
+     * Extracts the Google Drive file ID from a stored driveLink.
+     * Handles both /preview format (stored) and standard share links.
+     */
+    private String extractFileId(String driveLink) {
+        if (driveLink == null) return null;
+
+        if (driveLink.contains("/file/d/")) {
+            String part = driveLink.substring(driveLink.indexOf("/file/d/") + 8);
+            if (part.contains("/")) part = part.substring(0, part.indexOf("/"));
+            if (part.contains("?")) part = part.substring(0, part.indexOf("?"));
+            return part;
+        } else if (driveLink.contains("id=")) {
+            String part = driveLink.substring(driveLink.indexOf("id=") + 3);
+            if (part.contains("&")) part = part.substring(0, part.indexOf("&"));
+            return part;
+        }
+        return null;
+    }
+
+    /**
+     * Loads a Google Drive video using the native JavaFX MediaPlayer.
+     * Converts the stored drive link to a direct download URL for streaming.
      * Use-case: Consume Content.
      */
     private void loadVideo(Lecture lecture) {
         this.currentLecture = lecture;
-        String driveLink = lecture.getDriveLink();
 
-        // Ensure the link is in embed/preview format
-        if (driveLink != null && driveLink.contains("drive.google.com/file/d/") && !driveLink.contains("/preview")) {
-            // Convert view link to preview embed
-            String fileId = driveLink.substring(driveLink.indexOf("/file/d/") + 8);
-            if (fileId.contains("/")) fileId = fileId.substring(0, fileId.indexOf("/"));
-            driveLink = "https://drive.google.com/file/d/" + fileId + "/preview";
+        // Stop any currently playing video
+        disposeCurrentPlayer();
+
+        String driveLink = lecture.getDriveLink();
+        String fileId = extractFileId(driveLink);
+
+        if (fileId == null || fileId.isEmpty()) {
+            videoStatusLabel.setText("⚠ Invalid video link format");
+            videoStatusLabel.setVisible(true);
+            return;
         }
 
-        String html = "<html><head><style>"
-                + "* { margin: 0; padding: 0; overflow: hidden; }"
-                + "body { background-color: #0B0F19; width: 100%; height: 100%; }"
-                + "iframe { width: 100%; height: 100%; border: none; }"
-                + "</style></head><body>"
-                + "<iframe src='" + driveLink + "' allow='autoplay; encrypted-media' allowfullscreen></iframe>"
-                + "</body></html>";
-        videoEngine.getEngine().loadContent(html);
+        // Use Google Drive direct download URL for streaming
+        // confirm=t bypasses virus scan confirmation for large files
+        String directUrl = "https://drive.google.com/uc?export=download&confirm=t&id=" + fileId;
+
+        videoStatusLabel.setText("⏳ Loading video...");
+        videoStatusLabel.setVisible(true);
+
+        try {
+            Media media = new Media(directUrl);
+            currentMediaPlayer = new MediaPlayer(media);
+            mediaView.setMediaPlayer(currentMediaPlayer);
+
+            // Set initial volume from slider
+            currentMediaPlayer.setVolume(volumeSlider.getValue() / 100.0);
+
+            // When media is ready, hide the loading overlay and configure seek bar
+            currentMediaPlayer.setOnReady(() -> {
+                videoStatusLabel.setVisible(false);
+                Duration totalDuration = media.getDuration();
+                seekSlider.setMax(totalDuration.toSeconds());
+                updateTimeLabel(Duration.ZERO, totalDuration);
+                playPauseBtn.setText("▶ Play");
+            });
+
+            // Update seek bar and time label as video plays
+            currentMediaPlayer.currentTimeProperty().addListener((obs, oldTime, newTime) -> {
+                if (!isSeeking) {
+                    Platform.runLater(() -> {
+                        seekSlider.setValue(newTime.toSeconds());
+                        updateTimeLabel(newTime, media.getDuration());
+                    });
+                }
+            });
+
+            // Handle playback errors gracefully
+            currentMediaPlayer.setOnError(() -> {
+                String errMsg = "Unable to play video";
+                if (currentMediaPlayer.getError() != null) {
+                    errMsg = currentMediaPlayer.getError().getMessage();
+                    System.err.println("MediaPlayer error: " + errMsg);
+                }
+                videoStatusLabel.setText("⚠ " + errMsg + "\n\nEnsure the Google Drive file is shared as 'Anyone with the link'.");
+                videoStatusLabel.setVisible(true);
+            });
+
+            // Reset UI when video ends
+            currentMediaPlayer.setOnEndOfMedia(() -> {
+                Platform.runLater(() -> playPauseBtn.setText("↻ Replay"));
+            });
+
+        } catch (Exception e) {
+            System.err.println("Failed to create media player: " + e.getMessage());
+            videoStatusLabel.setText("⚠ Failed to load video player.\n" + e.getMessage());
+            videoStatusLabel.setVisible(true);
+        }
+    }
+
+    /**
+     * Formats a duration pair into a readable "MM:SS / MM:SS" time string.
+     */
+    private void updateTimeLabel(Duration current, Duration total) {
+        timeLabel.setText(formatDuration(current) + " / " + formatDuration(total));
+    }
+
+    /**
+     * Converts a Duration to "MM:SS" format.
+     */
+    private String formatDuration(Duration duration) {
+        if (duration == null || duration.isUnknown()) return "00:00";
+        int totalSeconds = (int) Math.floor(duration.toSeconds());
+        int minutes = totalSeconds / 60;
+        int seconds = totalSeconds % 60;
+        return String.format("%02d:%02d", minutes, seconds);
+    }
+
+    /**
+     * Toggles between play and pause states for the video.
+     * Use-case: Consume Content.
+     */
+    @FXML
+    public void handlePlayPause(ActionEvent event) {
+        if (currentMediaPlayer == null) return;
+
+        MediaPlayer.Status status = currentMediaPlayer.getStatus();
+        if (status == MediaPlayer.Status.PLAYING) {
+            currentMediaPlayer.pause();
+            playPauseBtn.setText("▶ Play");
+        } else if (status == MediaPlayer.Status.STOPPED || status == MediaPlayer.Status.UNKNOWN) {
+            // Replay from start
+            currentMediaPlayer.seek(Duration.ZERO);
+            currentMediaPlayer.play();
+            playPauseBtn.setText("⏸ Pause");
+        } else {
+            currentMediaPlayer.play();
+            playPauseBtn.setText("⏸ Pause");
+        }
     }
 
     /**
@@ -200,23 +362,14 @@ public class CoursePlayerController {
     }
 
     /**
-     * Opens the Google Drive video in an external browser as a fallback.
-     * Use-case: Video Safety Valve.
+     * Safely disposes the current MediaPlayer to free resources.
+     * Prevents memory leaks and background audio bleed.
      */
-    @FXML
-    public void launchExternalPlayer(ActionEvent event) {
-        if (currentLecture != null) {
-            try {
-                String url = currentLecture.getDriveLink();
-                // Convert preview link to view link for external browser
-                if (url != null && url.contains("/preview")) {
-                    url = url.replace("/preview", "/view");
-                }
-                java.awt.Desktop.getDesktop().browse(new java.net.URI(url));
-                videoEngine.getEngine().loadContent("<h2 style='color:#E0DCD3; text-align:center; margin-top:20%; font-family:sans-serif;'>Video playing in your external browser...</h2>");
-            } catch (Exception e) {
-                System.err.println("Failed to launch browser: " + e.getMessage());
-            }
+    private void disposeCurrentPlayer() {
+        if (currentMediaPlayer != null) {
+            currentMediaPlayer.stop();
+            currentMediaPlayer.dispose();
+            currentMediaPlayer = null;
         }
     }
 
@@ -225,7 +378,7 @@ public class CoursePlayerController {
      * Use-case: Audio Kill Switch
      */
     public void stopVideo() {
-        videoEngine.getEngine().load(null);
+        disposeCurrentPlayer();
     }
 
     /**

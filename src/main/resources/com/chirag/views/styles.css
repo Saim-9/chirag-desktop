@@ -344,3 +344,48 @@
     -fx-background-color: #E0DCD3;
     -fx-text-fill: #000000;
 }
+
+/* --- Native Video Player Controls --- */
+.video-control-btn {
+    -fx-background-color: #1B263B;
+    -fx-text-fill: #FAF8F5;
+    -fx-background-radius: 4px;
+    -fx-padding: 8 16;
+    -fx-font-weight: bold;
+    -fx-cursor: hand;
+    -fx-font-size: 13px;
+}
+
+.video-control-btn:hover {
+    -fx-background-color: #2D3E5A;
+}
+
+.video-control-btn:pressed {
+    -fx-background-color: #0D1520;
+}
+
+/* Seek and Volume Slider Styling */
+.video-slider .track {
+    -fx-background-color: #2D3E5A;
+    -fx-pref-height: 6px;
+    -fx-background-radius: 3px;
+}
+
+.video-slider .thumb {
+    -fx-background-color: #FAF8F5;
+    -fx-background-radius: 50%;
+    -fx-pref-width: 14px;
+    -fx-pref-height: 14px;
+    -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.3), 3, 0, 0, 1);
+}
+
+.video-slider .thumb:hover {
+    -fx-background-color: #E0DCD3;
+    -fx-scale-x: 1.2;
+    -fx-scale-y: 1.2;
+}
+
+.video-slider .colored-track {
+    -fx-background-color: #667EEA;
+    -fx-background-radius: 3px;
+}

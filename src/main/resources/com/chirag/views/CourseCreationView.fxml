@@ -16,11 +16,11 @@
         
         <VBox styleClass="card-container" spacing="15.0">
             <Label text="Lectures" styleClass="section-header" />
-            <Label text="Important: Only YouTube links are supported. Upload your videos to YouTube as 'Unlisted' and paste the link here." textFill="#D90429" wrapText="true" />
+            <Label text="Important: Only Google Drive video links are supported. Upload your video to Google Drive, right-click → Share → set to 'Anyone with the link', then paste the link here." textFill="#D90429" wrapText="true" />
             <VBox fx:id="lectureEntryContainer" spacing="15.0">
                 <HBox spacing="10.0">
                     <TextField promptText="Lecture Title" HBox.hgrow="ALWAYS" />
-                    <TextField promptText="YouTube Link" HBox.hgrow="ALWAYS" />
+                    <TextField promptText="Google Drive Link" HBox.hgrow="ALWAYS" />
                 </HBox>
             </VBox>
             <Button text="Add Another Lecture" onAction="#addLectureField" styleClass="dynamic-btn" style="-fx-background-color: #E0DCD3; -fx-text-fill: #1B263B; -fx-padding: 5 15;" />

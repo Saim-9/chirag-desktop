@@ -113,6 +113,21 @@ public class CourseDetailController {
         if (currentCourse == null)
             return;
 
+        // Block course creator from enrolling in their own course
+        if (currentCourse.getInstructor() != null &&
+            UserSession.getCurrentUser().getId() == currentCourse.getInstructor().getId()) {
+            Alert alert = new Alert(Alert.AlertType.WARNING);
+            alert.setTitle("Self-Enrollment Blocked");
+            alert.setHeaderText(null);
+            alert.setContentText("You cannot enroll in a course you created. This course is yours — you can manage it from your Dashboard.");
+            java.net.URL cssUrl = getClass().getResource("/com/chirag/views/styles.css");
+            if (cssUrl != null) {
+                alert.getDialogPane().getStylesheets().add(cssUrl.toExternalForm());
+            }
+            alert.showAndWait();
+            return;
+        }
+
         // Check if already enrolled — navigate to player instead of buying again
         com.chirag.repositories.EnrollmentRepository enrollmentRepo = new com.chirag.repositories.EnrollmentRepository();
         com.chirag.models.Enrollment existing = enrollmentRepo.findByUserAndCourse(UserSession.getCurrentUser(), currentCourse);

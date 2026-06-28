@@ -16,6 +16,8 @@ import javafx.scene.layout.VBox;
 import java.util.ArrayList;
 import java.util.List;
 import javafx.scene.control.Alert;
+import java.net.HttpURLConnection;
+import java.net.URL;
 
 /**
  * Controller for the course upload from.
@@ -58,11 +60,63 @@ public class CourseCreationController {
         HBox.setHgrow(titleFld, Priority.ALWAYS);
         
         TextField linkFld = new TextField();
-        linkFld.setPromptText("Video Link (Drive)");
+        linkFld.setPromptText("Google Drive Link");
         HBox.setHgrow(linkFld, Priority.ALWAYS);
         
         hbox.getChildren().addAll(titleFld, linkFld);
         lectureEntryContainer.getChildren().add(hbox);
+    }
+
+    /**
+     * Extracts a Google Drive file ID from various link formats.
+     * Returns null if the link is not a valid Google Drive URL.
+     */
+    private String extractDriveFileId(String rawLink) {
+        if (rawLink == null || rawLink.trim().isEmpty()) return null;
+
+        String driveFileId = null;
+
+        if (rawLink.contains("drive.google.com/file/d/")) {
+            // Format: https://drive.google.com/file/d/{FILE_ID}/view?...
+            int start = rawLink.indexOf("/file/d/") + 8;
+            int end = rawLink.indexOf("/", start);
+            if (end == -1) end = rawLink.length();
+            driveFileId = rawLink.substring(start, end);
+        } else if (rawLink.contains("drive.google.com/open?id=")) {
+            // Format: https://drive.google.com/open?id={FILE_ID}
+            int start = rawLink.indexOf("id=") + 3;
+            int end = rawLink.indexOf("&", start);
+            if (end == -1) end = rawLink.length();
+            driveFileId = rawLink.substring(start, end);
+        }
+
+        return (driveFileId != null && !driveFileId.isEmpty()) ? driveFileId : null;
+    }
+
+    /**
+     * Verifies that a Google Drive file is publicly accessible
+     * by sending an HTTP HEAD request to the direct download URL.
+     * Returns true if the file is reachable (HTTP 200 or 302 redirect).
+     * Returns false if the file is private (403), not found (404), or unreachable.
+     */
+    private boolean verifyDriveLinkAccessibility(String fileId) {
+        try {
+            String checkUrl = "https://drive.google.com/uc?export=download&id=" + fileId;
+            HttpURLConnection connection = (HttpURLConnection) new URL(checkUrl).openConnection();
+            connection.setRequestMethod("HEAD");
+            connection.setConnectTimeout(5000);
+            connection.setReadTimeout(5000);
+            connection.setInstanceFollowRedirects(true);
+            int responseCode = connection.getResponseCode();
+            connection.disconnect();
+
+            // Google Drive returns 200 or 302 for accessible files,
+            // 403 for private files, 404 for non-existent files
+            return responseCode == 200 || responseCode == 302 || responseCode == 303;
+        } catch (Exception e) {
+            System.err.println("Failed to verify Drive link: " + e.getMessage());
+            return false;
+        }
     }
 
     /**
@@ -99,35 +153,37 @@ public class CourseCreationController {
 
                 if (!tFld.getText().trim().isEmpty() && !lFld.getText().trim().isEmpty()) {
                     String rawLink = lFld.getText().trim();
-                    String embedLink = null;
 
-                    // Extract Google Drive file ID from various link formats
-                    String driveFileId = null;
-
-                    if (rawLink.contains("drive.google.com/file/d/")) {
-                        // Format: https://drive.google.com/file/d/{FILE_ID}/view?...
-                        int start = rawLink.indexOf("/file/d/") + 8;
-                        int end = rawLink.indexOf("/", start);
-                        if (end == -1) end = rawLink.length();
-                        driveFileId = rawLink.substring(start, end);
-                    } else if (rawLink.contains("drive.google.com/open?id=")) {
-                        // Format: https://drive.google.com/open?id={FILE_ID}
-                        int start = rawLink.indexOf("id=") + 3;
-                        int end = rawLink.indexOf("&", start);
-                        if (end == -1) end = rawLink.length();
-                        driveFileId = rawLink.substring(start, end);
-                    }
-
-                    if (driveFileId != null && !driveFileId.isEmpty()) {
-                        embedLink = "https://drive.google.com/file/d/" + driveFileId + "/preview";
-                    }
+                    // Step 1: Extract the Google Drive file ID from the link
+                    String driveFileId = extractDriveFileId(rawLink);
 
                     // Validate Link Format
-                    if (embedLink == null) {
-                        showModernAlert(Alert.AlertType.ERROR, "Invalid Link", "Only Google Drive video links are supported. Please provide a valid Google Drive share link.\n\nAccepted formats:\n• https://drive.google.com/file/d/{ID}/view\n• https://drive.google.com/open?id={ID}");
-                        isSubmitting = false; // CRITICAL FIX: Unlock the button so they can try again!
-                        return; // Block submission
+                    if (driveFileId == null) {
+                        showModernAlert(Alert.AlertType.ERROR, "Invalid Link",
+                                "Only Google Drive video links are supported.\n\n" +
+                                "Lecture: \"" + tFld.getText().trim() + "\"\n\n" +
+                                "Accepted formats:\n" +
+                                "• https://drive.google.com/file/d/{ID}/view\n" +
+                                "• https://drive.google.com/open?id={ID}");
+                        isSubmitting = false;
+                        return;
                     }
+
+                    // Step 2: Verify the link is publicly accessible via HTTP check
+                    if (!verifyDriveLinkAccessibility(driveFileId)) {
+                        showModernAlert(Alert.AlertType.ERROR, "Link Not Accessible",
+                                "The Google Drive video for lecture \"" + tFld.getText().trim() + "\" is not publicly accessible.\n\n" +
+                                "Please ensure the file is shared as 'Anyone with the link' in Google Drive:\n\n" +
+                                "1. Open the file in Google Drive\n" +
+                                "2. Right-click → Share\n" +
+                                "3. Change 'Restricted' to 'Anyone with the link'\n" +
+                                "4. Click 'Done' and try again");
+                        isSubmitting = false;
+                        return;
+                    }
+
+                    // Step 3: Convert to embed format for storage
+                    String embedLink = "https://drive.google.com/file/d/" + driveFileId + "/preview";
 
                     Lecture lec = new Lecture();
                     lec.setTitle(tFld.getText().trim());
