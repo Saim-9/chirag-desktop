@@ -37,3 +37,7 @@ build/
 
 ### Mac OS ###
 .DS_Store
+
+### Chirag Config ###
+config.properties
+src/main/resources/config.properties

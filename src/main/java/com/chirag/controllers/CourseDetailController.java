@@ -113,6 +113,27 @@ public class CourseDetailController {
         if (currentCourse == null)
             return;
 
+        // Check if already enrolled — navigate to player instead of buying again
+        com.chirag.repositories.EnrollmentRepository enrollmentRepo = new com.chirag.repositories.EnrollmentRepository();
+        com.chirag.models.Enrollment existing = enrollmentRepo.findByUserAndCourse(UserSession.getCurrentUser(), currentCourse);
+        if (existing != null) {
+            Alert alert = new Alert(Alert.AlertType.INFORMATION);
+            alert.setTitle("Already Enrolled");
+            alert.setHeaderText(null);
+            alert.setContentText("You are already enrolled in '" + currentCourse.getTitle() + "'. Opening the course player...");
+            java.net.URL cssUrl = getClass().getResource("/com/chirag/views/styles.css");
+            if (cssUrl != null) {
+                alert.getDialogPane().getStylesheets().add(cssUrl.toExternalForm());
+            }
+            alert.showAndWait();
+
+            Object ctrl = SceneManager.getInstance().switchScene("CoursePlayerView.fxml");
+            if (ctrl instanceof CoursePlayerController) {
+                ((CoursePlayerController) ctrl).setCourse(currentCourse);
+            }
+            return;
+        }
+
         boolean success = paymentServiceImpl.processCoursePurchase(UserSession.getCurrentUser(), currentCourse);
         if (success) {
             statusMsgLabel.setText("Purchase Successful!");

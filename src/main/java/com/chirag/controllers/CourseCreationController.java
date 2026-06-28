@@ -101,19 +101,30 @@ public class CourseCreationController {
                     String rawLink = lFld.getText().trim();
                     String embedLink = null;
 
-                    if (rawLink.contains("youtube.com/watch?v=")) {
-                        String id = rawLink.substring(rawLink.indexOf("v=") + 2);
-                        if (id.contains("&")) id = id.substring(0, id.indexOf("&"));
-                        embedLink = "https://www.youtube.com/embed/" + id;
-                    } else if (rawLink.contains("youtu.be/")) {
-                        String id = rawLink.substring(rawLink.indexOf("youtu.be/") + 9);
-                        if (id.contains("?")) id = id.substring(0, id.indexOf("?"));
-                        embedLink = "https://www.youtube.com/embed/" + id;
+                    // Extract Google Drive file ID from various link formats
+                    String driveFileId = null;
+
+                    if (rawLink.contains("drive.google.com/file/d/")) {
+                        // Format: https://drive.google.com/file/d/{FILE_ID}/view?...
+                        int start = rawLink.indexOf("/file/d/") + 8;
+                        int end = rawLink.indexOf("/", start);
+                        if (end == -1) end = rawLink.length();
+                        driveFileId = rawLink.substring(start, end);
+                    } else if (rawLink.contains("drive.google.com/open?id=")) {
+                        // Format: https://drive.google.com/open?id={FILE_ID}
+                        int start = rawLink.indexOf("id=") + 3;
+                        int end = rawLink.indexOf("&", start);
+                        if (end == -1) end = rawLink.length();
+                        driveFileId = rawLink.substring(start, end);
+                    }
+
+                    if (driveFileId != null && !driveFileId.isEmpty()) {
+                        embedLink = "https://drive.google.com/file/d/" + driveFileId + "/preview";
                     }
 
                     // Validate Link Format
                     if (embedLink == null) {
-                        showModernAlert(Alert.AlertType.ERROR, "Invalid Link", "Only YouTube links are supported. Please provide a valid YouTube link.");
+                        showModernAlert(Alert.AlertType.ERROR, "Invalid Link", "Only Google Drive video links are supported. Please provide a valid Google Drive share link.\n\nAccepted formats:\n• https://drive.google.com/file/d/{ID}/view\n• https://drive.google.com/open?id={ID}");
                         isSubmitting = false; // CRITICAL FIX: Unlock the button so they can try again!
                         return; // Block submission
                     }

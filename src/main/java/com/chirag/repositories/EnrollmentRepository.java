@@ -66,4 +66,22 @@ public class EnrollmentRepository {
             return java.util.Collections.emptyList();
         }
     }
+
+    /**
+     * Checks if a user is already enrolled in a specifc course.
+     * Returns the Enrollment if found, null othrwise.
+     * Use-case: Course Purchase (duplicate guard).
+     */
+    public Enrollment findByUserAndCourse(User user, Course course) {
+        try {
+            return enrollmentDao.queryBuilder().where()
+                    .eq("user_id", user.getId())
+                    .and()
+                    .eq("course_id", course.getId())
+                    .queryForFirst();
+        } catch (SQLException e) {
+            System.err.println("Failed to check existing enrollment: " + e.getMessage());
+            return null;
+        }
+    }
 }

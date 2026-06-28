@@ -14,7 +14,10 @@ import javafx.scene.control.Label;
 import javafx.scene.layout.VBox;
 import javafx.scene.web.WebView;
 import java.sql.SQLException;
+import java.util.Arrays;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 /**
  * Manages the view for the course player classroom.
@@ -82,10 +85,15 @@ public class CoursePlayerController {
 
             Enrollment enrollment = getEnrollment();
             String completedIds = enrollment != null ? enrollment.getCompletedLectureIds() : "";
+            // Parse CSV into a Set for exact ID matching (fixes substring bug)
+            Set<String> completedSet = new HashSet<>();
+            if (completedIds != null && !completedIds.trim().isEmpty()) {
+                completedSet.addAll(Arrays.asList(completedIds.split(",")));
+            }
 
             for (Lecture l : lecs) {
                 String title = l.getTitle();
-                if (completedIds.contains(String.valueOf(l.getId()))) {
+                if (completedSet.contains(String.valueOf(l.getId()))) {
                     title = "✅ " + title;
                 }
                 Button btn = new Button(title);
@@ -105,14 +113,29 @@ public class CoursePlayerController {
     }
 
     /**
-     * Injects the iframe URL into the webview.
+     * Injects the Google Drive preview iframe into the webview.
+     * Shows only the video player interface, no browser chrome.
      * Use-case: Consume Content.
      */
     private void loadVideo(Lecture lecture) {
         this.currentLecture = lecture;
         String driveLink = lecture.getDriveLink();
-        String html = "<html><body style='margin:0;padding:0;background-color:#0B0F19;'><iframe width='100%' height='100%' src='"
-                + driveLink + "?autoplay=1' frameborder='0' allowfullscreen></iframe></body></html>";
+
+        // Ensure the link is in embed/preview format
+        if (driveLink != null && driveLink.contains("drive.google.com/file/d/") && !driveLink.contains("/preview")) {
+            // Convert view link to preview embed
+            String fileId = driveLink.substring(driveLink.indexOf("/file/d/") + 8);
+            if (fileId.contains("/")) fileId = fileId.substring(0, fileId.indexOf("/"));
+            driveLink = "https://drive.google.com/file/d/" + fileId + "/preview";
+        }
+
+        String html = "<html><head><style>"
+                + "* { margin: 0; padding: 0; overflow: hidden; }"
+                + "body { background-color: #0B0F19; width: 100%; height: 100%; }"
+                + "iframe { width: 100%; height: 100%; border: none; }"
+                + "</style></head><body>"
+                + "<iframe src='" + driveLink + "' allow='autoplay; encrypted-media' allowfullscreen></iframe>"
+                + "</body></html>";
         videoEngine.getEngine().loadContent(html);
     }
 
@@ -128,16 +151,18 @@ public class CoursePlayerController {
                 String completedIds = e.getCompletedLectureIds();
                 String currentIdStr = String.valueOf(currentLecture.getId());
 
-                if (!completedIds.contains(currentIdStr)) {
-                    if (completedIds.isEmpty()) {
-                        completedIds = currentIdStr;
-                    } else {
-                        completedIds += "," + currentIdStr;
-                    }
-                    e.setCompletedLectureIds(completedIds);
+                // Parse CSV into Set for exact matching (fixes substring bug)
+                Set<String> completedSet = new HashSet<>();
+                if (completedIds != null && !completedIds.trim().isEmpty()) {
+                    completedSet.addAll(Arrays.asList(completedIds.split(",")));
+                }
 
-                    int completedCount = completedIds.split(",").length;
-                    if (completedCount >= totalLecturesCount) {
+                if (!completedSet.contains(currentIdStr)) {
+                    completedSet.add(currentIdStr);
+                    String updatedIds = String.join(",", completedSet);
+                    e.setCompletedLectureIds(updatedIds);
+
+                    if (completedSet.size() >= totalLecturesCount) {
                         e.setCompleted(true);
                         enrollmentRepository.update(e);
                         progressLabel.setText("Course Completed!");
@@ -175,7 +200,7 @@ public class CoursePlayerController {
     }
 
     /**
-     * Launches the video in an external browser if WebView fails.
+     * Opens the Google Drive video in an external browser as a fallback.
      * Use-case: Video Safety Valve.
      */
     @FXML
@@ -183,9 +208,9 @@ public class CoursePlayerController {
         if (currentLecture != null) {
             try {
                 String url = currentLecture.getDriveLink();
-                // Converts embed link back to standard YouTube link for the external browser
-                if (url != null && url.contains("embed/")) {
-                    url = url.replace("embed/", "watch?v=");
+                // Convert preview link to view link for external browser
+                if (url != null && url.contains("/preview")) {
+                    url = url.replace("/preview", "/view");
                 }
                 java.awt.Desktop.getDesktop().browse(new java.net.URI(url));
                 videoEngine.getEngine().loadContent("<h2 style='color:#E0DCD3; text-align:center; margin-top:20%; font-family:sans-serif;'>Video playing in your external browser...</h2>");

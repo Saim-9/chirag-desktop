@@ -14,29 +14,67 @@ import org.mindrot.jbcrypt.BCrypt;
 
 /**
  * Manages the database connectivity using singleton pattern.
- * Instantiates the SqLite connection and builds the schemas.
+ * Loads credentials from config.properties or environment variables.
  * Use-cases: System Initialization.
  */
 public class DatabaseConfig {
 
-    private static final String DATABASE_URL = "jdbc:postgresql://aws-1-ap-northeast-1.pooler.supabase.com:5432/postgres";
-    private static final String DB_USERNAME = "postgres.dpappiijfilkfdzqkwkt";
-    private static final String DB_PASSWORD = "pB@847-iZ54";
     private static DatabaseConfig instance;
     private ConnectionSource connectionSource;
 
+    // Loaded from config.properties or environment variables
+    private String databaseUrl;
+    private String dbUsername;
+    private String dbPassword;
+    private String adminEmail;
+    private String adminPassword;
+    private String adminName;
+
     /**
      * Private constructor to restrict external object creation.
-     * Calls the initialization method right away.
+     * Loads configuration, then initializes DB connection.
      * Use-case: System Initialization.
      */
     private DatabaseConfig() {
+        loadConfig();
         try {
             // Now passing the URL, Username, and Password to connect to Supabase
-            connectionSource = new JdbcConnectionSource(DATABASE_URL, DB_USERNAME, DB_PASSWORD);
+            connectionSource = new JdbcConnectionSource(databaseUrl, dbUsername, dbPassword);
             initializeDatabase();
         } catch (SQLException e) {
             System.err.println("Failed to connect to database: " + e.getMessage());
+        }
+    }
+
+    /**
+     * Loads database and admin credentials from config.properties file.
+     * Falls back to environment variables if the file is not found.
+     * Use-case: System Initialization.
+     */
+    private void loadConfig() {
+        java.util.Properties props = new java.util.Properties();
+        try (java.io.InputStream input = getClass().getClassLoader().getResourceAsStream("config.properties")) {
+            if (input != null) {
+                props.load(input);
+                databaseUrl = props.getProperty("db.url");
+                dbUsername = props.getProperty("db.username");
+                dbPassword = props.getProperty("db.password");
+                adminEmail = props.getProperty("admin.email", "saim@test.com");
+                adminPassword = props.getProperty("admin.password", "adminpassword");
+                adminName = props.getProperty("admin.name", "Super Admin");
+                System.out.println("Loaded database configuration from config.properties");
+            } else {
+                // Fallback to environment variables
+                databaseUrl = System.getenv("CHIRAG_DB_URL");
+                dbUsername = System.getenv("CHIRAG_DB_USERNAME");
+                dbPassword = System.getenv("CHIRAG_DB_PASSWORD");
+                adminEmail = System.getenv().getOrDefault("CHIRAG_ADMIN_EMAIL", "saim@test.com");
+                adminPassword = System.getenv().getOrDefault("CHIRAG_ADMIN_PASSWORD", "adminpassword");
+                adminName = System.getenv().getOrDefault("CHIRAG_ADMIN_NAME", "Super Admin");
+                System.out.println("config.properties not found, using environment variables.");
+            }
+        } catch (java.io.IOException e) {
+            System.err.println("Error loading config.properties: " + e.getMessage());
         }
     }
 
@@ -80,30 +118,28 @@ public class DatabaseConfig {
 
     /**
      * Seeds the Super Admin user if they don't exist.
+     * Credentials loaded from config.properties or env variables.
      * Use-case: Bootstrap Seeder.
      */
     private void seedAdmin() {
         try {
             Dao<User, Integer> userDao = DaoManager.createDao(connectionSource, User.class);
-            User admin = userDao.queryBuilder().where().eq("email", "saim@test.com").queryForFirst();
+            User admin = userDao.queryBuilder().where().eq("email", adminEmail).queryForFirst();
             if (admin == null) {
                 admin = new User();
-                admin.setName("Super Admin");
-                admin.setEmail("saim@test.com");
+                admin.setName(adminName);
+                admin.setEmail(adminEmail);
 
                 // Hashing the password before setting it
-                String plainTextPassword = "adminpassword";
-                String hashedPassword = BCrypt.hashpw(plainTextPassword, BCrypt.gensalt());
+                String hashedPassword = BCrypt.hashpw(adminPassword, BCrypt.gensalt());
                 admin.setPassword(hashedPassword);
 
                 admin.setRole("ADMIN");
                 admin.setAccountStatus("ACTIVE");
                 userDao.create(admin);
                 System.out.println("Super Admin seeded with hashed password.");
-            } else {
-                admin.setRole("ADMIN");
-                userDao.update(admin);
             }
+            // No longer force-resetting the role on every startup
         } catch (SQLException e) {
             System.err.println("Seeding error: " + e.getMessage());
         }

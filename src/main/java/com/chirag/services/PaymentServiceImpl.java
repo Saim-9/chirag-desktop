@@ -37,6 +37,14 @@ public class PaymentServiceImpl extends AbstractService implements IPaymentServi
      */
     @Override
     public boolean processCoursePurchase(User buyer, Course course) {
+        // Check for existing enrollment first (duplicate guard)
+        com.chirag.models.Enrollment existingEnrollment = enrollmentRepository.findByUserAndCourse(buyer, course);
+        if (existingEnrollment != null) {
+            System.out.println("User is already enrolled in this course.");
+            logServiceAction("Payment", "Purchase Course (Duplicate)", false);
+            return false;
+        }
+
         double price = course.getPrice();
 
         // Check balance
