@@ -5,13 +5,16 @@ import com.chirag.models.Transaction;
 import com.chirag.models.User;
 import com.chirag.repositories.TransactionRepository;
 import com.chirag.repositories.UserRepository;
+import com.chirag.utils.DatabaseConfig;
 import com.chirag.utils.UserSession;
 import java.sql.SQLException;
 import java.util.Date;
+import com.j256.ormlite.misc.TransactionManager;
 
 /**
  * Demonstrates the Facade Pattern, Strategy Pattern (via IPaymentService),
  * and Inheritance (via AbstractService).
+ * Purchase flow is now atomic — wrapped in a database transaction with rollback.
  */
 public class PaymentServiceImpl extends AbstractService implements IPaymentService {
     private UserRepository userRepository;
@@ -31,8 +34,9 @@ public class PaymentServiceImpl extends AbstractService implements IPaymentServi
     }
 
     /**
-     * Processes the full payment event logic.
-     * Checks balance, deducts, splits revenue, and saves records.
+     * Processes the full payment event logic atomically.
+     * All database operations are wrapped in a transaction — if any step fails,
+     * all changes are rolled back automatically (balance, transaction record, enrollment).
      * Use-case: Course Purchase.
      */
     @Override
@@ -54,49 +58,69 @@ public class PaymentServiceImpl extends AbstractService implements IPaymentServi
             return false;
         }
 
-        User instructor = course.getInstructor();
-        boolean isCircular = (buyer.getId() == instructor.getId());
-
-        double instructorCut = price * 0.90;
-        double adminCut = price * 0.10;
-
-        // Ensure updateBalance accurately reflects the final wallet delta
-        if (isCircular) {
-            // Net effect: user only loses the 10% admin cut
-            userService.updateBalance(buyer, -adminCut);
-        } else {
-            userService.updateBalance(buyer, -price);
-            userService.updateBalance(instructor, instructorCut);
-        }
-
-        // Create transaction record
-        Transaction transaction = new Transaction();
-        transaction.setAmount(price);
-        transaction.setPlatformFee(adminCut);
-        transaction.setNetAmount(instructorCut);
-        transaction.setDescription("Bought course: " + course.getTitle());
-        transaction.setTransactionDate(new Date());
-        transaction.setBuyer(buyer);
-        transaction.setInstructor(instructor);
-
-        // Save to database through repositories
+        // Execute the entire purchase atomically using ORMLite TransactionManager
         try {
-            transactionRepository.create(transaction);
+            TransactionManager.callInTransaction(
+                DatabaseConfig.getInstance().getConnectionSource(),
+                () -> {
+                    User instructor = course.getInstructor();
+                    boolean isCircular = (buyer.getId() == instructor.getId());
 
-            com.chirag.models.Enrollment enr = new com.chirag.models.Enrollment();
-            enr.setUser(buyer);
-            enr.setCourse(course);
-            enr.setCompleted(false);
-            enrollmentRepository.create(enr);
+                    double instructorCut = price * 0.90;
+                    double adminCut = price * 0.10;
 
-            // Refresh UserSession from DB directly
+                    // Step 1: Deduct balance
+                    if (isCircular) {
+                        // Net effect: user only loses the 10% admin cut
+                        buyer.setVirtualWalletBalance(buyer.getVirtualWalletBalance() - adminCut);
+                    } else {
+                        buyer.setVirtualWalletBalance(buyer.getVirtualWalletBalance() - price);
+                        instructor.setVirtualWalletBalance(instructor.getVirtualWalletBalance() + instructorCut);
+                        userRepository.getDao().update(instructor);
+                    }
+                    userRepository.getDao().update(buyer);
+
+                    // Step 2: Create transaction record
+                    Transaction transaction = new Transaction();
+                    transaction.setAmount(price);
+                    transaction.setPlatformFee(adminCut);
+                    transaction.setNetAmount(instructorCut);
+                    transaction.setDescription("Bought course: " + course.getTitle());
+                    transaction.setTransactionDate(new Date());
+                    transaction.setBuyer(buyer);
+                    transaction.setInstructor(instructor);
+                    transactionRepository.create(transaction);
+
+                    // Step 3: Create enrollment
+                    com.chirag.models.Enrollment enr = new com.chirag.models.Enrollment();
+                    enr.setUser(buyer);
+                    enr.setCourse(course);
+                    enr.setCompleted(false);
+                    enrollmentRepository.create(enr);
+
+                    return null; // TransactionManager requires a return value
+                }
+            );
+
+            // Refresh UserSession from DB directly (outside the transaction)
             UserSession.setCurrentUser(userRepository.getDao().queryForId(buyer.getId()));
 
             logServiceAction("Payment", "Purchase Course", true); // INHERITANCE LOG
             return true;
+
         } catch (SQLException e) {
-            System.err.println("Oops, transaction failed to persist: " + e.getMessage());
-            logServiceAction("Payment", "Purchase Course", false); // INHERITANCE LOG
+            System.err.println("Purchase transaction ROLLED BACK: " + e.getMessage());
+            // On failure, reload the buyer from DB to ensure in-memory state is correct
+            try {
+                User freshBuyer = userRepository.getDao().queryForId(buyer.getId());
+                if (freshBuyer != null) {
+                    buyer.setVirtualWalletBalance(freshBuyer.getVirtualWalletBalance());
+                    UserSession.setCurrentUser(freshBuyer);
+                }
+            } catch (SQLException refreshEx) {
+                System.err.println("Failed to refresh buyer state after rollback: " + refreshEx.getMessage());
+            }
+            logServiceAction("Payment", "Purchase Course (ROLLBACK)", false); // INHERITANCE LOG
             return false;
         }
     }

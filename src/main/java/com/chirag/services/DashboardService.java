@@ -23,21 +23,17 @@ public class DashboardService extends AbstractService {
     private LectureRepository lectureRepository;
 
     public DashboardService() {
-        try {
-            this.courseRepository = new CourseRepository();
-        } catch (com.chirag.exceptions.DatabaseException e) {
-            this.courseRepository = null;
-        }
+        this.courseRepository = new CourseRepository();
         this.enrollmentRepository = new EnrollmentRepository();
         this.transactionRepository = new TransactionRepository();
         this.lectureRepository = new LectureRepository();
     }
 
     public List<Course> getInstructorCourses(User instructor) {
-        if (courseRepository == null) return Collections.emptyList();
         try {
             return courseRepository.findByInstructor(instructor);
         } catch (com.chirag.exceptions.DatabaseException e) {
+            System.err.println("Failed to fetch instructor courses: " + e.getMessage());
             return Collections.emptyList();
         }
     }

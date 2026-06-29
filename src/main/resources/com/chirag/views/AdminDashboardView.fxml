@@ -14,7 +14,7 @@
         </HBox>
     </top>
     <center>
-        <TabPane tabClosingPolicy="UNAVAILABLE">
+        <TabPane fx:id="mainTabPane" tabClosingPolicy="UNAVAILABLE">
             <tabs>
                 <!-- Tab 1: Financial Reports -->
                 <Tab text="Financial Reports">
@@ -58,6 +58,17 @@
                             <PasswordField fx:id="adminPasswordField" promptText="Temporary Password" />
                             <Button text="Create Admin" onAction="#handleCreateAdmin" styleClass="button-primary" maxWidth="Infinity" />
                         </VBox>
+                    </VBox>
+                </Tab>
+
+                <!-- Tab 5: Manage Admins (Super Admin Only — hidden for regular admins) -->
+                <Tab fx:id="manageAdminsTab" text="Manage Admins">
+                    <VBox spacing="20.0" styleClass="content-area">
+                        <Label text="Administrator Directory" styleClass="label-header" />
+                        <Label text="⚠ Only the Super Admin can remove other administrators." style="-fx-text-fill: #D90429; -fx-font-style: italic;" />
+                        <ScrollPane fitToWidth="true" VBox.vgrow="ALWAYS" style="-fx-background-color: transparent;">
+                            <VBox fx:id="adminsContainer" spacing="10.0" />
+                        </ScrollPane>
                     </VBox>
                 </Tab>
             </tabs>

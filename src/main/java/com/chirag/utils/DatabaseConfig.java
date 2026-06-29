@@ -99,6 +99,15 @@ public class DatabaseConfig {
     }
 
     /**
+     * Returns the configured super admin email.
+     * Used to identify the super admin for elevated privileges.
+     * Use-case: Super Admin Management.
+     */
+    public String getSuperAdminEmail() {
+        return adminEmail;
+    }
+
+    /**
      * Auto generates all the required sql tables from our java classes.
      * Use the ormlit table utils to safely create if it don't exist.
      * Use-case: System Initialization.

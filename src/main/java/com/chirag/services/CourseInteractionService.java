@@ -48,9 +48,28 @@ public class CourseInteractionService extends AbstractService {
     public boolean submitReport(Report report) {
         try {
             reportRepository.create(report);
+            logServiceAction("CourseInteraction", "Submit Report", true);
             return true;
         } catch (Exception e) {
             System.err.println("Failed to submit report safely: " + e.getMessage());
+            logServiceAction("CourseInteraction", "Submit Report", false);
+            return false;
+        }
+    }
+
+    /**
+     * Submits a student review for a course.
+     * Decouples ReviewPopupController from direct repository access.
+     * Use-case: Social Proof.
+     */
+    public boolean submitReview(Review review) {
+        try {
+            reviewRepository.create(review);
+            logServiceAction("CourseInteraction", "Submit Review", true);
+            return true;
+        } catch (Exception e) {
+            System.err.println("Failed to submit review safely: " + e.getMessage());
+            logServiceAction("CourseInteraction", "Submit Review", false);
             return false;
         }
     }

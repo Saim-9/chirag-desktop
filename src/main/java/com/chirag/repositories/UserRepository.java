@@ -24,7 +24,7 @@ public class UserRepository {
         try {
             userDao = DaoManager.createDao(DatabaseConfig.getInstance().getConnectionSource(), User.class);
         } catch (SQLException e) {
-            System.err.println("Faild to initilaize User repositry: " + e.getMessage());
+            throw new com.chirag.exceptions.DatabaseException("Faild to initilaize User repositry", e);
         }
     }
 

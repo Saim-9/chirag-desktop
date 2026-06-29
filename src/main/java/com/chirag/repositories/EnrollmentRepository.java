@@ -26,7 +26,7 @@ public class EnrollmentRepository {
         try {
             enrollmentDao = DaoManager.createDao(DatabaseConfig.getInstance().getConnectionSource(), Enrollment.class);
         } catch (SQLException e) {
-            System.err.println("Failed to initialize enrollment Dao: " + e.getMessage());
+            throw new com.chirag.exceptions.DatabaseException("Failed to initialize enrollment Dao", e);
         }
     }
 

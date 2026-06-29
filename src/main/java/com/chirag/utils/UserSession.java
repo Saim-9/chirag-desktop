@@ -28,15 +28,29 @@ public class UserSession {
     }
 
     /**
-     * Clers the session detials foar lgout.
-     * Use-case: System Shotdown.
+     * Clears the session for logout. Single canonical method.
+     * Both logout() and clear() now delegate here to avoid redundancy.
+     * Use-case: System Shutdown.
      */
+    public static void clearSession() {
+        currentUser = null;
+    }
+
+    /**
+     * @deprecated Use {@link #clearSession()} instead.
+     * Kept for backward compatibility.
+     */
+    @Deprecated
     public static void clear() {
-        currentUser = null;
+        clearSession();
     }
 
+    /**
+     * @deprecated Use {@link #clearSession()} instead.
+     * Kept for backward compatibility.
+     */
+    @Deprecated
     public static void logout() {
-        currentUser = null;
+        clearSession();
     }
-
 }

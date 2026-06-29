@@ -2,7 +2,7 @@ package com.chirag.controllers;
 
 import com.chirag.models.Course;
 import com.chirag.models.Review;
-import com.chirag.repositories.ReviewRepository;
+import com.chirag.services.CourseInteractionService;
 import com.chirag.utils.UserSession;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
@@ -12,6 +12,7 @@ import javafx.stage.Stage;
 
 /**
  * Controller for the review submission popup.
+ * Delegates to CourseInteractionService instead of direct repo access.
  * Use-cases: Social Proof.
  */
 public class ReviewPopupController {
@@ -23,10 +24,10 @@ public class ReviewPopupController {
     private TextArea reviewTextArea;
 
     private Course course;
-    private ReviewRepository reviewRepository;
+    private CourseInteractionService interactionService;
 
     public ReviewPopupController() {
-        this.reviewRepository = new ReviewRepository();
+        this.interactionService = new CourseInteractionService();
     }
 
     public void setCourse(Course course) {
@@ -45,7 +46,8 @@ public class ReviewPopupController {
             review.setRating(rating);
             review.setComment(comment != null ? comment.trim() : "");
 
-            reviewRepository.create(review);
+            // Delegate to service layer instead of direct repo access
+            interactionService.submitReview(review);
             closeStage();
         } catch (Exception e) {
             System.err.println("Failed to submit review: " + e.getMessage());

@@ -23,7 +23,7 @@ public class TransactionRepository {
         try {
             transactionDao = DaoManager.createDao(DatabaseConfig.getInstance().getConnectionSource(), Transaction.class);
         } catch (SQLException e) {
-            System.err.println("Erur strating tnsaction dao: " + e.getMessage());
+            throw new com.chirag.exceptions.DatabaseException("Erur strating tnsaction dao", e);
         }
     }
 

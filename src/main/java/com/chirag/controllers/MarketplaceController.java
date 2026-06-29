@@ -3,6 +3,7 @@ package com.chirag.controllers;
 import com.chirag.models.Course;
 import com.chirag.services.CourseService;
 import com.chirag.utils.SceneManager;
+import javafx.concurrent.Task;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.control.Label;
@@ -46,16 +47,35 @@ public class MarketplaceController {
 
     /**
      * Inittialzs the view withe published courese ad lisnter.
+     * Loads courses asynchronously to prevent UI freeze.
      * Use-case: Course Catalogue, Search Course.
      */
     @FXML
     public void initialize() {
-        allCourses = courseService.getMarketplaceCourses();
-        renderCourses(allCourses);
-
         searchField.textProperty().addListener((observable, oldValue, newValue) -> {
             applyFilters();
         });
+
+        // Load courses on a background thread
+        loadCoursesAsync();
+    }
+
+    /**
+     * Fetches marketplace courses on a background thread.
+     */
+    private void loadCoursesAsync() {
+        Task<List<Course>> task = new Task<>() {
+            @Override
+            protected List<Course> call() {
+                return courseService.getMarketplaceCourses();
+            }
+        };
+        task.setOnSucceeded(e -> {
+            allCourses = task.getValue();
+            applyFilters();
+        });
+        task.setOnFailed(e -> System.err.println("Marketplace load failed: " + task.getException()));
+        new Thread(task, "marketplace-loader").start();
     }
 
     /**
@@ -171,13 +191,8 @@ public class MarketplaceController {
     @FXML
     public void handleRefresh(ActionEvent event) {
         System.out.println("Fetching fresh courses from Supabase...");
-
-        // Re-fetch the live data from the database
-        allCourses = courseService.getMarketplaceCourses();
-
-        // Re-apply any active search text or tags to the new data,
-        // which automatically calls renderCourses() and clears the old UI.
-        applyFilters();
+        // Re-fetch asynchronously
+        loadCoursesAsync();
     }
 
     /**
