@@ -38,7 +38,7 @@ public class CourseCreationController {
     private VBox lectureEntryContainer;
 
     private CourseService courseService;
-    private boolean isSubmitting = false;
+    private final java.util.concurrent.atomic.AtomicBoolean isSubmitting = new java.util.concurrent.atomic.AtomicBoolean(false);
 
     /**
      * Sets up service data.
@@ -125,15 +125,15 @@ public class CourseCreationController {
      */
     @FXML
     public void handlePublish(ActionEvent event) {
-        if (isSubmitting) return;
-        isSubmitting = true;
+        // AtomicBoolean.compareAndSet is thread-safe: returns true only if current value is false
+        if (!isSubmitting.compareAndSet(false, true)) return;
 
         String priceText = priceField.getText().trim();
 
         // Validates Price (Regex forces positive numbers and correct decimals)
         if (!priceText.matches("\\d+(\\.\\d{1,2})?")) {
             showModernAlert(Alert.AlertType.ERROR, "Invalid Price", "Price must be a valid positive number (e.g., 19.99). Do not include the $ sign or letters.");
-            isSubmitting = false; // Reset the button lockout
+            isSubmitting.set(false); // Reset the button lockout
             return; // Stop the upload process
         }
 
@@ -165,7 +165,7 @@ public class CourseCreationController {
                                 "Accepted formats:\n" +
                                 "• https://drive.google.com/file/d/{ID}/view\n" +
                                 "• https://drive.google.com/open?id={ID}");
-                        isSubmitting = false;
+                        isSubmitting.set(false);
                         return;
                     }
 
@@ -178,7 +178,7 @@ public class CourseCreationController {
                                 "2. Right-click → Share\n" +
                                 "3. Change 'Restricted' to 'Anyone with the link'\n" +
                                 "4. Click 'Done' and try again");
-                        isSubmitting = false;
+                        isSubmitting.set(false);
                         return;
                     }
 
@@ -196,7 +196,7 @@ public class CourseCreationController {
         // Validates Empty Course
         if (lectures.isEmpty()) {
             showModernAlert(Alert.AlertType.WARNING, "Empty Course", "You must add at least one valid lecture before publishing this course.");
-            isSubmitting = false; // Reset the button lockout
+            isSubmitting.set(false); // Reset the button lockout
             return;
         }
 
@@ -207,7 +207,7 @@ public class CourseCreationController {
             SceneManager.getInstance().switchScene("DashboardView.fxml");
         } else {
             showModernAlert(Alert.AlertType.ERROR, "Publish Failed", "An error occurred while saving the course to the database.");
-            isSubmitting = false;
+            isSubmitting.set(false);
         }
     }
 

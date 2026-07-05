@@ -9,12 +9,17 @@ import javafx.stage.Stage;
 /**
  * Singleton mnaager for handlng all viwe rounting in the aplication.
  * Kepps trac of the prmary stge and swithces the sceness.
+ * Applies CSS globally so individual FXML files don't need to reference styles.
+ * Preserves window dimensions across scene transitions.
  * Use-cases: System Initializatoin, View Navigation.
  */
 public class SceneManager {
 
     private static SceneManager instence;
     private Stage primaryStage;
+    private static final String GLOBAL_CSS = "/com/chirag/views/styles.css";
+    private static final double DEFAULT_WIDTH = 900;
+    private static final double DEFAULT_HEIGHT = 600;
 
     /**
      * Priveat constrctor to froce singelton ptern.
@@ -44,6 +49,7 @@ public class SceneManager {
 
     /**
      * Swhiches the ui sereen by loaading a new fxnl flle.
+     * Applies CSS globally and preserves current window dimensions.
      * Use-case: View Navigation.
      */
     public Object switchScene(String fxmlFile) {
@@ -67,7 +73,24 @@ public class SceneManager {
             });
 
             Parent root = loader.load();
-            Scene scene = new Scene(root, 900, 600);
+
+            // Preserve current window dimensions, or use defaults for first load
+            double width = DEFAULT_WIDTH;
+            double height = DEFAULT_HEIGHT;
+            Scene currentScene = primaryStage.getScene();
+            if (currentScene != null) {
+                width = currentScene.getWidth();
+                height = currentScene.getHeight();
+            }
+
+            Scene scene = new Scene(root, width, height);
+
+            // Apply CSS globally — no need for @styles.css in each FXML
+            java.net.URL cssUrl = getClass().getResource(GLOBAL_CSS);
+            if (cssUrl != null) {
+                scene.getStylesheets().add(cssUrl.toExternalForm());
+            }
+
             primaryStage.setScene(scene);
             primaryStage.show();
             return loader.getController();

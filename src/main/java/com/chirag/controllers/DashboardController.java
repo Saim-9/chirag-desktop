@@ -206,6 +206,18 @@ public class DashboardController {
             // Add the title, percentage, and status to the card
             card.getChildren().addAll(title, percentLabel, progStatus);
 
+            // Show certificate button for completed courses
+            if (enr.isCompleted()) {
+                Button certBtn = new Button("🎓 View Certificate");
+                certBtn.getStyleClass().add("dynamic-btn");
+                certBtn.setStyle("-fx-background-color: #2D6A4F; -fx-text-fill: white; -fx-font-weight: bold; -fx-cursor: hand;");
+                certBtn.setOnAction(ev -> {
+                    new com.chirag.services.CertificateService().showCertificate(
+                            user, c, enr);
+                });
+                card.getChildren().add(certBtn);
+            }
+
             card.setOnMouseClicked(e -> {
                 Object ctrl = com.chirag.utils.SceneManager.getInstance().switchScene("CoursePlayerView.fxml");
                 if (ctrl instanceof CoursePlayerController) {

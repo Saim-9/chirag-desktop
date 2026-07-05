@@ -3,11 +3,11 @@ package com.chirag.controllers;
 import com.chirag.models.Course;
 import com.chirag.models.Enrollment;
 import com.chirag.models.Lecture;
-import com.chirag.repositories.EnrollmentRepository;
-import com.chirag.repositories.LectureRepository;
+import com.chirag.services.ContentPlayerService;
 import com.chirag.utils.SceneManager;
 import com.chirag.utils.UserSession;
 import javafx.application.Platform;
+import javafx.concurrent.Task;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.control.Button;
@@ -19,7 +19,6 @@ import javafx.scene.media.Media;
 import javafx.scene.media.MediaPlayer;
 import javafx.scene.media.MediaView;
 import javafx.util.Duration;
-import java.sql.SQLException;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
@@ -28,7 +27,7 @@ import java.util.Set;
 /**
  * Manages the view for the course player classroom.
  * Uses native JavaFX MediaPlayer for Google Drive video playback.
- * Also handles progress tracking manually.
+ * Delegates all DB operations to ContentPlayerService (proper 3-tier).
  * Use-cases: Consume Content, Track Progress.
  */
 public class CoursePlayerController {
@@ -57,18 +56,16 @@ public class CoursePlayerController {
     private Course currentCourse;
     private Lecture currentLecture;
     private int totalLecturesCount;
-    private LectureRepository lectureRepository;
-    private EnrollmentRepository enrollmentRepository;
+    private ContentPlayerService contentPlayerService;
     private MediaPlayer currentMediaPlayer;
     private boolean isSeeking = false;
 
     /**
-     * Sets up dependencies for lecture and enrollment data.
+     * Sets up service dependency for content playback.
      * Use-case: Consume Content.
      */
     public CoursePlayerController() {
-        this.lectureRepository = new LectureRepository();
-        this.enrollmentRepository = new EnrollmentRepository();
+        this.contentPlayerService = new ContentPlayerService();
     }
 
     /**
@@ -79,7 +76,7 @@ public class CoursePlayerController {
         this.currentCourse = course;
         courseTitleLabel.setText(course.getTitle());
         initializeControls();
-        loadCurriculum();
+        loadCurriculumAsync();
     }
 
     /**
@@ -112,54 +109,53 @@ public class CoursePlayerController {
     }
 
     /**
-     * Gets the current enrollment for the user and course.
+     * Loads the curriculum on a background thread to prevent UI lag.
+     * Use-case: Consume Content.
      */
-    private Enrollment getEnrollment() throws SQLException {
-        List<Enrollment> enrs = enrollmentRepository.getDao().queryBuilder().where()
-                .eq("user_id", UserSession.getCurrentUser().getId())
-                .and()
-                .eq("course_id", currentCourse.getId())
-                .query();
-        return enrs.isEmpty() ? null : enrs.get(0);
+    private void loadCurriculumAsync() {
+        Task<List<Lecture>> fetchTask = new Task<>() {
+            @Override
+            protected List<Lecture> call() {
+                return contentPlayerService.getLecturesForCourse(currentCourse);
+            }
+        };
+        fetchTask.setOnSucceeded(e -> renderCurriculum(fetchTask.getValue()));
+        fetchTask.setOnFailed(e -> System.err.println("Curriculum load failed: " + fetchTask.getException()));
+        new Thread(fetchTask, "curriculum-loader").start();
     }
 
     /**
-     * Loads the list of lectures into the sidebar.
-     * Use-case: Consume Content.
+     * Renders the lecture list in the sidebar after async fetch.
      */
-    private void loadCurriculum() {
-        try {
-            lecturesList.getChildren().clear();
-            List<Lecture> lecs = lectureRepository.getDao().queryBuilder().where()
-                    .eq("course_id", currentCourse.getId()).query();
-            totalLecturesCount = lecs.size();
+    private void renderCurriculum(List<Lecture> lecs) {
+        lecturesList.getChildren().clear();
+        totalLecturesCount = lecs.size();
 
-            Enrollment enrollment = getEnrollment();
-            String completedIds = enrollment != null ? enrollment.getCompletedLectureIds() : "";
-            // Parse CSV into a Set for exact ID matching (fixes substring bug)
-            Set<String> completedSet = new HashSet<>();
-            if (completedIds != null && !completedIds.trim().isEmpty()) {
-                completedSet.addAll(Arrays.asList(completedIds.split(",")));
-            }
+        Enrollment enrollment = contentPlayerService.getEnrollment(
+                UserSession.getCurrentUser(), currentCourse);
+        String completedIds = enrollment != null ? enrollment.getCompletedLectureIds() : "";
 
-            for (Lecture l : lecs) {
-                String title = l.getTitle();
-                if (completedSet.contains(String.valueOf(l.getId()))) {
-                    title = "✅ " + title;
-                }
-                Button btn = new Button(title);
-                btn.getStyleClass().add("nav-button");
-                btn.setStyle("-fx-text-fill: #1B263B; -fx-padding: 5 0;");
-                btn.setOnAction(e -> loadVideo(l));
-                lecturesList.getChildren().add(btn);
+        // Parse CSV into a Set for exact ID matching (fixes substring bug)
+        Set<String> completedSet = new HashSet<>();
+        if (completedIds != null && !completedIds.trim().isEmpty()) {
+            completedSet.addAll(Arrays.asList(completedIds.split(",")));
+        }
+
+        for (Lecture l : lecs) {
+            String title = l.getTitle();
+            if (completedSet.contains(String.valueOf(l.getId()))) {
+                title = "✅ " + title;
             }
-            if (!lecs.isEmpty()) {
-                if (currentLecture == null) {
-                    loadVideo(lecs.get(0));
-                }
+            Button btn = new Button(title);
+            btn.getStyleClass().add("nav-button");
+            btn.setStyle("-fx-text-fill: #1B263B; -fx-padding: 5 0;");
+            btn.setOnAction(e -> loadVideo(l));
+            lecturesList.getChildren().add(btn);
+        }
+        if (!lecs.isEmpty()) {
+            if (currentLecture == null) {
+                loadVideo(lecs.get(0));
             }
-        } catch (SQLException e) {
-            System.err.println("Failed to fetch lectures: " + e.getMessage());
         }
     }
 
@@ -303,43 +299,44 @@ public class CoursePlayerController {
 
     /**
      * Handles the manual toggle for tracking progress.
+     * Delegates persistence to ContentPlayerService.
      * Use-case: Track Progress.
      */
     @FXML
     public void handleMarkAsComplete(ActionEvent event) {
-        try {
-            Enrollment e = getEnrollment();
-            if (e != null && currentLecture != null) {
-                String completedIds = e.getCompletedLectureIds();
-                String currentIdStr = String.valueOf(currentLecture.getId());
+        Enrollment e = contentPlayerService.getEnrollment(
+                UserSession.getCurrentUser(), currentCourse);
+        if (e != null && currentLecture != null) {
+            String completedIds = e.getCompletedLectureIds();
+            String currentIdStr = String.valueOf(currentLecture.getId());
 
-                // Parse CSV into Set for exact matching (fixes substring bug)
-                Set<String> completedSet = new HashSet<>();
-                if (completedIds != null && !completedIds.trim().isEmpty()) {
-                    completedSet.addAll(Arrays.asList(completedIds.split(",")));
-                }
-
-                if (!completedSet.contains(currentIdStr)) {
-                    completedSet.add(currentIdStr);
-                    String updatedIds = String.join(",", completedSet);
-                    e.setCompletedLectureIds(updatedIds);
-
-                    if (completedSet.size() >= totalLecturesCount) {
-                        e.setCompleted(true);
-                        enrollmentRepository.update(e);
-                        progressLabel.setText("Course Completed!");
-                        openReviewDialog();
-                    } else {
-                        enrollmentRepository.update(e);
-                        progressLabel.setText("Progress Saved");
-                    }
-                    loadCurriculum();
-                } else {
-                    progressLabel.setText("Already Completed");
-                }
+            // Parse CSV into Set for exact matching (fixes substring bug)
+            Set<String> completedSet = new HashSet<>();
+            if (completedIds != null && !completedIds.trim().isEmpty()) {
+                completedSet.addAll(Arrays.asList(completedIds.split(",")));
             }
-        } catch (SQLException ex) {
-            System.err.println("Error marking complete: " + ex.getMessage());
+
+            if (!completedSet.contains(currentIdStr)) {
+                completedSet.add(currentIdStr);
+                String updatedIds = String.join(",", completedSet);
+                e.setCompletedLectureIds(updatedIds);
+
+                if (completedSet.size() >= totalLecturesCount) {
+                    e.setCompleted(true);
+                    contentPlayerService.updateEnrollment(e);
+                    progressLabel.setText("Course Completed!");
+                    openReviewDialog();
+                    // Show completion certificate
+                    new com.chirag.services.CertificateService().showCertificate(
+                            UserSession.getCurrentUser(), currentCourse, e);
+                } else {
+                    contentPlayerService.updateEnrollment(e);
+                    progressLabel.setText("Progress Saved");
+                }
+                loadCurriculumAsync();
+            } else {
+                progressLabel.setText("Already Completed");
+            }
         }
     }
 

@@ -41,3 +41,4 @@ build/
 ### Chirag Config ###
 config.properties
 src/main/resources/config.properties
+logs/

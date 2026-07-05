@@ -7,8 +7,6 @@
     -fx-faint-focus-color: transparent;
 }
 
-
-
 .card-container {
 
     -fx-background-color: #FFFFFF;
@@ -21,8 +19,6 @@
 
 }
 
-
-
 .label-header {
 
     -fx-text-fill: #1B263B;
@@ -32,8 +28,6 @@
     -fx-font-weight: bold;
 
 }
-
-
 
 .text-field,
 
@@ -53,8 +47,6 @@
 
 }
 
-
-
 .text-field:focused,
 
 .password-field:focused {
@@ -64,8 +56,6 @@
     -fx-background-color: #FFFFFF;
 
 }
-
-
 
 .button-primary {
 
@@ -85,15 +75,11 @@
 
 }
 
-
-
 .button-primary:hover {
 
     -fx-background-color: #2D3E5A;
 
 }
-
-
 
 .link-text {
 
@@ -105,8 +91,6 @@
 
 }
 
-
-
 .sidebar {
 
     -fx-background-color: #1B263B;
@@ -116,8 +100,6 @@
     -fx-spacing: 15;
 
 }
-
-
 
 .nav-button {
 
@@ -135,8 +117,6 @@
 
 }
 
-
-
 .nav-button:hover {
 
     -fx-text-fill: #FAF8F5;
@@ -144,8 +124,6 @@
     -fx-background-color: #2D3E5A;
 
 }
-
-
 
 .section-header {
 
@@ -159,8 +137,6 @@
 
 }
 
-
-
 .content-area {
 
     -fx-background-color: #FAF8F5;
@@ -168,8 +144,6 @@
     -fx-padding: 30;
 
 }
-
-
 
 .item-card {
 
@@ -181,8 +155,6 @@
 
 }
 
-
-
 .item-card:hover {
 
     -fx-translate-y: -5;
@@ -190,8 +162,6 @@
     -fx-effect: dropshadow(three-pass-box, rgba(0, 0, 0, 0.15), 15, 0, 0, 8);
 
 }
-
-
 
 .tag-chip {
 

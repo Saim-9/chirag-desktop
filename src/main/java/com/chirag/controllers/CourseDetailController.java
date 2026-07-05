@@ -1,6 +1,7 @@
 package com.chirag.controllers;
 
 import com.chirag.models.Course;
+import com.chirag.services.ContentPlayerService;
 import com.chirag.services.CourseInteractionService;
 import com.chirag.services.PaymentServiceImpl;
 import com.chirag.utils.SceneManager;
@@ -12,12 +13,12 @@ import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.layout.FlowPane;
 import javafx.scene.layout.VBox;
-import java.sql.SQLException;
 import java.util.List;
 
 /**
  * View details of a specific course and handles purchase.
- * Use-cases: Course View, Course Purchase.
+ * Uses ContentPlayerService for enrollment checks (no direct repo access).
+ * Use-cases: Course View, Course Purchase, Enrollment Verification.
  */
 public class CourseDetailController {
 
@@ -45,12 +46,14 @@ public class CourseDetailController {
     private Course currentCourse;
     private PaymentServiceImpl paymentServiceImpl;
     private CourseInteractionService interactionService;
+    private ContentPlayerService contentPlayerService;
 
     /**
      * Default constructor for fallback.
      */
     public CourseDetailController() {
         this.paymentServiceImpl = new PaymentServiceImpl();
+        this.contentPlayerService = new ContentPlayerService();
     }
 
     /**
@@ -60,11 +63,13 @@ public class CourseDetailController {
     public CourseDetailController(CourseInteractionService interactionService) {
         this.paymentServiceImpl = new PaymentServiceImpl();
         this.interactionService = interactionService;
+        this.contentPlayerService = new ContentPlayerService();
     }
 
     /**
      * Injects the course data into the view after loading.
-     * Use-case: Course View.
+     * Also checks enrollment status to show correct button text.
+     * Use-case: Course View, Enrollment Verification.
      */
     public void setCourse(Course course) {
         this.currentCourse = course;
@@ -73,7 +78,6 @@ public class CourseDetailController {
         instructorLabel.setText("By " + ins);
         descriptionLabel.setText(course.getDescription());
         priceLabel.setText("$" + String.format("%.2f", course.getPrice()));
-        buyButton.setText("Buy Course for $" + String.format("%.2f", course.getPrice()));
 
         if (course.getTags() != null && !course.getTags().isEmpty()) {
             for (String tag : course.getTags().split(",")) {
@@ -83,19 +87,52 @@ public class CourseDetailController {
             }
         }
 
+        // Enrollment verification: show "Go to Course" if already enrolled
+        configureActionButton();
+
         loadLectures();
         loadReviews();
     }
 
     /**
-     * Fetch lectures from repository and display them.
+     * Configures the buy button based on enrollment and ownership status.
+     * - Own course: disables button with "Your Course" text
+     * - Already enrolled: shows "Go to Course" button
+     * - Not enrolled: shows "Buy Course for $X.XX"
+     * Use-case: Enrollment Verification.
+     */
+    private void configureActionButton() {
+        // Block course creator from seeing Buy
+        if (currentCourse.getInstructor() != null &&
+            UserSession.getCurrentUser().getId() == currentCourse.getInstructor().getId()) {
+            buyButton.setText("📚 Your Course — Manage from Dashboard");
+            buyButton.setDisable(true);
+            buyButton.setStyle("-fx-opacity: 0.7;");
+            return;
+        }
+
+        // Check enrollment via service layer (no direct repo access)
+        boolean isEnrolled = contentPlayerService.isUserEnrolled(
+                UserSession.getCurrentUser(), currentCourse);
+
+        if (isEnrolled) {
+            buyButton.setText("▶ Go to Course");
+            buyButton.setStyle("-fx-background-color: #2D6A4F; -fx-text-fill: white;");
+            statusMsgLabel.setText("✅ You are enrolled in this course");
+            statusMsgLabel.setTextFill(javafx.scene.paint.Color.web("#2D6A4F"));
+        } else {
+            buyButton.setText("Buy Course for $" + String.format("%.2f", currentCourse.getPrice()));
+        }
+    }
+
+    /**
+     * Fetch lectures from service and display them.
      * Use-case: Course View.
      */
     private void loadLectures() {
         lecturesList.getChildren().clear();
 
-
-        java.util.List<com.chirag.models.Lecture> lecs = interactionService.getLecturesForCourse(currentCourse);
+        List<com.chirag.models.Lecture> lecs = interactionService.getLecturesForCourse(currentCourse);
 
         for (com.chirag.models.Lecture l : lecs) {
             Label lbl = new Label("- " + l.getTitle());
@@ -105,8 +142,10 @@ public class CourseDetailController {
     }
 
     /**
-     * Executes purchase using PaymentServiceImpl and shows alert.
-     * Use-case: Course Purchase.
+     * Handles the buy/go-to-course button action.
+     * If already enrolled → navigates to player.
+     * If not enrolled → processes purchase.
+     * Use-case: Course Purchase, Enrollment Verification.
      */
     @FXML
     public void handleBuy(ActionEvent event) {
@@ -116,32 +155,15 @@ public class CourseDetailController {
         // Block course creator from enrolling in their own course
         if (currentCourse.getInstructor() != null &&
             UserSession.getCurrentUser().getId() == currentCourse.getInstructor().getId()) {
-            Alert alert = new Alert(Alert.AlertType.WARNING);
-            alert.setTitle("Self-Enrollment Blocked");
-            alert.setHeaderText(null);
-            alert.setContentText("You cannot enroll in a course you created. This course is yours — you can manage it from your Dashboard.");
-            java.net.URL cssUrl = getClass().getResource("/com/chirag/views/styles.css");
-            if (cssUrl != null) {
-                alert.getDialogPane().getStylesheets().add(cssUrl.toExternalForm());
-            }
-            alert.showAndWait();
+            showStyledAlert(Alert.AlertType.WARNING, "Self-Enrollment Blocked",
+                    "You cannot enroll in a course you created. This course is yours — you can manage it from your Dashboard.");
             return;
         }
 
-        // Check if already enrolled — navigate to player instead of buying again
-        com.chirag.repositories.EnrollmentRepository enrollmentRepo = new com.chirag.repositories.EnrollmentRepository();
-        com.chirag.models.Enrollment existing = enrollmentRepo.findByUserAndCourse(UserSession.getCurrentUser(), currentCourse);
-        if (existing != null) {
-            Alert alert = new Alert(Alert.AlertType.INFORMATION);
-            alert.setTitle("Already Enrolled");
-            alert.setHeaderText(null);
-            alert.setContentText("You are already enrolled in '" + currentCourse.getTitle() + "'. Opening the course player...");
-            java.net.URL cssUrl = getClass().getResource("/com/chirag/views/styles.css");
-            if (cssUrl != null) {
-                alert.getDialogPane().getStylesheets().add(cssUrl.toExternalForm());
-            }
-            alert.showAndWait();
-
+        // Check if already enrolled via service layer — navigate to player
+        boolean isEnrolled = contentPlayerService.isUserEnrolled(
+                UserSession.getCurrentUser(), currentCourse);
+        if (isEnrolled) {
             Object ctrl = SceneManager.getInstance().switchScene("CoursePlayerView.fxml");
             if (ctrl instanceof CoursePlayerController) {
                 ((CoursePlayerController) ctrl).setCourse(currentCourse);
@@ -154,16 +176,9 @@ public class CourseDetailController {
             statusMsgLabel.setText("Purchase Successful!");
             statusMsgLabel.setTextFill(javafx.scene.paint.Color.GREEN);
 
-            Alert alert = new Alert(Alert.AlertType.INFORMATION);
-            alert.setTitle("Enrollment Success");
-            alert.setHeaderText(null);
-            alert.setContentText("Enrollment Successful! Your course '" + currentCourse.getTitle()
-                    + "' is now available in your Classroom.");
-            java.net.URL cssUrl = getClass().getResource("/com/chirag/views/styles.css");
-            if (cssUrl != null) {
-                alert.getDialogPane().getStylesheets().add(cssUrl.toExternalForm());
-            }
-            alert.showAndWait();
+            showStyledAlert(Alert.AlertType.INFORMATION, "Enrollment Success",
+                    "Enrollment Successful! Your course '" + currentCourse.getTitle()
+                            + "' is now available in your Classroom.");
 
             Object ctrl = SceneManager.getInstance().switchScene("CoursePlayerView.fxml");
             if (ctrl instanceof CoursePlayerController) {
@@ -211,6 +226,21 @@ public class CourseDetailController {
     }
 
     /**
+     * Spawns a CSS-styled alert dialog with consistent branding.
+     */
+    private void showStyledAlert(Alert.AlertType type, String title, String message) {
+        Alert alert = new Alert(type);
+        alert.setTitle(title);
+        alert.setHeaderText(null);
+        alert.setContentText(message);
+        java.net.URL cssUrl = getClass().getResource("/com/chirag/views/styles.css");
+        if (cssUrl != null) {
+            alert.getDialogPane().getStylesheets().add(cssUrl.toExternalForm());
+        }
+        alert.showAndWait();
+    }
+
+    /**
      * Opens a dialog for the user to report the course.
      * Use-case: Report Course.
      */
@@ -232,15 +262,8 @@ public class CourseDetailController {
             boolean success = interactionService.submitReport(report);
             
             if (success) {
-                Alert alert = new Alert(Alert.AlertType.INFORMATION);
-                alert.setTitle("Report Submitted");
-                alert.setHeaderText(null);
-                alert.setContentText("Thank you for your report. Our team will investigate this course shortly.");
-                java.net.URL cssUrl = getClass().getResource("/com/chirag/views/styles.css");
-                if (cssUrl != null) {
-                    alert.getDialogPane().getStylesheets().add(cssUrl.toExternalForm());
-                }
-                alert.showAndWait();
+                showStyledAlert(Alert.AlertType.INFORMATION, "Report Submitted",
+                        "Thank you for your report. Our team will investigate this course shortly.");
             }
         });
     }

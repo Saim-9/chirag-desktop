@@ -31,7 +31,7 @@ public class CourseInteractionService extends AbstractService {
         try {
             return lectureRepository.findByCourse(course);
         } catch (Exception e) {
-            System.err.println("Failed to fetch lectures safely: " + e.getMessage());
+            logger.error("Failed to fetch lectures safely: {}", e.getMessage());
             return Collections.emptyList();
         }
     }
@@ -40,7 +40,7 @@ public class CourseInteractionService extends AbstractService {
         try {
             return reviewRepository.findByCourseId(courseId);
         } catch (Exception e) {
-            System.err.println("Failed to fetch reviews safely: " + e.getMessage());
+            logger.error("Failed to fetch reviews safely: {}", e.getMessage());
             return Collections.emptyList();
         }
     }
@@ -51,7 +51,7 @@ public class CourseInteractionService extends AbstractService {
             logServiceAction("CourseInteraction", "Submit Report", true);
             return true;
         } catch (Exception e) {
-            System.err.println("Failed to submit report safely: " + e.getMessage());
+            logger.error("Failed to submit report safely: {}", e.getMessage());
             logServiceAction("CourseInteraction", "Submit Report", false);
             return false;
         }
@@ -68,7 +68,7 @@ public class CourseInteractionService extends AbstractService {
             logServiceAction("CourseInteraction", "Submit Review", true);
             return true;
         } catch (Exception e) {
-            System.err.println("Failed to submit review safely: " + e.getMessage());
+            logger.error("Failed to submit review safely: {}", e.getMessage());
             logServiceAction("CourseInteraction", "Submit Review", false);
             return false;
         }

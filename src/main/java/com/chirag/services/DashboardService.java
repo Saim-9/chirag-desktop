@@ -33,7 +33,7 @@ public class DashboardService extends AbstractService {
         try {
             return courseRepository.findByInstructor(instructor);
         } catch (com.chirag.exceptions.DatabaseException e) {
-            System.err.println("Failed to fetch instructor courses: " + e.getMessage());
+            logger.error("Failed to fetch instructor courses: {}", e.getMessage());
             return Collections.emptyList();
         }
     }
@@ -47,7 +47,7 @@ public class DashboardService extends AbstractService {
             return lectureRepository.getDao().queryBuilder()
                     .where().eq("course_id", courseId).query().size();
         } catch (Exception e) {
-            System.err.println("Error fetching total lectures: " + e.getMessage());
+            logger.error("Error fetching total lectures: {}", e.getMessage());
             return 0;
         }
     }
@@ -61,7 +61,7 @@ public class DashboardService extends AbstractService {
             List<Transaction> transactions = qb.query();
             return transactions.subList(0, Math.min(limit, transactions.size()));
         } catch (Exception e) {
-            System.err.println("Failed to load transactions: " + e.getMessage());
+            logger.error("Failed to load transactions: {}", e.getMessage());
             return Collections.emptyList();
         }
     }

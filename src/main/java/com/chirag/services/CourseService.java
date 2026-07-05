@@ -47,14 +47,14 @@ public class CourseService extends AbstractService {
             return true;
 
         } catch (SQLException e) {
-            System.err.println("Failed to publish course. Executing Rollback... Error: " + e.getMessage());
+            logger.error("Failed to publish course. Executing Rollback... Error: {}", e.getMessage());
             // If lectures fail, delete the course so we don't have an empty ghost course.
             try {
                 if (course.getId() != 0) {
                     courseRepository.getDao().delete(course);
                 }
             } catch (Exception rollbackEx) {
-                System.err.println("Critical Error during rollback.");
+                logger.error("Critical Error during rollback.");
             }
 
             // INHERITANCE IN ACTION
@@ -84,7 +84,7 @@ public class CourseService extends AbstractService {
             logServiceAction("Course", "Update", true);
             return true;
         } catch (SQLException e) {
-            System.err.println("Failed to update course: " + e.getMessage());
+            logger.error("Failed to update course: {}", e.getMessage());
 
             // INHERITANCE IN ACTION
             logServiceAction("Course", "Update", false);

@@ -1,6 +1,7 @@
 package com.chirag.controllers;
 
 import com.chirag.models.Course;
+import com.chirag.services.ContentPlayerService;
 import com.chirag.services.CourseService;
 import com.chirag.utils.SceneManager;
 import javafx.concurrent.Task;
@@ -28,6 +29,7 @@ public class MarketplaceController {
     private FlowPane activeTagsContainer;
 
     private CourseService courseService;
+    private ContentPlayerService contentPlayerService;
     private List<Course> allCourses;
     private java.util.List<String> activeTagsList = new java.util.ArrayList<>();
 
@@ -43,6 +45,7 @@ public class MarketplaceController {
      */
     public MarketplaceController(CourseService courseService) {
         this.courseService = courseService;
+        this.contentPlayerService = new ContentPlayerService();
     }
 
     /**
@@ -112,11 +115,20 @@ public class MarketplaceController {
      * Use-case: Search Course.
      */
     private void applyFilters() {
+        if (allCourses == null) return;
         String query = searchField.getText() == null ? "" : searchField.getText().toLowerCase();
         
         List<Course> filtered = allCourses.stream()
             .filter(c -> {
-                boolean mtchT = query.isEmpty() || (c.getTitle() != null && c.getTitle().toLowerCase().contains(query));
+                // Search by title, description, AND instructor name
+                boolean mtchT = query.isEmpty();
+                if (!mtchT) {
+                    boolean titleMatch = c.getTitle() != null && c.getTitle().toLowerCase().contains(query);
+                    boolean descMatch = c.getDescription() != null && c.getDescription().toLowerCase().contains(query);
+                    String insName = c.getInstructor() != null ? c.getInstructor().getName() : "";
+                    boolean instrMatch = insName.toLowerCase().contains(query);
+                    mtchT = titleMatch || descMatch || instrMatch;
+                }
                 
                 boolean mtchTags = true;
                 if (!activeTagsList.isEmpty()) {
@@ -151,6 +163,19 @@ public class MarketplaceController {
             String insName = c.getInstructor() != null ? c.getInstructor().getName() : "Unknown";
             Label inst = new Label("By " + insName);
             inst.setStyle("-fx-text-fill: #8D99AE;");
+
+            // Show average rating on marketplace card
+            double avgRating = contentPlayerService.getAverageRating(c.getId());
+            int reviewCount = contentPlayerService.getReviewCount(c.getId());
+            Label ratingLbl;
+            if (reviewCount > 0) {
+                String stars = "⭐".repeat(Math.max(1, (int) Math.round(avgRating)));
+                ratingLbl = new Label(stars + String.format(" %.1f (%d)", avgRating, reviewCount));
+                ratingLbl.setStyle("-fx-text-fill: #D4A017; -fx-font-size: 12px;");
+            } else {
+                ratingLbl = new Label("No ratings yet");
+                ratingLbl.setStyle("-fx-text-fill: #8D99AE; -fx-font-size: 11px; -fx-font-style: italic;");
+            }
             
             Label price = new Label("$" + String.format("%.2f", c.getPrice()));
             price.setStyle("-fx-font-weight: bold; -fx-text-fill: #2D6A4F;");
@@ -168,7 +193,7 @@ public class MarketplaceController {
                 }
             }
             
-            card.getChildren().addAll(title, inst, price, tagsPane);
+            card.getChildren().addAll(title, inst, ratingLbl, price, tagsPane);
             
             // Make card clickable
             card.setOnMouseClicked(event -> {
