@@ -1,7 +1,9 @@
 package com.chirag.models;
 
 import com.j256.ormlite.field.DatabaseField;
+import com.j256.ormlite.field.DataType;
 import com.j256.ormlite.table.DatabaseTable;
+import java.math.BigDecimal;
 
 /**
  * Unified user modle that rperesents both students and teacers.
@@ -26,8 +28,8 @@ public class User {
     @DatabaseField(columnName = "role", defaultValue = "USER")
     private String role; // e.g. "USER", maybe admin in futre
 
-    @DatabaseField(canBeNull = false)
-    private double virtualWalletBalance;
+    @DatabaseField(canBeNull = false, dataType = DataType.BIG_DECIMAL)
+    private BigDecimal virtualWalletBalance = BigDecimal.ZERO;
 
     @DatabaseField(columnName = "accountStatus", defaultValue = "ACTIVE")
     private String accountStatus;
@@ -126,7 +128,15 @@ public class User {
      * Use-case: Wallet Management, Course Purchase.
      */
     public double getVirtualWalletBalance() {
-        return virtualWalletBalance;
+        return virtualWalletBalance != null ? virtualWalletBalance.doubleValue() : 0.0;
+    }
+
+    /**
+     * Returns the wallet balance as BigDecimal for precision-safe calculations.
+     * Use-case: Wallet Management, Course Purchase.
+     */
+    public BigDecimal getWalletBalancePrecise() {
+        return virtualWalletBalance != null ? virtualWalletBalance : BigDecimal.ZERO;
     }
 
     /**
@@ -134,7 +144,15 @@ public class User {
      * Use-case: Wallet Management, Course Purchase.
      */
     public void setVirtualWalletBalance(double virtualWalletBalance) {
-        this.virtualWalletBalance = virtualWalletBalance;
+        this.virtualWalletBalance = BigDecimal.valueOf(virtualWalletBalance);
+    }
+
+    /**
+     * Sets the wallet balance using BigDecimal for precision-safe operations.
+     * Use-case: Wallet Management, Course Purchase.
+     */
+    public void setWalletBalancePrecise(BigDecimal balance) {
+        this.virtualWalletBalance = balance != null ? balance : BigDecimal.ZERO;
     }
 
     /**

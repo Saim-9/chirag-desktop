@@ -94,4 +94,13 @@ public class LoginController {
     public void goToRegister(ActionEvent event) {
         com.chirag.utils.SceneManager.getInstance().switchScene("RegisterView.fxml");
     }
+
+    /**
+     * Routes to the password recovery screen.
+     * Use-case: Password Reset.
+     */
+    @FXML
+    public void goToForgotPassword(ActionEvent event) {
+        com.chirag.utils.SceneManager.getInstance().switchScene("ForgotPasswordView.fxml");
+    }
 }

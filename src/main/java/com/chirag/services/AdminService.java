@@ -38,7 +38,7 @@ public class AdminService extends AbstractService {
         try {
             return transactionRepository.getDao().queryForAll();
         } catch (SQLException e) {
-            System.err.println("Failed to fetch transactions: " + e.getMessage());
+            logger.error("Failed to fetch transactions: {}", e.getMessage());
             logServiceAction("Admin", "Fetch Transactions", false);
             return Collections.emptyList();
         }
@@ -53,7 +53,7 @@ public class AdminService extends AbstractService {
             return reportRepository.getDao().queryBuilder()
                     .where().eq("status", "PENDING").query();
         } catch (SQLException e) {
-            System.err.println("Failed to fetch reports: " + e.getMessage());
+            logger.error("Failed to fetch reports: {}", e.getMessage());
             logServiceAction("Admin", "Fetch Reports", false);
             return Collections.emptyList();
         }
@@ -69,7 +69,7 @@ public class AdminService extends AbstractService {
             logServiceAction("Admin", "Dismiss Report #" + report.getId(), true);
             return true;
         } catch (SQLException e) {
-            System.err.println("Failed to dismiss report: " + e.getMessage());
+            logger.error("Failed to dismiss report: {}", e.getMessage());
             logServiceAction("Admin", "Dismiss Report", false);
             return false;
         }
@@ -91,7 +91,7 @@ public class AdminService extends AbstractService {
             logServiceAction("Admin", "Take Down Course: " + course.getTitle(), true);
             return true;
         } catch (SQLException e) {
-            System.err.println("Failed to take down course: " + e.getMessage());
+            logger.error("Failed to take down course: {}", e.getMessage());
             logServiceAction("Admin", "Take Down Course", false);
             return false;
         }
@@ -106,7 +106,7 @@ public class AdminService extends AbstractService {
             return userRepository.getDao().queryBuilder()
                     .where().ne("role", "ADMIN").query();
         } catch (SQLException e) {
-            System.err.println("Failed to fetch users: " + e.getMessage());
+            logger.error("Failed to fetch users: {}", e.getMessage());
             logServiceAction("Admin", "Fetch Users", false);
             return Collections.emptyList();
         }
@@ -132,7 +132,7 @@ public class AdminService extends AbstractService {
             logServiceAction("Admin", "Suspend User: " + user.getEmail(), true);
             return true;
         } catch (SQLException e) {
-            System.err.println("Failed to suspend user: " + e.getMessage());
+            logger.error("Failed to suspend user: {}", e.getMessage());
             logServiceAction("Admin", "Suspend User", false);
             return false;
         }
@@ -163,7 +163,7 @@ public class AdminService extends AbstractService {
                     .ne("id", currentAdmin.getId())
                     .query();
         } catch (SQLException e) {
-            System.err.println("Failed to fetch admin users: " + e.getMessage());
+            logger.error("Failed to fetch admin users: {}", e.getMessage());
             logServiceAction("Admin", "Fetch Admins", false);
             return Collections.emptyList();
         }
@@ -180,7 +180,7 @@ public class AdminService extends AbstractService {
             logServiceAction("Admin", "Delete Admin: " + admin.getEmail(), true);
             return true;
         } catch (SQLException e) {
-            System.err.println("Failed to delete admin: " + e.getMessage());
+            logger.error("Failed to delete admin: {}", e.getMessage());
             logServiceAction("Admin", "Delete Admin", false);
             return false;
         }

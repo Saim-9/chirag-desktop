@@ -289,6 +289,14 @@ public class DashboardController {
     }
 
     /**
+     * Navigates to the user profile screen.
+     * Use-case: Profile View.
+     */
+    @FXML
+    public void goToProfile(ActionEvent event) {
+        com.chirag.utils.SceneManager.getInstance().switchScene("ProfileView.fxml");
+    }
+    /**
      * Opens the modal window to top up virtual wallet.
      * Use-case: Top Up Virtual Wallet.
      */

@@ -30,7 +30,7 @@ public class UserService extends AbstractService {
      */
     public boolean registerUser(User user) {
         if (userRepository.findByEmail(user.getEmail()) != null) {
-            System.out.println("Error: Email already registered!");
+            logger.warn("Registration blocked: Email already registered");
             return false;
         }
         try {
@@ -46,7 +46,7 @@ public class UserService extends AbstractService {
 
         catch (SQLException e)
         {
-            System.err.println("Couldn't create user: " + e.getMessage());
+            logger.error("Couldn't create user: {}", e.getMessage());
             return false;
         }
     }
@@ -58,7 +58,7 @@ public class UserService extends AbstractService {
      */
     public boolean registerNewAdmin(User newAdmin) {
         if (userRepository.findByEmail(newAdmin.getEmail()) != null) {
-            System.out.println("Error: Email already registered!");
+            logger.warn("Admin registration blocked: Email already registered");
             return false;
         }
         try {
@@ -73,7 +73,7 @@ public class UserService extends AbstractService {
             userRepository.create(newAdmin);
             return true;
         } catch (SQLException e) {
-            System.err.println("Couldn't create admin: " + e.getMessage());
+            logger.error("Couldn't create admin: {}", e.getMessage());
             return false;
         }
     }
@@ -108,7 +108,7 @@ public class UserService extends AbstractService {
             userRepository.update(user);
             return true;
         } catch (SQLException e) {
-            System.err.println("Failed to update user balance: " + e.getMessage());
+            logger.error("Failed to update user balance: {}", e.getMessage());
             return false;
         }
     }

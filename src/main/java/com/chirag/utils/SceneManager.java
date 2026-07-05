@@ -48,6 +48,14 @@ public class SceneManager {
     }
 
     /**
+     * Returns the primary stage for overlay operations (toasts, popups).
+     * Use-case: Toast Notifications.
+     */
+    public Stage getPrimaryStage() {
+        return primaryStage;
+    }
+
+    /**
      * Swhiches the ui sereen by loaading a new fxnl flle.
      * Applies CSS globally and preserves current window dimensions.
      * Use-case: View Navigation.

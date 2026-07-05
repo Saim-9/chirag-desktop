@@ -1,7 +1,9 @@
 package com.chirag.models;
 
 import com.j256.ormlite.field.DatabaseField;
+import com.j256.ormlite.field.DataType;
 import com.j256.ormlite.table.DatabaseTable;
+import java.math.BigDecimal;
 
 /**
  * Represents a course that can be purchased or teached by a unified uesr.
@@ -26,8 +28,8 @@ public class Course implements IReviewable {
     @DatabaseField
     private String description;
 
-    @DatabaseField(canBeNull = false)
-    private double price;
+    @DatabaseField(canBeNull = false, dataType = DataType.BIG_DECIMAL)
+    private BigDecimal price = BigDecimal.ZERO;
 
     @DatabaseField(canBeNull = false)
     private Status status;
@@ -37,6 +39,9 @@ public class Course implements IReviewable {
 
     @DatabaseField
     private String tags;
+
+    @DatabaseField
+    private String imageUrl;
 
     @DatabaseField(columnName = "isActive", defaultValue = "true")
     private boolean isActive;
@@ -101,7 +106,7 @@ public class Course implements IReviewable {
      * Use-case: Course Purchase.
      */
     public double getPrice() {
-        return price;
+        return price != null ? price.doubleValue() : 0.0;
     }
 
     /**
@@ -109,7 +114,7 @@ public class Course implements IReviewable {
      * Use-case: Course Creation.
      */
     public void setPrice(double price) {
-        this.price = price;
+        this.price = BigDecimal.valueOf(price);
     }
 
     /**
@@ -174,6 +179,22 @@ public class Course implements IReviewable {
      */
     public void setActive(boolean isActive) {
         this.isActive = isActive;
+    }
+
+    /**
+     * Gets the cover image URL for this course.
+     * Use-case: Course Catalog, Dashboard.
+     */
+    public String getImageUrl() {
+        return imageUrl;
+    }
+
+    /**
+     * Sets the cover image URL.
+     * Use-case: Course Creation.
+     */
+    public void setImageUrl(String imageUrl) {
+        this.imageUrl = imageUrl;
     }
 
     /**

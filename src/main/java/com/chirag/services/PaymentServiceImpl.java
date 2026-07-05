@@ -44,7 +44,7 @@ public class PaymentServiceImpl extends AbstractService implements IPaymentServi
         // Check for existing enrollment first (duplicate guard)
         com.chirag.models.Enrollment existingEnrollment = enrollmentRepository.findByUserAndCourse(buyer, course);
         if (existingEnrollment != null) {
-            System.out.println("User is already enrolled in this course.");
+            logger.info("User is already enrolled in this course.");
             logServiceAction("Payment", "Purchase Course (Duplicate)", false);
             return false;
         }
@@ -53,7 +53,7 @@ public class PaymentServiceImpl extends AbstractService implements IPaymentServi
 
         // Check balance
         if (buyer.getVirtualWalletBalance() < price) {
-            System.out.println("Error: Not enough balance!");
+            logger.warn("Purchase blocked: Not enough balance!");
             logServiceAction("Payment", "Purchase Course", false); // INHERITANCE LOG
             return false;
         }
@@ -109,7 +109,7 @@ public class PaymentServiceImpl extends AbstractService implements IPaymentServi
             return true;
 
         } catch (SQLException e) {
-            System.err.println("Purchase transaction ROLLED BACK: " + e.getMessage());
+            logger.error("Purchase transaction ROLLED BACK: {}", e.getMessage());
             // On failure, reload the buyer from DB to ensure in-memory state is correct
             try {
                 User freshBuyer = userRepository.getDao().queryForId(buyer.getId());
@@ -118,7 +118,7 @@ public class PaymentServiceImpl extends AbstractService implements IPaymentServi
                     UserSession.setCurrentUser(freshBuyer);
                 }
             } catch (SQLException refreshEx) {
-                System.err.println("Failed to refresh buyer state after rollback: " + refreshEx.getMessage());
+                logger.error("Failed to refresh buyer state after rollback: {}", refreshEx.getMessage());
             }
             logServiceAction("Payment", "Purchase Course (ROLLBACK)", false); // INHERITANCE LOG
             return false;

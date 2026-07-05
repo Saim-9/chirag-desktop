@@ -1,7 +1,9 @@
 package com.chirag.models;
 
 import com.j256.ormlite.field.DatabaseField;
+import com.j256.ormlite.field.DataType;
 import com.j256.ormlite.table.DatabaseTable;
+import java.math.BigDecimal;
 import java.util.Date;
 
 /**
@@ -15,14 +17,14 @@ public class Transaction {
     @DatabaseField(generatedId = true)
     private int id;
 
-    @DatabaseField(canBeNull = false)
-    private double amount;
+    @DatabaseField(canBeNull = false, dataType = DataType.BIG_DECIMAL)
+    private BigDecimal amount = BigDecimal.ZERO;
 
-    @DatabaseField(canBeNull = false)
-    private double platformFee;
+    @DatabaseField(canBeNull = false, dataType = DataType.BIG_DECIMAL)
+    private BigDecimal platformFee = BigDecimal.ZERO;
 
-    @DatabaseField(canBeNull = false)
-    private double netAmount;
+    @DatabaseField(canBeNull = false, dataType = DataType.BIG_DECIMAL)
+    private BigDecimal netAmount = BigDecimal.ZERO;
 
     @DatabaseField(canBeNull = false)
     private String description;
@@ -46,14 +48,14 @@ public class Transaction {
     public int getId() { return id; }
     public void setId(int id) { this.id = id; }
 
-    public double getAmount() { return amount; }
-    public void setAmount(double amount) { this.amount = amount; }
+    public double getAmount() { return amount != null ? amount.doubleValue() : 0.0; }
+    public void setAmount(double amount) { this.amount = BigDecimal.valueOf(amount); }
 
-    public double getPlatformFee() { return platformFee; }
-    public void setPlatformFee(double platformFee) { this.platformFee = platformFee; }
+    public double getPlatformFee() { return platformFee != null ? platformFee.doubleValue() : 0.0; }
+    public void setPlatformFee(double platformFee) { this.platformFee = BigDecimal.valueOf(platformFee); }
 
-    public double getNetAmount() { return netAmount; }
-    public void setNetAmount(double netAmount) { this.netAmount = netAmount; }
+    public double getNetAmount() { return netAmount != null ? netAmount.doubleValue() : 0.0; }
+    public void setNetAmount(double netAmount) { this.netAmount = BigDecimal.valueOf(netAmount); }
 
     public String getDescription() { return description; }
     public void setDescription(String description) { this.description = description; }

@@ -16,6 +16,7 @@
         <TextField fx:id="emailField" promptText="Email" />
         <PasswordField fx:id="passwordField" promptText="Password" />
         <Button text="Login" styleClass="button-primary" onAction="#handleLogin" />
+        <Hyperlink text="Forgot Password?" styleClass="link-text" onAction="#goToForgotPassword"/>
         <Hyperlink text="Don't have an account? Sign up" styleClass="link-text" onAction="#goToRegister"/>
     </VBox>
 </VBox>
