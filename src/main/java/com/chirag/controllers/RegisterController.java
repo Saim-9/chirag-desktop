@@ -7,6 +7,8 @@ import javafx.fxml.FXML;
 import javafx.scene.control.PasswordField;
 import javafx.scene.control.TextField;
 import javafx.scene.control.Alert;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Manages the registeration form.
@@ -14,6 +16,8 @@ import javafx.scene.control.Alert;
  * Use-cases: User Registeration.
  */
 public class RegisterController {
+
+    private static final Logger logger = LoggerFactory.getLogger(RegisterController.class);
 
     @FXML
     private TextField nameField;
@@ -65,7 +69,7 @@ public class RegisterController {
         boolean success = userService.registerUser(user);
 
         if (success) {
-            System.out.println("Registration Success");
+            logger.info("Registration successful for: {}", email);
             Object c = com.chirag.utils.SceneManager.getInstance().switchScene("LoginView.fxml");
             if (c instanceof LoginController) {
                 ((LoginController) c).setSuccessMessage("Account created! Please sign in.");

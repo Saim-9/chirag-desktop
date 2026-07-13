@@ -57,9 +57,9 @@ public class ProfileController {
             String status = user.getAccountStatus();
             statusLabel.setText(status);
             if ("ACTIVE".equals(status)) {
-                statusLabel.setStyle("-fx-text-fill: #2D6A4F; -fx-font-weight: bold;");
+                statusLabel.setStyle("-fx-text-fill: #27714A; -fx-font-weight: bold;");
             } else {
-                statusLabel.setStyle("-fx-text-fill: #E63946; -fx-font-weight: bold;");
+                statusLabel.setStyle("-fx-text-fill: #C0392B; -fx-font-weight: bold;");
             }
 
             loadTransactionsAsync(user);
@@ -102,11 +102,11 @@ public class ProfileController {
                     } else {
                         setText(item);
                         if (item.startsWith("+$")) {
-                            setStyle("-fx-text-fill: #2D6A4F; -fx-font-weight: bold;");
+                            setStyle("-fx-text-fill: #27714A; -fx-font-weight: bold;");
                         } else if (item.startsWith("-$")) {
-                            setStyle("-fx-text-fill: #E63946; -fx-font-weight: bold;");
+                            setStyle("-fx-text-fill: #C0392B; -fx-font-weight: bold;");
                         } else {
-                            setStyle("-fx-text-fill: #8D99AE; -fx-font-style: italic;");
+                            setStyle("-fx-text-fill: #8A8A8A; -fx-font-style: italic;");
                         }
                     }
                 }

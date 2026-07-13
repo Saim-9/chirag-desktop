@@ -51,8 +51,8 @@ public class CertificateService extends AbstractService {
         certificate.setAlignment(Pos.CENTER);
         certificate.setPadding(new Insets(40, 50, 40, 50));
         certificate.setStyle(
-                "-fx-background-color: linear-gradient(to bottom right, #FAF8F5, #FFFFFF);" +
-                "-fx-border-color: #1B263B;" +
+                "-fx-background-color: linear-gradient(to bottom right, #F5F0EB, #FFFFFF);" +
+                "-fx-border-color: #1B2A4A;" +
                 "-fx-border-width: 4;" +
                 "-fx-border-insets: 10;" +
                 "-fx-background-insets: 10;"
@@ -61,42 +61,42 @@ public class CertificateService extends AbstractService {
         // Decorative top border
         Region topBorder = new Region();
         topBorder.setMinHeight(4);
-        topBorder.setStyle("-fx-background-color: linear-gradient(to right, #667EEA, #764BA2);");
+        topBorder.setStyle("-fx-background-color: linear-gradient(to right, #D4A843, #1B2A4A);");
 
         // Title
         Label titleLbl = new Label("CERTIFICATE OF COMPLETION");
         titleLbl.setFont(Font.font("Georgia", FontWeight.BOLD, 22));
-        titleLbl.setTextFill(Color.web("#1B263B"));
+        titleLbl.setTextFill(Color.web("#1B2A4A"));
         titleLbl.setTextAlignment(TextAlignment.CENTER);
 
         // Decorative divider
         Region divider1 = new Region();
         divider1.setMinHeight(2);
         divider1.setMaxWidth(200);
-        divider1.setStyle("-fx-background-color: #667EEA;");
+        divider1.setStyle("-fx-background-color: #D4A843;");
 
         // "This is to certify that"
         Label certifyLbl = new Label("This is to certify that");
         certifyLbl.setFont(Font.font("Segoe UI", 14));
-        certifyLbl.setTextFill(Color.web("#8D99AE"));
+        certifyLbl.setTextFill(Color.web("#8A8A8A"));
 
         // Student name
         String studentName = user.getName() != null ? user.getName() : "Student";
         Label nameLbl = new Label(studentName);
         nameLbl.setFont(Font.font("Georgia", FontWeight.BOLD, 28));
-        nameLbl.setTextFill(Color.web("#1B263B"));
+        nameLbl.setTextFill(Color.web("#1B2A4A"));
         nameLbl.setTextAlignment(TextAlignment.CENTER);
 
         // "has successfully completed"
         Label completedLbl = new Label("has successfully completed the course");
         completedLbl.setFont(Font.font("Segoe UI", 14));
-        completedLbl.setTextFill(Color.web("#8D99AE"));
+        completedLbl.setTextFill(Color.web("#8A8A8A"));
 
         // Course title
         String courseTitle = course.getTitle() != null ? course.getTitle() : "Untitled Course";
         Label courseLbl = new Label("\"" + courseTitle + "\"");
         courseLbl.setFont(Font.font("Georgia", FontWeight.BOLD, 20));
-        courseLbl.setTextFill(Color.web("#2D6A4F"));
+        courseLbl.setTextFill(Color.web("#27714A"));
         courseLbl.setTextAlignment(TextAlignment.CENTER);
         courseLbl.setWrapText(true);
 
@@ -104,19 +104,19 @@ public class CertificateService extends AbstractService {
         String instructorName = course.getInstructor() != null ? course.getInstructor().getName() : "Unknown";
         Label instructorLbl = new Label("Taught by: " + instructorName);
         instructorLbl.setFont(Font.font("Segoe UI", 13));
-        instructorLbl.setTextFill(Color.web("#8D99AE"));
+        instructorLbl.setTextFill(Color.web("#8A8A8A"));
 
         // Decorative divider
         Region divider2 = new Region();
         divider2.setMinHeight(2);
         divider2.setMaxWidth(200);
-        divider2.setStyle("-fx-background-color: #667EEA;");
+        divider2.setStyle("-fx-background-color: #D4A843;");
 
         // Date
         String dateStr = LocalDate.now().format(DateTimeFormatter.ofPattern("MMMM d, yyyy"));
         Label dateLbl = new Label("Date of Completion: " + dateStr);
         dateLbl.setFont(Font.font("Segoe UI", 12));
-        dateLbl.setTextFill(Color.web("#8D99AE"));
+        dateLbl.setTextFill(Color.web("#8A8A8A"));
 
         // Platform branding
         Label brandLbl = new Label("— Chirag Learning Platform —");
@@ -126,12 +126,12 @@ public class CertificateService extends AbstractService {
         // Decorative bottom border
         Region bottomBorder = new Region();
         bottomBorder.setMinHeight(4);
-        bottomBorder.setStyle("-fx-background-color: linear-gradient(to right, #764BA2, #667EEA);");
+        bottomBorder.setStyle("-fx-background-color: linear-gradient(to right, #1B2A4A, #D4A843);");
 
         // Close button
         Button closeBtn = new Button("Close");
         closeBtn.setStyle(
-                "-fx-background-color: #1B263B; -fx-text-fill: #FAF8F5; " +
+                "-fx-background-color: #1B2A4A; -fx-text-fill: #F5F0EB; " +
                 "-fx-padding: 8 30; -fx-font-weight: bold; -fx-cursor: hand; " +
                 "-fx-background-radius: 4;"
         );

@@ -7,6 +7,8 @@ import javafx.fxml.FXML;
 import javafx.scene.control.Label;
 import javafx.scene.control.PasswordField;
 import javafx.scene.control.TextField;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Controls the login u.i. screens behavior.
@@ -14,6 +16,8 @@ import javafx.scene.control.TextField;
  * Use-cases: User Login.
  */
 public class LoginController {
+
+    private static final Logger logger = LoggerFactory.getLogger(LoginController.class);
 
     @FXML
     private TextField emailField;
@@ -69,7 +73,7 @@ public class LoginController {
                 return;
             }
 
-            System.out.println("Login Success");
+            logger.info("Login Success for user: {}", user.getEmail());
             com.chirag.utils.UserSession.setCurrentUser(user);
             
             if ("ADMIN".equals(user.getRole())) {
@@ -78,7 +82,7 @@ public class LoginController {
                 com.chirag.utils.SceneManager.getInstance().switchScene("DashboardView.fxml");
             }
         } else {
-            System.out.println("Error: Credentials do not mach.");
+            logger.warn("Login failed: credentials do not match");
             if (statusLabel != null) {
                 statusLabel.setText("Login Filed.");
                 statusLabel.setTextFill(javafx.scene.paint.Color.RED);

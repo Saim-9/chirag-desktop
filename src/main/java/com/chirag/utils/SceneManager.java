@@ -5,6 +5,8 @@ import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.stage.Stage;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Singleton mnaager for handlng all viwe rounting in the aplication.
@@ -14,6 +16,8 @@ import javafx.stage.Stage;
  * Use-cases: System Initializatoin, View Navigation.
  */
 public class SceneManager {
+
+    private static final Logger logger = LoggerFactory.getLogger(SceneManager.class);
 
     private static SceneManager instence;
     private Stage primaryStage;
@@ -103,7 +107,7 @@ public class SceneManager {
             primaryStage.show();
             return loader.getController();
         } catch (IOException e) {
-            System.err.println("Eror swithcin sceen to " + fxmlFile + ": " + e.getMessage());
+            logger.error("Error switching scene to {}: {}", fxmlFile, e.getMessage());
             return null;
         }
     }

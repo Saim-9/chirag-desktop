@@ -43,15 +43,15 @@ public class ForgotPasswordController {
         String email = emailField.getText().trim();
         if (email.isEmpty()) {
             statusLabel.setText("Please enter your email address");
-            statusLabel.setStyle("-fx-text-fill: #E63946;");
+            statusLabel.setStyle("-fx-text-fill: #C0392B;");
             return;
         }
 
         foundUser = userRepository.findByEmail(email);
         if (foundUser != null) {
             // Email exists — show reset form (simulated email verification)
-            statusLabel.setText("✅ Email verified! (Simulated — in production, a reset link would be emailed)");
-            statusLabel.setStyle("-fx-text-fill: #2D6A4F;");
+            statusLabel.setText("[Done] Email verified! (Simulated — in production, a reset link would be emailed)");
+            statusLabel.setStyle("-fx-text-fill: #27714A;");
 
             // Reveal the reset section
             resetSection.setVisible(true);
@@ -61,7 +61,7 @@ public class ForgotPasswordController {
             emailField.setDisable(true);
         } else {
             statusLabel.setText("No account found with this email address");
-            statusLabel.setStyle("-fx-text-fill: #E63946;");
+            statusLabel.setStyle("-fx-text-fill: #C0392B;");
         }
     }
 
@@ -76,13 +76,13 @@ public class ForgotPasswordController {
 
         if (newPw.length() < 6) {
             statusLabel.setText("Password must be at least 6 characters");
-            statusLabel.setStyle("-fx-text-fill: #E63946;");
+            statusLabel.setStyle("-fx-text-fill: #C0392B;");
             return;
         }
 
         if (!newPw.equals(confirmPw)) {
             statusLabel.setText("Passwords do not match");
-            statusLabel.setStyle("-fx-text-fill: #E63946;");
+            statusLabel.setStyle("-fx-text-fill: #C0392B;");
             return;
         }
 
@@ -90,8 +90,8 @@ public class ForgotPasswordController {
         foundUser.setPassword(BCrypt.hashpw(newPw, BCrypt.gensalt()));
         try {
             userRepository.update(foundUser);
-            statusLabel.setText("✅ Password reset successful! Redirecting to login...");
-            statusLabel.setStyle("-fx-text-fill: #2D6A4F;");
+            statusLabel.setText("[Done] Password reset successful! Redirecting to login...");
+            statusLabel.setStyle("-fx-text-fill: #27714A;");
 
             // Navigate to login after a brief delay
             javafx.animation.PauseTransition pause = new javafx.animation.PauseTransition(javafx.util.Duration.seconds(2));
@@ -104,7 +104,7 @@ public class ForgotPasswordController {
             pause.play();
         } catch (SQLException e) {
             statusLabel.setText("Failed to reset password. Please try again.");
-            statusLabel.setStyle("-fx-text-fill: #E63946;");
+            statusLabel.setStyle("-fx-text-fill: #C0392B;");
         }
     }
 

@@ -4,31 +4,31 @@
 <?import javafx.scene.layout.*?>
 <?import javafx.geometry.Insets?>
 
-<ScrollPane fitToWidth="true" stylesheets="@styles.css" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.chirag.controllers.CourseCreationController">
+<ScrollPane fitToWidth="true" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.chirag.controllers.CourseCreationController">
     <VBox spacing="20.0" styleClass="content-area">
-        <VBox styleClass="card-container" spacing="15.0">
-            <Label text="Creator Studio - Upload Course" styleClass="label-header" />
-            <TextField fx:id="titleField" promptText="Course Title" />
+        <VBox styleClass="card-container" spacing="14.0">
+            <Label text="Upload Course" styleClass="label-header" />
+            <TextField fx:id="titleField" promptText="Course title" />
             <TextField fx:id="priceField" promptText="Price (e.g. 19.99)" />
-            <TextArea fx:id="descriptionField" promptText="Course Description" prefRowCount="4" wrapText="true" style="-fx-border-color: #E0DCD3; -fx-background-color: transparent;" />
+            <TextArea fx:id="descriptionField" promptText="Course description" prefRowCount="4" wrapText="true" />
             <TextField fx:id="tagsField" promptText="Tags (comma-separated, e.g. JAVA, UI)" />
         </VBox>
-        
-        <VBox styleClass="card-container" spacing="15.0">
+
+        <VBox styleClass="card-container" spacing="14.0">
             <Label text="Lectures" styleClass="section-header" />
-            <Label text="Important: Only Google Drive video links are supported. Upload your video to Google Drive, right-click → Share → set to 'Anyone with the link', then paste the link here." textFill="#D90429" wrapText="true" />
-            <VBox fx:id="lectureEntryContainer" spacing="15.0">
-                <HBox spacing="10.0">
-                    <TextField promptText="Lecture Title" HBox.hgrow="ALWAYS" />
-                    <TextField promptText="Google Drive Link" HBox.hgrow="ALWAYS" />
+            <Label text="Only Google Drive video links are supported. Upload your video to Drive, set sharing to 'Anyone with the link', then paste the link below." style="-fx-text-fill: #C0392B; -fx-font-size: 11px;" wrapText="true" />
+            <VBox fx:id="lectureEntryContainer" spacing="12.0">
+                <HBox spacing="8.0">
+                    <TextField promptText="Lecture title" HBox.hgrow="ALWAYS" />
+                    <TextField promptText="Google Drive link" HBox.hgrow="ALWAYS" />
                 </HBox>
             </VBox>
-            <Button text="Add Another Lecture" onAction="#addLectureField" styleClass="dynamic-btn" style="-fx-background-color: #E0DCD3; -fx-text-fill: #1B263B; -fx-padding: 5 15;" />
+            <Button text="Add Lecture" onAction="#addLectureField" styleClass="dynamic-btn" />
         </VBox>
-        
-        <HBox alignment="CENTER_RIGHT" spacing="15.0">
-            <Button text="Cancel" onAction="#cancelCreation" styleClass="dynamic-btn" style="-fx-text-fill: #1B263B;" />
-            <Button text="Publish Course" onAction="#handlePublish" styleClass="button-primary" />
+
+        <HBox alignment="CENTER_RIGHT" spacing="12.0">
+            <Button text="Cancel" onAction="#cancelCreation" styleClass="dynamic-btn" />
+            <Button text="Publish Course" onAction="#handlePublish" styleClass="button-primary" style="-fx-min-width: 160px;" />
         </HBox>
     </VBox>
 </ScrollPane>

@@ -4,48 +4,51 @@
 <?import javafx.scene.layout.*?>
 <?import javafx.scene.image.*?>
 
-<BorderPane stylesheets="@styles.css" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.chirag.controllers.DashboardController">
+<BorderPane xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.chirag.controllers.DashboardController">
     <left>
-        <VBox styleClass="sidebar" prefWidth="250.0">
-            <ImageView fitWidth="150" preserveRatio="true">
+        <VBox styleClass="sidebar" prefWidth="220.0">
+            <ImageView fitWidth="100" preserveRatio="true">
                 <image>
                     <Image url="@../assets/logo.PNG" />
                 </image>
             </ImageView>
-            <Region prefHeight="40.0" />
+            <Region prefHeight="24.0" />
             <Button text="Marketplace" styleClass="nav-button" onAction="#goToMarketplace" />
             <Button text="My Learning" styleClass="nav-button" />
             <Button text="Creator Studio" styleClass="nav-button" onAction="#goToCreatorStudio" />
             <Button text="Profile" styleClass="nav-button" onAction="#goToProfile" />
             <Region VBox.vgrow="ALWAYS" />
-            <Button text="Logout" styleClass="nav-button" onAction="#handleLogout" />
+            <Button text="Sign Out" styleClass="nav-button" onAction="#handleLogout" />
         </VBox>
     </left>
     <center>
         <ScrollPane fitToWidth="true" style="-fx-background-color: transparent;">
-            <VBox styleClass="content-area" spacing="30.0">
-                <VBox styleClass="card-container">
-                    <Label fx:id="welcomeLabel" text="Welcome, User!" styleClass="label-header" />
-                    <HBox alignment="CENTER_LEFT" spacing="15.0">
-                        <Label fx:id="walletLabel" text="Wallet Balance: $0.00" style="-fx-font-size: 16px; -fx-text-fill: #2D6A4F;" />
-                        <Button text="+ Top Up" styleClass="button-primary" style="-fx-padding: 5 10; -fx-font-size: 12px;" onAction="#openWalletPopup" />
+            <VBox styleClass="content-area" spacing="24.0">
+                <!-- Welcome Header -->
+                <VBox styleClass="card-container" spacing="8">
+                    <Label fx:id="welcomeLabel" text="Welcome" styleClass="label-header" />
+                    <HBox alignment="CENTER_LEFT" spacing="12.0">
+                        <Label fx:id="walletLabel" text="Balance: $0.00" style="-fx-font-size: 15px; -fx-text-fill: #27714A; -fx-font-weight: bold;" />
+                        <Button text="Top Up" styleClass="dynamic-btn" onAction="#openWalletPopup" />
                     </HBox>
                 </VBox>
-                
-                <HBox spacing="30.0">
-                    <VBox spacing="10.0" HBox.hgrow="ALWAYS">
+
+                <!-- My Learning + Transactions -->
+                <HBox spacing="24.0">
+                    <VBox spacing="12.0" HBox.hgrow="ALWAYS">
                         <Label text="My Learning" styleClass="section-header" />
-                        <FlowPane fx:id="enrolledCoursesContainer" hgap="20.0" vgap="20.0" />
+                        <FlowPane fx:id="enrolledCoursesContainer" hgap="16.0" vgap="16.0" />
                     </VBox>
-                    <VBox spacing="10.0" prefWidth="300.0" styleClass="card-container">
-                        <Label text="Recent Transactions" styleClass="section-header" />
-                        <ListView fx:id="transactionsList" prefHeight="200.0" prefWidth="350.0" />
+                    <VBox spacing="12.0" prefWidth="280.0" styleClass="card-container" style="-fx-padding: 18;">
+                        <Label text="Recent Transactions" styleClass="section-header" style="-fx-font-size: 14px;" />
+                        <ListView fx:id="transactionsList" prefHeight="180.0" />
                     </VBox>
                 </HBox>
 
-                <VBox spacing="10.0">
+                <!-- Creator Studio -->
+                <VBox spacing="12.0">
                     <Label text="Creator Studio" styleClass="section-header" />
-                    <FlowPane fx:id="uploadedCoursesContainer" hgap="20.0" vgap="20.0" />
+                    <FlowPane fx:id="uploadedCoursesContainer" hgap="16.0" vgap="16.0" />
                 </VBox>
             </VBox>
         </ScrollPane>

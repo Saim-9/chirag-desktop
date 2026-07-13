@@ -105,7 +105,7 @@ public class CourseDetailController {
         // Block course creator from seeing Buy
         if (currentCourse.getInstructor() != null &&
             UserSession.getCurrentUser().getId() == currentCourse.getInstructor().getId()) {
-            buyButton.setText("📚 Your Course — Manage from Dashboard");
+            buyButton.setText("Your Course — Manage from Dashboard");
             buyButton.setDisable(true);
             buyButton.setStyle("-fx-opacity: 0.7;");
             return;
@@ -116,10 +116,10 @@ public class CourseDetailController {
                 UserSession.getCurrentUser(), currentCourse);
 
         if (isEnrolled) {
-            buyButton.setText("▶ Go to Course");
-            buyButton.setStyle("-fx-background-color: #2D6A4F; -fx-text-fill: white;");
-            statusMsgLabel.setText("✅ You are enrolled in this course");
-            statusMsgLabel.setTextFill(javafx.scene.paint.Color.web("#2D6A4F"));
+            buyButton.setText("Go to Course");
+            buyButton.setStyle("-fx-background-color: #27714A; -fx-text-fill: white;");
+            statusMsgLabel.setText("[Done] You are enrolled in this course");
+            statusMsgLabel.setTextFill(javafx.scene.paint.Color.web("#27714A"));
         } else {
             buyButton.setText("Buy Course for $" + String.format("%.2f", currentCourse.getPrice()));
         }
@@ -198,9 +198,9 @@ public class CourseDetailController {
         List<com.chirag.models.Review> reviews = interactionService.getReviewsForCourse(currentCourse.getId());
 
         if (reviews.isEmpty()) {
-            ratingLabel.setText("⭐ No reviews yet");
+            ratingLabel.setText("* No reviews yet");
             Label noRev = new Label("Be the first to review after completing the course!");
-            noRev.setStyle("-fx-text-fill: #8D99AE; -fx-font-style: italic;");
+            noRev.setStyle("-fx-text-fill: #8A8A8A; -fx-font-style: italic;");
             reviewsList.getChildren().add(noRev);
         } else {
             double sum = 0;
@@ -208,11 +208,11 @@ public class CourseDetailController {
                 sum += r.getRating();
 
                 VBox reviewCard = new VBox(5.0);
-                reviewCard.setStyle("-fx-padding: 10; -fx-background-color: #FAF8F5; -fx-border-color: #E0DCD3; -fx-border-radius: 5;");
+                reviewCard.setStyle("-fx-padding: 10; -fx-background-color: #F5F0EB; -fx-border-color: #E0D8CE; -fx-border-radius: 5;");
 
                 String userName = r.getUser() != null ? r.getUser().getName() : "Anonymous";
-                Label nameLabel = new Label(userName + " (⭐ " + r.getRating() + "/5)");
-                nameLabel.setStyle("-fx-font-weight: bold; -fx-text-fill: #1B263B;");
+                Label nameLabel = new Label(userName + " (* " + r.getRating() + "/5)");
+                nameLabel.setStyle("-fx-font-weight: bold; -fx-text-fill: #1B2A4A;");
 
                 Label textLabel = new Label(r.getComment());
                 textLabel.setWrapText(true);
@@ -221,7 +221,7 @@ public class CourseDetailController {
                 reviewsList.getChildren().add(reviewCard);
             }
             double avg = sum / reviews.size();
-            ratingLabel.setText(String.format("⭐ %.1f/5 (%d reviews)", avg, reviews.size()));
+            ratingLabel.setText(String.format("* %.1f/5 (%d reviews)", avg, reviews.size()));
         }
     }
 

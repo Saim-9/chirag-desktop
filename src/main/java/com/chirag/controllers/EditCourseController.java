@@ -128,6 +128,6 @@ public class EditCourseController {
      * Helper to highlight an invalid field.
      */
     private void highlightField(TextField field) {
-        field.setStyle("-fx-border-color: #E63946; -fx-border-width: 2px;");
+        field.setStyle("-fx-border-color: #C0392B; -fx-border-width: 2px;");
     }
 }

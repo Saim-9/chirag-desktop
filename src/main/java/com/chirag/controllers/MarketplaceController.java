@@ -12,12 +12,16 @@ import javafx.scene.control.TextField;
 import javafx.scene.layout.FlowPane;
 import javafx.scene.layout.VBox;
 import java.util.List;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Cotrolls th markteplace sereen n fetures real-tme serch.
  * Use-cases: Course Cataloge, Search Course.
  */
 public class MarketplaceController {
+
+    private static final Logger logger = LoggerFactory.getLogger(MarketplaceController.class);
 
     @FXML
     private TextField searchField;
@@ -77,7 +81,7 @@ public class MarketplaceController {
             allCourses = task.getValue();
             applyFilters();
         });
-        task.setOnFailed(e -> System.err.println("Marketplace load failed: " + task.getException()));
+        task.setOnFailed(e -> logger.error("Marketplace load failed: {}", task.getException().getMessage()));
         new Thread(task, "marketplace-loader").start();
     }
 
@@ -158,27 +162,27 @@ public class MarketplaceController {
             card.setPrefWidth(250.0);
             
             Label title = new Label(c.getTitle());
-            title.setStyle("-fx-font-weight: bold; -fx-font-size: 16px; -fx-text-fill: #1B263B;");
+            title.setStyle("-fx-font-weight: bold; -fx-font-size: 16px; -fx-text-fill: #1B2A4A;");
             
             String insName = c.getInstructor() != null ? c.getInstructor().getName() : "Unknown";
             Label inst = new Label("By " + insName);
-            inst.setStyle("-fx-text-fill: #8D99AE;");
+            inst.setStyle("-fx-text-fill: #8A8A8A;");
 
             // Show average rating on marketplace card
             double avgRating = contentPlayerService.getAverageRating(c.getId());
             int reviewCount = contentPlayerService.getReviewCount(c.getId());
             Label ratingLbl;
             if (reviewCount > 0) {
-                String stars = "⭐".repeat(Math.max(1, (int) Math.round(avgRating)));
+                String stars = "*".repeat(Math.max(1, (int) Math.round(avgRating)));
                 ratingLbl = new Label(stars + String.format(" %.1f (%d)", avgRating, reviewCount));
-                ratingLbl.setStyle("-fx-text-fill: #D4A017; -fx-font-size: 12px;");
+                ratingLbl.setStyle("-fx-text-fill: #D4A843; -fx-font-size: 12px;");
             } else {
                 ratingLbl = new Label("No ratings yet");
-                ratingLbl.setStyle("-fx-text-fill: #8D99AE; -fx-font-size: 11px; -fx-font-style: italic;");
+                ratingLbl.setStyle("-fx-text-fill: #8A8A8A; -fx-font-size: 11px; -fx-font-style: italic;");
             }
             
             Label price = new Label("$" + String.format("%.2f", c.getPrice()));
-            price.setStyle("-fx-font-weight: bold; -fx-text-fill: #2D6A4F;");
+            price.setStyle("-fx-font-weight: bold; -fx-text-fill: #27714A;");
             
             FlowPane tagsPane = new FlowPane();
             tagsPane.setHgap(5.0);
@@ -215,7 +219,7 @@ public class MarketplaceController {
      */
     @FXML
     public void handleRefresh(ActionEvent event) {
-        System.out.println("Fetching fresh courses from Supabase...");
+        logger.info("Fetching fresh courses from database...");
         // Re-fetch asynchronously
         loadCoursesAsync();
     }

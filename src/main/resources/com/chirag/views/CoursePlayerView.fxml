@@ -4,59 +4,51 @@
 <?import javafx.scene.layout.*?>
 <?import javafx.scene.media.MediaView?>
 
-<BorderPane stylesheets="@styles.css" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.chirag.controllers.CoursePlayerController">
+<BorderPane xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.chirag.controllers.CoursePlayerController">
     <top>
-        <HBox spacing="20.0" alignment="CENTER_LEFT" styleClass="card-container" style="-fx-padding: 15;">
-            <Button text="Back to Dashboard" onAction="#goBack" styleClass="dynamic-btn" style="-fx-text-fill: #1B263B; -fx-background-color: #E0DCD3; -fx-padding: 5 15;" />
-            <Label fx:id="courseTitleLabel" styleClass="label-header" />
+        <HBox spacing="16.0" alignment="CENTER_LEFT" styleClass="card-container" style="-fx-padding: 14 24; -fx-background-radius: 0;">
+            <Button text="Back" onAction="#goBack" styleClass="dynamic-btn" />
+            <Label fx:id="courseTitleLabel" styleClass="label-header" style="-fx-font-size: 18px;" />
         </HBox>
     </top>
     <center>
-        <VBox styleClass="content-area" style="-fx-background-color: #0B0F19;" alignment="CENTER">
+        <VBox style="-fx-background-color: #0D1520;" alignment="CENTER">
 
-            <!-- Native MediaView replaces WebView for direct Google Drive video playback -->
+            <!-- Video Player -->
             <StackPane fx:id="videoContainer" style="-fx-background-color: #000000;" prefWidth="800" prefHeight="450">
                 <MediaView fx:id="mediaView" fitWidth="800" fitHeight="450" preserveRatio="true" />
-                <!-- Loading/Error overlay -->
-                <Label fx:id="videoStatusLabel" text="Select a lecture to start playing"
-                       style="-fx-text-fill: #8D99AE; -fx-font-size: 18px; -fx-font-weight: bold;"
+                <Label fx:id="videoStatusLabel" text="Select a lecture to start"
+                       style="-fx-text-fill: #8A8A8A; -fx-font-size: 16px; -fx-font-weight: bold;"
                        alignment="CENTER" />
             </StackPane>
 
-            <!-- Custom Video Controls -->
-            <HBox fx:id="controlsBar" spacing="12" alignment="CENTER" style="-fx-padding: 10 20; -fx-background-color: #111827;">
-                <Button fx:id="playPauseBtn" text="▶ Play" onAction="#handlePlayPause"
-                        styleClass="video-control-btn" prefWidth="100" />
+            <!-- Controls -->
+            <HBox fx:id="controlsBar" spacing="10" alignment="CENTER" style="-fx-padding: 10 20; -fx-background-color: #111827;">
+                <Button fx:id="playPauseBtn" text="Play" onAction="#handlePlayPause"
+                        styleClass="video-control-btn" prefWidth="90" />
                 <Label fx:id="timeLabel" text="00:00 / 00:00"
-                       style="-fx-text-fill: #8D99AE; -fx-font-size: 13px; -fx-font-family: 'Consolas';" />
+                       style="-fx-text-fill: #8A8A8A; -fx-font-size: 12px; -fx-font-family: 'Consolas';" />
                 <Slider fx:id="seekSlider" HBox.hgrow="ALWAYS" styleClass="video-slider" />
-                <Label text="🔊" style="-fx-text-fill: #FAF8F5; -fx-font-size: 14px;" />
+                <Label text="Vol" style="-fx-text-fill: #8A8A8A; -fx-font-size: 11px;" />
                 <Slider fx:id="volumeSlider" prefWidth="80" value="80" max="100" styleClass="video-slider" />
             </HBox>
 
-            <!-- Single VBox for action buttons -->
-            <VBox alignment="CENTER" style="-fx-padding: 15 0;" spacing="12">
-
-                <!-- Mark as Complete Button -->
+            <!-- Actions -->
+            <VBox alignment="CENTER" style="-fx-padding: 14 0; -fx-background-color: #0D1520;" spacing="10">
                 <Button text="Mark as Complete"
-                        styleClass="button-primary"
+                        styleClass="button-gold"
                         onAction="#handleMarkAsComplete"
-                        maxWidth="300"
-                        prefWidth="300" />
-
-                <!-- Progress Label -->
+                        maxWidth="280" prefWidth="280" />
                 <Label fx:id="progressLabel"
-                       style="-fx-text-fill: #2D6A4F; -fx-font-weight: bold;"
+                       style="-fx-text-fill: #D4A843; -fx-font-weight: bold; -fx-font-size: 13px;"
                        alignment="CENTER" />
-
             </VBox>
-
         </VBox>
     </center>
     <right>
-        <VBox styleClass="card-container" prefWidth="300" spacing="10.0">
-            <Label text="Curriculum" style="-fx-font-size: 20px; -fx-font-weight: bold; -fx-text-fill: #1B263B; -fx-padding: 10 0;" />
-            <VBox fx:id="lecturesList" spacing="10.0" />
+        <VBox styleClass="card-container" prefWidth="280" spacing="8.0" style="-fx-background-radius: 0; -fx-border-radius: 0;">
+            <Label text="Curriculum" style="-fx-font-size: 16px; -fx-font-weight: bold; -fx-text-fill: #1B2A4A; -fx-padding: 8 0;" />
+            <VBox fx:id="lecturesList" spacing="6.0" />
         </VBox>
     </right>
 </BorderPane>

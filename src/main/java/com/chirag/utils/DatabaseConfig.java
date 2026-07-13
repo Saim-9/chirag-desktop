@@ -11,6 +11,8 @@ import com.j256.ormlite.dao.Dao;
 import com.j256.ormlite.dao.DaoManager;
 import java.sql.SQLException;
 import org.mindrot.jbcrypt.BCrypt;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Manages the database connectivity using singleton pattern.
@@ -18,6 +20,8 @@ import org.mindrot.jbcrypt.BCrypt;
  * Use-cases: System Initialization.
  */
 public class DatabaseConfig {
+
+    private static final Logger logger = LoggerFactory.getLogger(DatabaseConfig.class);
 
     private static DatabaseConfig instance;
     private ConnectionSource connectionSource;
@@ -42,7 +46,7 @@ public class DatabaseConfig {
             connectionSource = new JdbcConnectionSource(databaseUrl, dbUsername, dbPassword);
             initializeDatabase();
         } catch (SQLException e) {
-            System.err.println("Failed to connect to database: " + e.getMessage());
+            logger.error("Failed to connect to database: {}", e.getMessage());
         }
     }
 
@@ -62,7 +66,7 @@ public class DatabaseConfig {
                 adminEmail = props.getProperty("admin.email", "saim@test.com");
                 adminPassword = props.getProperty("admin.password", "adminpassword");
                 adminName = props.getProperty("admin.name", "Super Admin");
-                System.out.println("Loaded database configuration from config.properties");
+                logger.info("Loaded database configuration from config.properties");
             } else {
                 // Fallback to environment variables
                 databaseUrl = System.getenv("CHIRAG_DB_URL");
@@ -71,10 +75,10 @@ public class DatabaseConfig {
                 adminEmail = System.getenv().getOrDefault("CHIRAG_ADMIN_EMAIL", "saim@test.com");
                 adminPassword = System.getenv().getOrDefault("CHIRAG_ADMIN_PASSWORD", "adminpassword");
                 adminName = System.getenv().getOrDefault("CHIRAG_ADMIN_NAME", "Super Admin");
-                System.out.println("config.properties not found, using environment variables.");
+                logger.info("config.properties not found, using environment variables");
             }
         } catch (java.io.IOException e) {
-            System.err.println("Error loading config.properties: " + e.getMessage());
+            logger.error("Error loading config.properties: {}", e.getMessage());
         }
     }
 
@@ -146,11 +150,11 @@ public class DatabaseConfig {
                 admin.setRole("ADMIN");
                 admin.setAccountStatus("ACTIVE");
                 userDao.create(admin);
-                System.out.println("Super Admin seeded with hashed password.");
+                logger.info("Super Admin seeded with hashed password");
             }
             // No longer force-resetting the role on every startup
         } catch (SQLException e) {
-            System.err.println("Seeding error: " + e.getMessage());
+            logger.error("Seeding error: {}", e.getMessage());
         }
     }
 

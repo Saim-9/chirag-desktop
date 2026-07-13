@@ -9,6 +9,8 @@ import javafx.fxml.FXML;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.TextArea;
 import javafx.stage.Stage;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Controller for the review submission popup.
@@ -16,6 +18,8 @@ import javafx.stage.Stage;
  * Use-cases: Social Proof.
  */
 public class ReviewPopupController {
+
+    private static final Logger logger = LoggerFactory.getLogger(ReviewPopupController.class);
 
     @FXML
     private ComboBox<String> ratingComboBox;
@@ -50,7 +54,7 @@ public class ReviewPopupController {
             interactionService.submitReview(review);
             closeStage();
         } catch (Exception e) {
-            System.err.println("Failed to submit review: " + e.getMessage());
+            logger.error("Failed to submit review: {}", e.getMessage());
         }
     }
 

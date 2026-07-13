@@ -16,6 +16,8 @@ import javafx.scene.control.Button;
 import javafx.scene.layout.FlowPane;
 import javafx.scene.layout.VBox;
 import java.util.List;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
@@ -29,6 +31,8 @@ import javafx.stage.Stage;
  * Use-cases: Manage Creator Dashboard, Consume Content.
  */
 public class DashboardController {
+
+    private static final Logger logger = LoggerFactory.getLogger(DashboardController.class);
 
     @FXML
     private Label welcomeLabel;
@@ -92,7 +96,7 @@ public class DashboardController {
             }
         };
         task.setOnSucceeded(e -> renderUploadedCourses(task.getValue()));
-        task.setOnFailed(e -> System.err.println("Uploaded courses load failed: " + task.getException()));
+        task.setOnFailed(e -> logger.error("Uploaded courses load failed: {}", task.getException().getMessage()));
         new Thread(task, "dashboard-uploads-loader").start();
     }
 
@@ -107,7 +111,7 @@ public class DashboardController {
             }
         };
         task.setOnSucceeded(e -> renderEnrolledCourses(task.getValue(), user));
-        task.setOnFailed(e -> System.err.println("Enrolled courses load failed: " + task.getException()));
+        task.setOnFailed(e -> logger.error("Enrolled courses load failed: {}", task.getException().getMessage()));
         new Thread(task, "dashboard-enrollments-loader").start();
     }
 
@@ -122,7 +126,7 @@ public class DashboardController {
             }
         };
         task.setOnSucceeded(e -> renderTransactions(task.getValue(), user));
-        task.setOnFailed(e -> System.err.println("Transactions load failed: " + task.getException()));
+        task.setOnFailed(e -> logger.error("Transactions load failed: {}", task.getException().getMessage()));
         new Thread(task, "dashboard-transactions-loader").start();
     }
 
@@ -142,15 +146,15 @@ public class DashboardController {
 
             Label title = new Label(c.getTitle());
             title.setWrapText(true); // Let long titles wrap
-            title.setStyle("-fx-font-weight: bold; -fx-font-size: 16px; -fx-text-fill: #1B263B;");
+            title.setStyle("-fx-font-weight: bold; -fx-font-size: 16px; -fx-text-fill: #1B2A4A;");
 
             Label status = new Label();
             if (!c.isActive()) {
                 status.setText("Status: Suspended by Admin");
-                status.setStyle("-fx-text-fill: #E63946; -fx-font-weight: bold;");
+                status.setStyle("-fx-text-fill: #C0392B; -fx-font-weight: bold;");
             } else {
                 status.setText("Status: " + c.getStatus().toString());
-                status.setStyle("-fx-text-fill: #2D6A4F;");
+                status.setStyle("-fx-text-fill: #27714A;");
             }
 
             Button editBtn = new Button("Edit Course");
@@ -184,7 +188,7 @@ public class DashboardController {
             card.setPrefWidth(250.0);
 
             Label title = new Label(c.getTitle());
-            title.setStyle("-fx-font-weight: bold; -fx-font-size: 16px; -fx-text-fill: #1B263B;");
+            title.setStyle("-fx-font-weight: bold; -fx-font-size: 16px; -fx-text-fill: #1B2A4A;");
 
             double progressValue = 0.0;
             try {
@@ -194,23 +198,23 @@ public class DashboardController {
                 // Delegate the calculation logic to the Enrollment model (Information Expert)
                 progressValue = enr.calculateProgressPercentage(totalLectures);
             } catch (Exception ex) {
-                System.err.println("Error calculating progress math: " + ex.getMessage());
+                logger.error("Error calculating progress: {}", ex.getMessage());
             }
 
             Label percentLabel = new Label("Progress: " + (int)progressValue + "%");
-            percentLabel.setStyle("-fx-font-weight: bold; -fx-text-fill: #1B263B;");
+            percentLabel.setStyle("-fx-font-weight: bold; -fx-text-fill: #1B2A4A;");
 
             Label progStatus = new Label(enr.isCompleted() ? "Status: Completed" : "Status: In Progress");
-            progStatus.setStyle("-fx-text-fill: " + (enr.isCompleted() ? "#2D6A4F" : "#8D99AE") + ";");
+            progStatus.setStyle("-fx-text-fill: " + (enr.isCompleted() ? "#27714A" : "#8A8A8A") + ";");
 
             // Add the title, percentage, and status to the card
             card.getChildren().addAll(title, percentLabel, progStatus);
 
             // Show certificate button for completed courses
             if (enr.isCompleted()) {
-                Button certBtn = new Button("🎓 View Certificate");
-                certBtn.getStyleClass().add("dynamic-btn");
-                certBtn.setStyle("-fx-background-color: #2D6A4F; -fx-text-fill: white; -fx-font-weight: bold; -fx-cursor: hand;");
+                Button certBtn = new Button("View Certificate");
+                certBtn.getStyleClass().add("button-gold");
+                certBtn.setStyle("-fx-padding: 5 12; -fx-font-size: 11px;");
                 certBtn.setOnAction(ev -> {
                     new com.chirag.services.CertificateService().showCertificate(
                             user, c, enr);
@@ -259,11 +263,11 @@ public class DashboardController {
                 } else {
                     setText(item);
                     if (item.startsWith("+$")) {
-                        setStyle("-fx-text-fill: #2D6A4F; -fx-font-weight: bold;"); // Green for income
+                        setStyle("-fx-text-fill: #27714A; -fx-font-weight: bold;"); // Green for income
                     } else if (item.startsWith("-$")) {
-                        setStyle("-fx-text-fill: #E63946; -fx-font-weight: bold;"); // Red for expense
+                        setStyle("-fx-text-fill: #C0392B; -fx-font-weight: bold;"); // Red for expense
                     } else {
-                        setStyle("-fx-text-fill: #1B263B;");
+                        setStyle("-fx-text-fill: #1B2A4A;");
                     }
                 }
             }
@@ -315,7 +319,7 @@ public class DashboardController {
             popupStage.setScene(new Scene(root));
             popupStage.showAndWait();
         } catch (Exception e) {
-            System.err.println("Failed to open wallet popup: " + e.getMessage());
+            logger.error("Failed to open wallet popup: {}", e.getMessage());
         }
     }
 
@@ -338,7 +342,7 @@ public class DashboardController {
     @FXML
     public void handleLogout(ActionEvent event) {
         UserSession.clearSession();
-        System.out.println("User Logged Out");
+        logger.info("User logged out");
         com.chirag.utils.SceneManager.getInstance().switchScene("LoginView.fxml");
     }
 }

@@ -6,6 +6,8 @@ import com.j256.ormlite.dao.Dao;
 import com.j256.ormlite.dao.DaoManager;
 import java.sql.SQLException;
 import java.util.List;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Repsitory clss to mannage al databse quries related to the Usr modle.
@@ -13,6 +15,8 @@ import java.util.List;
  * Use-cases: User Registartion, User Login, Wallet Management.
  */
 public class UserRepository {
+
+    private static final Logger logger = LoggerFactory.getLogger(UserRepository.class);
 
     private Dao<User, Integer> userDao;
 
@@ -47,7 +51,7 @@ public class UserRepository {
                 return results.get(0);
             }
         } catch (SQLException e) {
-            System.err.println("Error searching user by email: " + e.getMessage());
+            logger.error("Error searching user by email: {}", e.getMessage());
         }
         return null;
     }

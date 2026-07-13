@@ -16,6 +16,8 @@ import javafx.scene.layout.HBox;
 import javafx.scene.layout.Priority;
 import javafx.scene.layout.VBox;
 import java.util.List;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Controller for the Admin Command Center.
@@ -25,6 +27,8 @@ import java.util.List;
  * Use-cases: View Revenue, Manage Users, Resolve Reports, Super Admin Management.
  */
 public class AdminDashboardController {
+
+    private static final Logger logger = LoggerFactory.getLogger(AdminDashboardController.class);
 
     @FXML private Label totalRevenueLabel;
     @FXML private BarChart<String, Number> revenueChart;
@@ -79,7 +83,7 @@ public class AdminDashboardController {
             }
         };
         task.setOnSucceeded(e -> renderFinancials(task.getValue()));
-        task.setOnFailed(e -> System.err.println("Financial load failed: " + task.getException()));
+        task.setOnFailed(e -> logger.error("Financial load failed: {}", task.getException().getMessage()));
         new Thread(task, "admin-financials-loader").start();
     }
 
@@ -94,7 +98,7 @@ public class AdminDashboardController {
             }
         };
         task.setOnSucceeded(e -> renderReports(task.getValue()));
-        task.setOnFailed(e -> System.err.println("Reports load failed: " + task.getException()));
+        task.setOnFailed(e -> logger.error("Reports load failed: {}", task.getException().getMessage()));
         new Thread(task, "admin-reports-loader").start();
     }
 
@@ -109,7 +113,7 @@ public class AdminDashboardController {
             }
         };
         task.setOnSucceeded(e -> renderUsers(task.getValue()));
-        task.setOnFailed(e -> System.err.println("Users load failed: " + task.getException()));
+        task.setOnFailed(e -> logger.error("Users load failed: {}", task.getException().getMessage()));
         new Thread(task, "admin-users-loader").start();
     }
 
@@ -125,7 +129,7 @@ public class AdminDashboardController {
             }
         };
         task.setOnSucceeded(e -> renderAdmins(task.getValue()));
-        task.setOnFailed(e -> System.err.println("Admins load failed: " + task.getException()));
+        task.setOnFailed(e -> logger.error("Admins load failed: {}", task.getException().getMessage()));
         new Thread(task, "admin-admins-loader").start();
     }
 
@@ -142,15 +146,26 @@ public class AdminDashboardController {
         XYChart.Series<String, Number> series = new XYChart.Series<>();
         series.setName("Transaction Cut");
 
+        java.text.SimpleDateFormat sdf = new java.text.SimpleDateFormat("MMM dd");
+        int index = 1;
         for (Transaction t : txs) {
             double cut = t.getPlatformFee();
             totalRevenue += cut;
-            series.getData().add(new XYChart.Data<>(t.getTransactionDate().toString(), cut));
+            // Use short date label with index to prevent duplicates
+            String label = sdf.format(t.getTransactionDate()) + " #" + index++;
+            series.getData().add(new XYChart.Data<>(label, cut));
         }
-        
+
         totalRevenueLabel.setText("Total Platform Revenue: $" + String.format("%.2f", totalRevenue));
         revenueChart.getData().clear();
         revenueChart.getData().add(series);
+
+        // Configure x-axis for proper label placement
+        javafx.scene.chart.CategoryAxis xAxis = (javafx.scene.chart.CategoryAxis) revenueChart.getXAxis();
+        xAxis.setTickLabelRotation(-45);
+        xAxis.setGapStartAndEnd(true);
+        revenueChart.setCategoryGap(10);
+        revenueChart.setBarGap(3);
     }
 
     /**
@@ -162,7 +177,7 @@ public class AdminDashboardController {
 
         for (Report r : reports) {
             HBox row = new HBox(15.0);
-            row.setStyle("-fx-padding: 10; -fx-background-color: #FAF8F5; -fx-border-color: #E0DCD3;");
+            row.setStyle("-fx-padding: 10; -fx-background-color: #F5F0EB; -fx-border-color: #E0D8CE;");
             row.setAlignment(javafx.geometry.Pos.CENTER_LEFT);
 
             Label text = new Label("Report #" + r.getId() + ": " + r.getReportedCourse().getTitle() + " - " + r.getComplaintText());
@@ -177,8 +192,7 @@ public class AdminDashboardController {
             });
 
             Button takeDownBtn = new Button("Take Down");
-            takeDownBtn.setStyle("-fx-background-color: #E63946; -fx-text-fill: white;");
-            takeDownBtn.getStyleClass().add("dynamic-btn");
+            takeDownBtn.getStyleClass().add("button-danger");
             takeDownBtn.setOnAction(e -> {
                 adminService.takeDownCourse(r);
                 loadReportsAsync();
@@ -226,7 +240,7 @@ public class AdminDashboardController {
 
         if (admins.isEmpty()) {
             Label emptyLabel = new Label("No other administrators found.");
-            emptyLabel.setStyle("-fx-text-fill: #8D99AE; -fx-font-style: italic;");
+            emptyLabel.setStyle("-fx-text-fill: #8A8A8A; -fx-font-style: italic;");
             adminsContainer.getChildren().add(emptyLabel);
             return;
         }
@@ -241,8 +255,7 @@ public class AdminDashboardController {
             HBox.setHgrow(text, Priority.ALWAYS);
 
             Button deleteBtn = new Button("Remove Admin");
-            deleteBtn.setStyle("-fx-background-color: #E63946; -fx-text-fill: white;");
-            deleteBtn.getStyleClass().add("dynamic-btn");
+            deleteBtn.getStyleClass().add("button-danger");
             deleteBtn.setOnAction(e -> {
                 // Confirmation dialog before deletion
                 Alert confirm = new Alert(Alert.AlertType.CONFIRMATION);
@@ -356,7 +369,7 @@ public class AdminDashboardController {
      * Highlights an invalid input field with a red border.
      */
     private void highlightField(TextField field) {
-        field.setStyle("-fx-border-color: #E63946; -fx-border-width: 2px;");
+        field.setStyle("-fx-border-color: #C0392B; -fx-border-width: 2px;");
     }
 
     @FXML

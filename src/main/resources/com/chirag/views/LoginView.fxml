@@ -4,19 +4,19 @@
 <?import javafx.scene.layout.*?>
 <?import javafx.scene.image.*?>
 
-<VBox alignment="CENTER" stylesheets="@styles.css" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.chirag.controllers.LoginController">
-    <VBox alignment="CENTER" spacing="20.0" maxWidth="400.0" styleClass="card-container">
-        <ImageView fitWidth="150" preserveRatio="true">
+<VBox alignment="CENTER" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.chirag.controllers.LoginController" style="-fx-background-color: #F5F0EB;">
+    <VBox alignment="CENTER" spacing="18.0" maxWidth="380.0" styleClass="card-container" style="-fx-padding: 40 36;">
+        <ImageView fitWidth="120" preserveRatio="true">
             <image>
                 <Image url="@../assets/logo.PNG" />
             </image>
         </ImageView>
-        <Label text="Login" styleClass="label-header" />
-        <Label fx:id="statusLabel" textFill="#2D6A4F" />
-        <TextField fx:id="emailField" promptText="Email" />
+        <Label text="Sign In" styleClass="label-header" style="-fx-font-size: 20px;" />
+        <Label fx:id="statusLabel" style="-fx-text-fill: #27714A; -fx-font-size: 12px;" />
+        <TextField fx:id="emailField" promptText="Email address" />
         <PasswordField fx:id="passwordField" promptText="Password" />
-        <Button text="Login" styleClass="button-primary" onAction="#handleLogin" />
-        <Hyperlink text="Forgot Password?" styleClass="link-text" onAction="#goToForgotPassword"/>
-        <Hyperlink text="Don't have an account? Sign up" styleClass="link-text" onAction="#goToRegister"/>
+        <Button text="Sign In" styleClass="button-primary" onAction="#handleLogin" style="-fx-min-width: 280px;" />
+        <Hyperlink text="Forgot password?" styleClass="link-text" onAction="#goToForgotPassword"/>
+        <Hyperlink text="Create an account" styleClass="link-text" onAction="#goToRegister"/>
     </VBox>
 </VBox>

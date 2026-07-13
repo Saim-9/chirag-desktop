@@ -23,6 +23,8 @@ import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Manages the view for the course player classroom.
@@ -31,6 +33,8 @@ import java.util.Set;
  * Use-cases: Consume Content, Track Progress.
  */
 public class CoursePlayerController {
+
+    private static final Logger logger = LoggerFactory.getLogger(CoursePlayerController.class);
 
     @FXML
     private Label courseTitleLabel;
@@ -120,7 +124,7 @@ public class CoursePlayerController {
             }
         };
         fetchTask.setOnSucceeded(e -> renderCurriculum(fetchTask.getValue()));
-        fetchTask.setOnFailed(e -> System.err.println("Curriculum load failed: " + fetchTask.getException()));
+        fetchTask.setOnFailed(e -> logger.error("Curriculum load failed: {}", fetchTask.getException().getMessage()));
         new Thread(fetchTask, "curriculum-loader").start();
     }
 
@@ -144,11 +148,11 @@ public class CoursePlayerController {
         for (Lecture l : lecs) {
             String title = l.getTitle();
             if (completedSet.contains(String.valueOf(l.getId()))) {
-                title = "✅ " + title;
+                title = "[Done] " + title;
             }
             Button btn = new Button(title);
             btn.getStyleClass().add("nav-button");
-            btn.setStyle("-fx-text-fill: #1B263B; -fx-padding: 5 0;");
+            btn.setStyle("-fx-text-fill: #1B2A4A; -fx-padding: 5 0;");
             btn.setOnAction(e -> loadVideo(l));
             lecturesList.getChildren().add(btn);
         }
@@ -194,7 +198,7 @@ public class CoursePlayerController {
         String fileId = extractFileId(driveLink);
 
         if (fileId == null || fileId.isEmpty()) {
-            videoStatusLabel.setText("⚠ Invalid video link format");
+            videoStatusLabel.setText("Error: Invalid video link format");
             videoStatusLabel.setVisible(true);
             return;
         }
@@ -203,7 +207,7 @@ public class CoursePlayerController {
         // confirm=t bypasses virus scan confirmation for large files
         String directUrl = "https://drive.google.com/uc?export=download&confirm=t&id=" + fileId;
 
-        videoStatusLabel.setText("⏳ Loading video...");
+        videoStatusLabel.setText("Loading video...");
         videoStatusLabel.setVisible(true);
 
         try {
@@ -220,7 +224,7 @@ public class CoursePlayerController {
                 Duration totalDuration = media.getDuration();
                 seekSlider.setMax(totalDuration.toSeconds());
                 updateTimeLabel(Duration.ZERO, totalDuration);
-                playPauseBtn.setText("▶ Play");
+                playPauseBtn.setText("Play");
             });
 
             // Update seek bar and time label as video plays
@@ -238,20 +242,20 @@ public class CoursePlayerController {
                 String errMsg = "Unable to play video";
                 if (currentMediaPlayer.getError() != null) {
                     errMsg = currentMediaPlayer.getError().getMessage();
-                    System.err.println("MediaPlayer error: " + errMsg);
+                    logger.error("MediaPlayer error: {}", errMsg);
                 }
-                videoStatusLabel.setText("⚠ " + errMsg + "\n\nEnsure the Google Drive file is shared as 'Anyone with the link'.");
+                videoStatusLabel.setText("Error: " + errMsg + "\n\nEnsure the Google Drive file is shared as 'Anyone with the link'.");
                 videoStatusLabel.setVisible(true);
             });
 
             // Reset UI when video ends
             currentMediaPlayer.setOnEndOfMedia(() -> {
-                Platform.runLater(() -> playPauseBtn.setText("↻ Replay"));
+                Platform.runLater(() -> playPauseBtn.setText("Replay"));
             });
 
         } catch (Exception e) {
-            System.err.println("Failed to create media player: " + e.getMessage());
-            videoStatusLabel.setText("⚠ Failed to load video player.\n" + e.getMessage());
+            logger.error("Failed to create media player: {}", e.getMessage());
+            videoStatusLabel.setText("Error: Failed to load video player.\n" + e.getMessage());
             videoStatusLabel.setVisible(true);
         }
     }
@@ -285,15 +289,15 @@ public class CoursePlayerController {
         MediaPlayer.Status status = currentMediaPlayer.getStatus();
         if (status == MediaPlayer.Status.PLAYING) {
             currentMediaPlayer.pause();
-            playPauseBtn.setText("▶ Play");
+            playPauseBtn.setText("Play");
         } else if (status == MediaPlayer.Status.STOPPED || status == MediaPlayer.Status.UNKNOWN) {
             // Replay from start
             currentMediaPlayer.seek(Duration.ZERO);
             currentMediaPlayer.play();
-            playPauseBtn.setText("⏸ Pause");
+            playPauseBtn.setText("Pause");
         } else {
             currentMediaPlayer.play();
-            playPauseBtn.setText("⏸ Pause");
+            playPauseBtn.setText("Pause");
         }
     }
 
@@ -354,7 +358,7 @@ public class CoursePlayerController {
             popupStage.setScene(new javafx.scene.Scene(root));
             popupStage.showAndWait();
         } catch (Exception e) {
-            System.err.println("Failed to open review popup: " + e.getMessage());
+            logger.error("Failed to open review popup: {}", e.getMessage());
         }
     }
 

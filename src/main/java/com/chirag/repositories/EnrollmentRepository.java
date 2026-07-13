@@ -8,6 +8,8 @@ import com.j256.ormlite.dao.Dao;
 import com.j256.ormlite.dao.DaoManager;
 import java.sql.SQLException;
 import java.util.List;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * DAO repository for Enrollment models.
@@ -15,6 +17,8 @@ import java.util.List;
  * Use-cases: Course Purchase, Manage Creator Dashboard.
  */
 public class EnrollmentRepository {
+
+    private static final Logger logger = LoggerFactory.getLogger(EnrollmentRepository.class);
 
     private Dao<Enrollment, Integer> enrollmentDao;
 
@@ -62,7 +66,7 @@ public class EnrollmentRepository {
         try {
             return enrollmentDao.queryBuilder().where().eq("user_id", user.getId()).query();
         } catch (SQLException e) {
-            System.err.println("Failed to query enrollments: " + e.getMessage());
+            logger.error("Failed to query enrollments: {}", e.getMessage());
             return java.util.Collections.emptyList();
         }
     }
@@ -80,7 +84,7 @@ public class EnrollmentRepository {
                     .eq("course_id", course.getId())
                     .queryForFirst();
         } catch (SQLException e) {
-            System.err.println("Failed to check existing enrollment: " + e.getMessage());
+            logger.error("Failed to check existing enrollment: {}", e.getMessage());
             return null;
         }
     }

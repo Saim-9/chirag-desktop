@@ -4,28 +4,26 @@
 <?import javafx.scene.layout.*?>
 <?import javafx.geometry.Insets?>
 
-<BorderPane stylesheets="@styles.css" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.chirag.controllers.MarketplaceController">
+<BorderPane xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.chirag.controllers.MarketplaceController">
     <top>
-        <VBox styleClass="card-container" spacing="15.0">
-            <HBox alignment="CENTER_LEFT" spacing="20.0">
+        <VBox styleClass="card-container" spacing="12.0" style="-fx-padding: 20 28;">
+            <HBox alignment="CENTER_LEFT" spacing="16.0">
                 <Button text="Back" onAction="#goBack" styleClass="dynamic-btn" />
                 <Label text="Marketplace" styleClass="label-header" />
-
                 <Region HBox.hgrow="ALWAYS" />
-
                 <Button text="Refresh" onAction="#handleRefresh" styleClass="dynamic-btn" />
             </HBox>
-            <TextField fx:id="searchField" promptText="Search courses by title..." style="-fx-font-size: 16px;" />
-            <HBox spacing="10.0" alignment="CENTER_LEFT">
-                <TextField fx:id="tagInput" promptText="Add a Tag" HBox.hgrow="ALWAYS" />
-                <Button fx:id="addTagButton" text="+" styleClass="button-primary" style="-fx-padding: 5 15;" onAction="#handleAddTag" />
+            <TextField fx:id="searchField" promptText="Search courses..." style="-fx-font-size: 14px;" />
+            <HBox spacing="8.0" alignment="CENTER_LEFT">
+                <TextField fx:id="tagInput" promptText="Filter by tag" HBox.hgrow="ALWAYS" />
+                <Button fx:id="addTagButton" text="Add" styleClass="dynamic-btn" onAction="#handleAddTag" />
             </HBox>
-            <FlowPane fx:id="activeTagsContainer" hgap="5.0" vgap="5.0" />
+            <FlowPane fx:id="activeTagsContainer" hgap="6.0" vgap="6.0" />
         </VBox>
     </top>
     <center>
-        <ScrollPane fitToWidth="true" styleClass="content-area">
-            <FlowPane fx:id="coursesContainer" hgap="20.0" vgap="20.0" />
+        <ScrollPane fitToWidth="true" style="-fx-background-color: transparent;">
+            <FlowPane fx:id="coursesContainer" hgap="16.0" vgap="16.0" style="-fx-padding: 24;" />
         </ScrollPane>
     </center>
 </BorderPane>

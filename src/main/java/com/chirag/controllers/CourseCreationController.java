@@ -18,6 +18,8 @@ import java.util.List;
 import javafx.scene.control.Alert;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Controller for the course upload from.
@@ -25,6 +27,8 @@ import java.net.URL;
  * Use-cases: Course Creation.
  */
 public class CourseCreationController {
+
+    private static final Logger logger = LoggerFactory.getLogger(CourseCreationController.class);
 
     @FXML
     private TextField titleField;
@@ -114,7 +118,7 @@ public class CourseCreationController {
             // 403 for private files, 404 for non-existent files
             return responseCode == 200 || responseCode == 302 || responseCode == 303;
         } catch (Exception e) {
-            System.err.println("Failed to verify Drive link: " + e.getMessage());
+            logger.error("Failed to verify Drive link: {}", e.getMessage());
             return false;
         }
     }
@@ -203,7 +207,7 @@ public class CourseCreationController {
         // Delegates to Service Layer
         boolean success = courseService.publishCourse(course, lectures);
         if (success) {
-            System.out.println("Course Published Successfully");
+            logger.info("Course published successfully: {}", course.getTitle());
             SceneManager.getInstance().switchScene("DashboardView.fxml");
         } else {
             showModernAlert(Alert.AlertType.ERROR, "Publish Failed", "An error occurred while saving the course to the database.");

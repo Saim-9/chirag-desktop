@@ -5,69 +5,69 @@
 <?import javafx.scene.chart.*?>
 <?import javafx.geometry.Insets?>
 
-<BorderPane stylesheets="@styles.css" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.chirag.controllers.AdminDashboardController">
+<BorderPane xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.chirag.controllers.AdminDashboardController">
     <top>
-        <HBox alignment="CENTER_LEFT" spacing="20.0" styleClass="sidebar" style="-fx-padding: 15 30; -fx-background-color: #1B263B;">
-            <Label text="Admin Command Center" style="-fx-text-fill: white; -fx-font-size: 20px; -fx-font-weight: bold;" />
+        <HBox alignment="CENTER_LEFT" spacing="16.0" style="-fx-padding: 14 28; -fx-background-color: #1B2A4A;">
+            <Label text="Admin Console" style="-fx-text-fill: #FFFFFF; -fx-font-size: 18px; -fx-font-weight: bold;" />
             <Region HBox.hgrow="ALWAYS" />
-            <Button text="Logout" onAction="#handleLogout" styleClass="nav-button" style="-fx-text-fill: white;" />
+            <Button text="Sign Out" onAction="#handleLogout" styleClass="nav-button" style="-fx-text-fill: #A0AAB8; -fx-padding: 6 14;" />
         </HBox>
     </top>
     <center>
         <TabPane fx:id="mainTabPane" tabClosingPolicy="UNAVAILABLE">
             <tabs>
-                <!-- Tab 1: Financial Reports -->
-                <Tab text="Financial Reports">
+                <!-- Financial Reports -->
+                <Tab text="Revenue">
                     <VBox spacing="20.0" styleClass="content-area">
                         <Label text="Platform Revenue" styleClass="label-header" />
-                        <Label fx:id="totalRevenueLabel" style="-fx-font-size: 24px; -fx-font-weight: bold; -fx-text-fill: #2D6A4F;" />
-                        <BarChart fx:id="revenueChart" title="Transaction Volume">
+                        <Label fx:id="totalRevenueLabel" style="-fx-font-size: 22px; -fx-font-weight: bold; -fx-text-fill: #27714A;" />
+                        <BarChart fx:id="revenueChart" title="Transaction Volume" legendVisible="false" animated="false">
                             <xAxis><CategoryAxis label="Date" /></xAxis>
                             <yAxis><NumberAxis label="Amount ($)" /></yAxis>
                         </BarChart>
                     </VBox>
                 </Tab>
 
-                <!-- Tab 2: Content Moderation -->
-                <Tab text="Content Moderation">
-                    <VBox spacing="20.0" styleClass="content-area">
+                <!-- Moderation -->
+                <Tab text="Moderation">
+                    <VBox spacing="16.0" styleClass="content-area">
                         <Label text="Reported Courses" styleClass="label-header" />
                         <ScrollPane fitToWidth="true" VBox.vgrow="ALWAYS" style="-fx-background-color: transparent;">
-                            <VBox fx:id="reportsContainer" spacing="10.0" />
+                            <VBox fx:id="reportsContainer" spacing="8.0" />
                         </ScrollPane>
                     </VBox>
                 </Tab>
 
-                <!-- Tab 3: Manage Users -->
-                <Tab text="Manage Users">
-                    <VBox spacing="20.0" styleClass="content-area">
+                <!-- Users -->
+                <Tab text="Users">
+                    <VBox spacing="16.0" styleClass="content-area">
                         <Label text="User Directory" styleClass="label-header" />
                         <ScrollPane fitToWidth="true" VBox.vgrow="ALWAYS" style="-fx-background-color: transparent;">
-                            <VBox fx:id="usersContainer" spacing="10.0" />
+                            <VBox fx:id="usersContainer" spacing="6.0" />
                         </ScrollPane>
                     </VBox>
                 </Tab>
 
-                <!-- Tab 4: Provision Admin -->
-                <Tab text="Provision Admin">
+                <!-- Create Admin -->
+                <Tab text="New Admin">
                     <VBox spacing="20.0" styleClass="content-area" alignment="TOP_CENTER">
-                        <Label text="Create New Administrator" styleClass="label-header" />
-                        <VBox spacing="15.0" maxWidth="400.0" alignment="CENTER" styleClass="card-container">
-                            <TextField fx:id="adminNameField" promptText="Full Name" />
-                            <TextField fx:id="adminEmailField" promptText="Email Address" />
-                            <PasswordField fx:id="adminPasswordField" promptText="Temporary Password" />
+                        <Label text="Create Administrator" styleClass="label-header" />
+                        <VBox spacing="14.0" maxWidth="380.0" alignment="CENTER" styleClass="card-container">
+                            <TextField fx:id="adminNameField" promptText="Full name" />
+                            <TextField fx:id="adminEmailField" promptText="Email address" />
+                            <PasswordField fx:id="adminPasswordField" promptText="Temporary password" />
                             <Button text="Create Admin" onAction="#handleCreateAdmin" styleClass="button-primary" maxWidth="Infinity" />
                         </VBox>
                     </VBox>
                 </Tab>
 
-                <!-- Tab 5: Manage Admins (Super Admin Only — hidden for regular admins) -->
+                <!-- Manage Admins (Super Admin) -->
                 <Tab fx:id="manageAdminsTab" text="Manage Admins">
-                    <VBox spacing="20.0" styleClass="content-area">
+                    <VBox spacing="16.0" styleClass="content-area">
                         <Label text="Administrator Directory" styleClass="label-header" />
-                        <Label text="⚠ Only the Super Admin can remove other administrators." style="-fx-text-fill: #D90429; -fx-font-style: italic;" />
+                        <Label text="Only the Super Admin can remove other administrators." style="-fx-text-fill: #C0392B; -fx-font-size: 11px;" />
                         <ScrollPane fitToWidth="true" VBox.vgrow="ALWAYS" style="-fx-background-color: transparent;">
-                            <VBox fx:id="adminsContainer" spacing="10.0" />
+                            <VBox fx:id="adminsContainer" spacing="6.0" />
                         </ScrollPane>
                     </VBox>
                 </Tab>

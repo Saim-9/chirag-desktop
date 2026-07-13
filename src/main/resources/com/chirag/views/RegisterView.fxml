@@ -4,18 +4,18 @@
 <?import javafx.scene.layout.*?>
 <?import javafx.scene.image.*?>
 
-<VBox alignment="CENTER" stylesheets="@styles.css" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.chirag.controllers.RegisterController">
-    <VBox alignment="CENTER" spacing="20.0" maxWidth="400.0" styleClass="card-container">
-        <ImageView fitWidth="150" preserveRatio="true">
+<VBox alignment="CENTER" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.chirag.controllers.RegisterController" style="-fx-background-color: #F5F0EB;">
+    <VBox alignment="CENTER" spacing="18.0" maxWidth="380.0" styleClass="card-container" style="-fx-padding: 40 36;">
+        <ImageView fitWidth="120" preserveRatio="true">
             <image>
                 <Image url="@../assets/logo.PNG" />
             </image>
         </ImageView>
-        <Label text="Register" styleClass="label-header" />
-        <TextField fx:id="nameField" promptText="Full Name" />
-        <TextField fx:id="emailField" promptText="Email" />
+        <Label text="Create Account" styleClass="label-header" style="-fx-font-size: 20px;" />
+        <TextField fx:id="nameField" promptText="Full name" />
+        <TextField fx:id="emailField" promptText="Email address" />
         <PasswordField fx:id="passwordField" promptText="Password" />
-        <Button text="Create Account" styleClass="button-primary" onAction="#handleRegister" />
-        <Hyperlink text="Already have an account? Log in" styleClass="link-text" onAction="#goToLogin"/>
+        <Button text="Create Account" styleClass="button-primary" onAction="#handleRegister" style="-fx-min-width: 280px;" />
+        <Hyperlink text="Already have an account? Sign in" styleClass="link-text" onAction="#goToLogin"/>
     </VBox>
 </VBox>

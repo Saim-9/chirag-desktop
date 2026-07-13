@@ -2,39 +2,41 @@
 
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
-<?import javafx.scene.layout.Region?>
 
-<ScrollPane fitToWidth="true" stylesheets="@styles.css" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.chirag.controllers.CourseDetailController">
-    <VBox spacing="30.0" styleClass="content-area">
+<ScrollPane fitToWidth="true" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.chirag.controllers.CourseDetailController">
+    <VBox spacing="24.0" styleClass="content-area">
         <HBox>
-            <Button text="Back to Marketplace" onAction="#goBack" styleClass="dynamic-btn" style="-fx-text-fill: #1B263B; -fx-background-color: #E0DCD3; -fx-padding: 5 15;" />
+            <Button text="Back to Marketplace" onAction="#goBack" styleClass="dynamic-btn" />
         </HBox>
-        
-        <VBox styleClass="card-container" spacing="15.0">
+
+        <!-- Course Info Card -->
+        <VBox styleClass="card-container" spacing="12.0">
             <Label fx:id="titleLabel" styleClass="label-header" />
-            <HBox spacing="20.0" alignment="CENTER_LEFT">
-                <Label fx:id="instructorLabel" style="-fx-font-size: 16px; -fx-text-fill: #8D99AE;" />
-                <Label fx:id="ratingLabel" style="-fx-font-size: 16px; -fx-font-weight: bold; -fx-text-fill: #F4A261;" />
+            <HBox spacing="16.0" alignment="CENTER_LEFT">
+                <Label fx:id="instructorLabel" style="-fx-font-size: 13px; -fx-text-fill: #8A8A8A;" />
+                <Label fx:id="ratingLabel" style="-fx-font-size: 14px; -fx-font-weight: bold; -fx-text-fill: #D4A843;" />
             </HBox>
-            <FlowPane fx:id="tagsFlowPane" hgap="5.0" vgap="5.0" />
-            <Label fx:id="descriptionLabel" wrapText="true" style="-fx-font-size: 14px;" />
-            <HBox alignment="CENTER_LEFT" spacing="20.0">
-                <Label fx:id="priceLabel" style="-fx-font-size: 24px; -fx-font-weight: bold; -fx-text-fill: #2D6A4F;" />
-                <Button fx:id="buyButton" text="Buy Course" styleClass="button-primary" onAction="#handleBuy" />
-                <Label fx:id="statusMsgLabel" textFill="#2D6A4F" />
+            <FlowPane fx:id="tagsFlowPane" hgap="6.0" vgap="6.0" />
+            <Label fx:id="descriptionLabel" wrapText="true" style="-fx-font-size: 13px; -fx-text-fill: #1B2A4A;" />
+            <HBox alignment="CENTER_LEFT" spacing="16.0">
+                <Label fx:id="priceLabel" style="-fx-font-size: 22px; -fx-font-weight: bold; -fx-text-fill: #27714A;" />
+                <Button fx:id="buyButton" text="Purchase" styleClass="button-primary" onAction="#handleBuy" style="-fx-min-width: 160px;" />
+                <Label fx:id="statusMsgLabel" style="-fx-text-fill: #27714A; -fx-font-weight: bold;" />
                 <Region HBox.hgrow="ALWAYS" />
-                <Hyperlink text="Report this Course" onAction="#handleReport" style="-fx-text-fill: #E63946; -fx-font-size: 12px;" />
+                <Hyperlink text="Report this course" onAction="#handleReport" style="-fx-text-fill: #C0392B; -fx-font-size: 11px;" />
             </HBox>
         </VBox>
 
-        <VBox styleClass="card-container" spacing="15.0">
+        <!-- Curriculum -->
+        <VBox styleClass="card-container" spacing="12.0">
             <Label text="Course Content" styleClass="section-header" />
-            <VBox fx:id="lecturesList" spacing="10.0" />
+            <VBox fx:id="lecturesList" spacing="8.0" />
         </VBox>
 
-        <VBox styleClass="card-container" spacing="15.0">
+        <!-- Reviews -->
+        <VBox styleClass="card-container" spacing="12.0">
             <Label text="Student Reviews" styleClass="section-header" />
-            <VBox fx:id="reviewsList" spacing="10.0" />
+            <VBox fx:id="reviewsList" spacing="8.0" />
         </VBox>
     </VBox>
 </ScrollPane>
