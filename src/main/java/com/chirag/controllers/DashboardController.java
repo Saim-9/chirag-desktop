@@ -101,16 +101,24 @@ public class DashboardController {
     }
 
     /**
-     * Loads enrolled courses on a background thread.
+     * Loads enrolled courses AND lecture counts on a background thread.
+     * Both queries happen off-thread to prevent UI lag.
      */
+    private volatile java.util.Map<Integer, Integer> lectureCounts = new java.util.HashMap<>();
+
     private void loadEnrolledCoursesAsync(User user) {
         Task<List<Enrollment>> task = new Task<>() {
             @Override
             protected List<Enrollment> call() {
-                return dashboardService.getEnrolledCourses(user);
+                List<Enrollment> enrollments = dashboardService.getEnrolledCourses(user);
+                // Pre-fetch lecture counts for all enrolled courses in 1 query
+                java.util.List<Integer> courseIds = enrollments.stream()
+                        .map(e -> e.getCourse().getId()).toList();
+                lectureCounts = dashboardService.getLectureCountsMap(courseIds);
+                return enrollments;
             }
         };
-        task.setOnSucceeded(e -> renderEnrolledCourses(task.getValue(), user));
+        task.setOnSucceeded(e -> renderEnrolledCourses(task.getValue(), user, lectureCounts));
         task.setOnFailed(e -> logger.error("Enrolled courses load failed: {}", task.getException().getMessage()));
         new Thread(task, "dashboard-enrollments-loader").start();
     }
@@ -178,8 +186,10 @@ public class DashboardController {
 
     /**
      * Renders enrolled courses (My Learning).
+     * Uses pre-fetched lecture counts — no DB calls on the UI thread.
      */
-    private void renderEnrolledCourses(List<Enrollment> enrollments, User user) {
+    private void renderEnrolledCourses(List<Enrollment> enrollments, User user,
+                                       java.util.Map<Integer, Integer> lectureCounts) {
         enrolledCoursesContainer.getChildren().clear();
         for (Enrollment enr : enrollments) {
             Course c = enr.getCourse();
@@ -192,8 +202,8 @@ public class DashboardController {
 
             double progressValue = 0.0;
             try {
-                // Get the total number of lectures for this specific course
-                int totalLectures = dashboardService.getTotalLecturesForCourse(c.getId());
+                // Use pre-fetched count (no DB call on UI thread)
+                int totalLectures = lectureCounts.getOrDefault(c.getId(), 0);
 
                 // Delegate the calculation logic to the Enrollment model (Information Expert)
                 progressValue = enr.calculateProgressPercentage(totalLectures);

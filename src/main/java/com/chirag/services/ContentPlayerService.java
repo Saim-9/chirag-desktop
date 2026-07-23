@@ -3,13 +3,18 @@ package com.chirag.services;
 import com.chirag.models.Course;
 import com.chirag.models.Enrollment;
 import com.chirag.models.Lecture;
+import com.chirag.models.Review;
 import com.chirag.models.User;
 import com.chirag.repositories.EnrollmentRepository;
 import com.chirag.repositories.LectureRepository;
+import com.chirag.repositories.ReviewRepository;
 
 import java.sql.SQLException;
+import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 /**
  * Service layer for course player operations.
@@ -21,6 +26,7 @@ public class ContentPlayerService extends AbstractService {
 
     private LectureRepository lectureRepository;
     private EnrollmentRepository enrollmentRepository;
+    private ReviewRepository reviewRepository;
 
     /**
      * Sets up repostries for lacture and enrllment data.
@@ -29,6 +35,7 @@ public class ContentPlayerService extends AbstractService {
     public ContentPlayerService() {
         this.lectureRepository = new LectureRepository();
         this.enrollmentRepository = new EnrollmentRepository();
+        this.reviewRepository = new ReviewRepository();
     }
 
     /**
@@ -90,11 +97,10 @@ public class ContentPlayerService extends AbstractService {
      */
     public double getAverageRating(int courseId) {
         try {
-            com.chirag.repositories.ReviewRepository reviewRepo = new com.chirag.repositories.ReviewRepository();
-            java.util.List<com.chirag.models.Review> reviews = reviewRepo.findByCourseId(courseId);
+            List<Review> reviews = reviewRepository.findByCourseId(courseId);
             if (reviews.isEmpty()) return 0.0;
             double sum = 0;
-            for (com.chirag.models.Review r : reviews) {
+            for (Review r : reviews) {
                 sum += r.getRating();
             }
             return sum / reviews.size();
@@ -110,11 +116,43 @@ public class ContentPlayerService extends AbstractService {
      */
     public int getReviewCount(int courseId) {
         try {
-            com.chirag.repositories.ReviewRepository reviewRepo = new com.chirag.repositories.ReviewRepository();
-            return reviewRepo.findByCourseId(courseId).size();
+            return reviewRepository.findByCourseId(courseId).size();
         } catch (Exception e) {
             logger.error("Failed to count reviews: {}", e.getMessage());
             return 0;
         }
+    }
+
+    /**
+     * Batch-fetches ratings for multiple courses in a single DB query.
+     * Returns a map of courseId -> [averageRating, reviewCount].
+     * This replaces N individual queries with 1 query for the marketplace.
+     * Use-case: Course Catalogue (performance optimization).
+     */
+    public Map<Integer, double[]> getRatingsMap(List<Integer> courseIds) {
+        Map<Integer, double[]> result = new HashMap<>();
+        // Default all to zero
+        for (int id : courseIds) {
+            result.put(id, new double[]{0.0, 0});
+        }
+        try {
+            List<Review> allReviews = reviewRepository.findByCourseIds(courseIds);
+            // Group reviews by course ID
+            Map<Integer, List<Review>> grouped = new HashMap<>();
+            for (Review r : allReviews) {
+                int cId = r.getCourse().getId();
+                grouped.computeIfAbsent(cId, k -> new ArrayList<>()).add(r);
+            }
+            // Calculate averages
+            for (Map.Entry<Integer, List<Review>> entry : grouped.entrySet()) {
+                List<Review> reviews = entry.getValue();
+                double sum = 0;
+                for (Review r : reviews) sum += r.getRating();
+                result.put(entry.getKey(), new double[]{sum / reviews.size(), reviews.size()});
+            }
+        } catch (Exception e) {
+            logger.error("Failed to batch-fetch ratings: {}", e.getMessage());
+        }
+        return result;
     }
 }

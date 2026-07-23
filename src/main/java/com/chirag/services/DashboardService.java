@@ -52,6 +52,30 @@ public class DashboardService extends AbstractService {
         }
     }
 
+    /**
+     * Batch-fetches lecture counts for multiple courses in a single query.
+     * Returns a map of courseId -> lectureCount.
+     * Use-case: Dashboard (performance optimization).
+     */
+    public java.util.Map<Integer, Integer> getLectureCountsMap(java.util.List<Integer> courseIds) {
+        java.util.Map<Integer, Integer> result = new java.util.HashMap<>();
+        for (int id : courseIds) {
+            result.put(id, 0);
+        }
+        if (courseIds.isEmpty()) return result;
+        try {
+            java.util.List<com.chirag.models.Lecture> allLectures = lectureRepository.getDao()
+                    .queryBuilder().where().in("course_id", courseIds).query();
+            for (com.chirag.models.Lecture l : allLectures) {
+                int cId = l.getCourse().getId();
+                result.merge(cId, 1, Integer::sum);
+            }
+        } catch (Exception e) {
+            logger.error("Error batch-fetching lecture counts: {}", e.getMessage());
+        }
+        return result;
+    }
+
     public List<Transaction> getRecentTransactions(User user, int limit) {
         try {
             com.j256.ormlite.stmt.QueryBuilder<Transaction, Integer> qb = transactionRepository.getDao().queryBuilder();

@@ -35,6 +35,7 @@ public class MarketplaceController {
     private CourseService courseService;
     private ContentPlayerService contentPlayerService;
     private List<Course> allCourses;
+    private java.util.Map<Integer, double[]> ratingsCache = new java.util.HashMap<>();
     private java.util.List<String> activeTagsList = new java.util.ArrayList<>();
 
     /**
@@ -68,13 +69,19 @@ public class MarketplaceController {
     }
 
     /**
-     * Fetches marketplace courses on a background thread.
+     * Fetches marketplace courses AND ratings on a background thread.
+     * Both queries happen off the UI thread in a single task.
      */
     private void loadCoursesAsync() {
         Task<List<Course>> task = new Task<>() {
             @Override
             protected List<Course> call() {
-                return courseService.getMarketplaceCourses();
+                List<Course> courses = courseService.getMarketplaceCourses();
+                // Pre-fetch all ratings in 1 batch query (instead of 2 per card)
+                java.util.List<Integer> courseIds = courses.stream()
+                        .map(Course::getId).toList();
+                ratingsCache = contentPlayerService.getRatingsMap(courseIds);
+                return courses;
             }
         };
         task.setOnSucceeded(e -> {
@@ -168,9 +175,10 @@ public class MarketplaceController {
             Label inst = new Label("By " + insName);
             inst.setStyle("-fx-text-fill: #8A8A8A;");
 
-            // Show average rating on marketplace card
-            double avgRating = contentPlayerService.getAverageRating(c.getId());
-            int reviewCount = contentPlayerService.getReviewCount(c.getId());
+            // Use pre-fetched ratings from background (no DB call on UI thread)
+            double[] ratingData = ratingsCache.getOrDefault(c.getId(), new double[]{0.0, 0});
+            double avgRating = ratingData[0];
+            int reviewCount = (int) ratingData[1];
             Label ratingLbl;
             if (reviewCount > 0) {
                 String stars = "*".repeat(Math.max(1, (int) Math.round(avgRating)));

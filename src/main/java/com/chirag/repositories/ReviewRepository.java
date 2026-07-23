@@ -39,4 +39,18 @@ public class ReviewRepository {
             throw new com.chirag.exceptions.DatabaseException("Error fetching reviews", e);
         }
     }
+
+    /**
+     * Fetches reviews for multiple courses in a single query.
+     * Avoids the N+1 problem of querying per course.
+     * Use-case: Course Catalogue (batch ratings).
+     */
+    public List<Review> findByCourseIds(List<Integer> courseIds) {
+        if (courseIds == null || courseIds.isEmpty()) return Collections.emptyList();
+        try {
+            return reviewDao.queryBuilder().where().in("course_id", courseIds).query();
+        } catch (SQLException e) {
+            throw new com.chirag.exceptions.DatabaseException("Error batch-fetching reviews", e);
+        }
+    }
 }
