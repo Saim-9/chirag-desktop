@@ -118,15 +118,69 @@ public class DatabaseConfig {
      */
     private void initializeDatabase() throws SQLException {
         // Create all table schemas from models safely
-        TableUtils.createTableIfNotExists(connectionSource, User.class);
-        TableUtils.createTableIfNotExists(connectionSource, Course.class);
-        TableUtils.createTableIfNotExists(connectionSource, Lecture.class);
-        TableUtils.createTableIfNotExists(connectionSource, Transaction.class);
-        TableUtils.createTableIfNotExists(connectionSource, com.chirag.models.Enrollment.class);
-        TableUtils.createTableIfNotExists(connectionSource, com.chirag.models.Review.class);
-        TableUtils.createTableIfNotExists(connectionSource, com.chirag.models.Report.class);
+        // Individual try-catch blocks because PostgreSQL may already have
+        // sequences/tables from a previous run and createTableIfNotExists
+        // can still fail on sequence creation conflicts.
+        safeCreateTable(User.class);
+        safeCreateTable(Course.class);
+        safeCreateTable(Lecture.class);
+        safeCreateTable(Transaction.class);
+        safeCreateTable(com.chirag.models.Enrollment.class);
+        safeCreateTable(com.chirag.models.Review.class);
+        safeCreateTable(com.chirag.models.Report.class);
+
+        // Add any columns that were added to models after initial table creation
+        migrateSchema();
         
         seedAdmin();
+    }
+
+    /**
+     * Attempts to create a table, logging a warning if it already exists.
+     * Prevents sequence-already-exists errors from crashing the startup.
+     */
+    private void safeCreateTable(Class<?> clazz) {
+        try {
+            TableUtils.createTableIfNotExists(connectionSource, clazz);
+        } catch (SQLException e) {
+            logger.warn("Table creation skipped for {}: {}", clazz.getSimpleName(), e.getMessage());
+        }
+    }
+
+    /**
+     * Adds any columns that may be missing from existing tables.
+     * PostgreSQL supports ADD COLUMN IF NOT EXISTS to safely handle this.
+     * Use-case: System Initialization (schema migration).
+     */
+    private void migrateSchema() {
+        String[] migrations = {
+            // courses table — imageUrl and isActive may be missing
+            "ALTER TABLE \"courses\" ADD COLUMN IF NOT EXISTS \"imageUrl\" VARCHAR(255)",
+            "ALTER TABLE \"courses\" ADD COLUMN IF NOT EXISTS \"isActive\" BOOLEAN DEFAULT true",
+            // enrollments table — completedLectureIds and isCompleted may be missing
+            "ALTER TABLE \"enrollments\" ADD COLUMN IF NOT EXISTS \"isCompleted\" BOOLEAN DEFAULT false",
+            "ALTER TABLE \"enrollments\" ADD COLUMN IF NOT EXISTS \"completedLectureIds\" VARCHAR(255) DEFAULT ''",
+            // transactions table — platformFee and netAmount may be missing
+            "ALTER TABLE \"transactions\" ADD COLUMN IF NOT EXISTS \"platformFee\" NUMERIC DEFAULT 0",
+            "ALTER TABLE \"transactions\" ADD COLUMN IF NOT EXISTS \"netAmount\" NUMERIC DEFAULT 0",
+            // reports table — complaintText may be missing
+            "ALTER TABLE \"reports\" ADD COLUMN IF NOT EXISTS \"complaintText\" VARCHAR(255)",
+        };
+
+        try {
+            Dao<User, Integer> dao = DaoManager.createDao(connectionSource, User.class);
+            for (String sql : migrations) {
+                try {
+                    dao.executeRawNoArgs(sql);
+                    logger.debug("Migration applied: {}", sql);
+                } catch (SQLException e) {
+                    logger.warn("Migration skipped: {}", e.getMessage());
+                }
+            }
+        } catch (SQLException e) {
+            logger.error("Could not create DAO for migrations: {}", e.getMessage());
+        }
+        logger.info("Schema migration check completed");
     }
 
     /**
