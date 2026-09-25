@@ -32,11 +32,14 @@ public class AdminService extends AbstractService {
 
     /**
      * Fetches all transactions for revenue analytics.
+     * Manually refreshes buyer/instructor in batch.
      * Use-case: View Revenue.
      */
     public List<Transaction> getAllTransactions() {
         try {
-            return transactionRepository.getDao().queryForAll();
+            List<Transaction> txs = transactionRepository.getDao().queryForAll();
+            refreshTransactionUsers(txs);
+            return txs;
         } catch (SQLException e) {
             logger.error("Failed to fetch transactions: {}", e.getMessage());
             logServiceAction("Admin", "Fetch Transactions", false);
@@ -46,12 +49,15 @@ public class AdminService extends AbstractService {
 
     /**
      * Fetches all pending reports for moderation.
+     * Manually refreshes reported course in batch.
      * Use-case: Moderation.
      */
     public List<Report> getPendingReports() {
         try {
-            return reportRepository.getDao().queryBuilder()
+            List<Report> reports = reportRepository.getDao().queryBuilder()
                     .where().eq("status", "PENDING").query();
+            refreshReportCourses(reports);
+            return reports;
         } catch (SQLException e) {
             logger.error("Failed to fetch reports: {}", e.getMessage());
             logServiceAction("Admin", "Fetch Reports", false);
@@ -183,6 +189,57 @@ public class AdminService extends AbstractService {
             logger.error("Failed to delete admin: {}", e.getMessage());
             logServiceAction("Admin", "Delete Admin", false);
             return false;
+        }
+    }
+
+    /**
+     * Batch-refreshes buyer/instructor User objects for transactions.
+     */
+    private void refreshTransactionUsers(List<Transaction> transactions) {
+        if (transactions.isEmpty()) return;
+        try {
+            java.util.Set<Integer> ids = new java.util.HashSet<>();
+            for (Transaction t : transactions) {
+                if (t.getBuyer() != null) ids.add(t.getBuyer().getId());
+                if (t.getInstructor() != null) ids.add(t.getInstructor().getId());
+            }
+            if (ids.isEmpty()) return;
+            List<User> users = userRepository.getDao().queryBuilder()
+                    .where().in("id", ids).query();
+            java.util.Map<Integer, User> map = new java.util.HashMap<>();
+            for (User u : users) map.put(u.getId(), u);
+            for (Transaction t : transactions) {
+                if (t.getBuyer() != null && map.containsKey(t.getBuyer().getId()))
+                    t.setBuyer(map.get(t.getBuyer().getId()));
+                if (t.getInstructor() != null && map.containsKey(t.getInstructor().getId()))
+                    t.setInstructor(map.get(t.getInstructor().getId()));
+            }
+        } catch (SQLException e) {
+            logger.error("Failed to refresh transaction users: {}", e.getMessage());
+        }
+    }
+
+    /**
+     * Batch-refreshes reported Course objects for reports.
+     */
+    private void refreshReportCourses(List<Report> reports) {
+        if (reports.isEmpty()) return;
+        try {
+            java.util.Set<Integer> ids = new java.util.HashSet<>();
+            for (Report r : reports) {
+                if (r.getReportedCourse() != null) ids.add(r.getReportedCourse().getId());
+            }
+            if (ids.isEmpty()) return;
+            List<Course> courses = courseRepository.getDao().queryBuilder()
+                    .where().in("id", ids).query();
+            java.util.Map<Integer, Course> map = new java.util.HashMap<>();
+            for (Course c : courses) map.put(c.getId(), c);
+            for (Report r : reports) {
+                if (r.getReportedCourse() != null && map.containsKey(r.getReportedCourse().getId()))
+                    r.setReportedCourse(map.get(r.getReportedCourse().getId()));
+            }
+        } catch (SQLException e) {
+            logger.error("Failed to refresh report courses: {}", e.getMessage());
         }
     }
 }

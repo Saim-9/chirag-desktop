@@ -69,10 +69,23 @@ public class MarketplaceController {
     }
 
     /**
-     * Fetches marketplace courses AND ratings on a background thread.
-     * Both queries happen off the UI thread in a single task.
+     * Fetches marketplace courses AND ratings — serves from cache if available.
+     * Cache hit = instant render, cache miss = background DB fetch.
      */
     private void loadCoursesAsync() {
+        // Check cache first — instant render if fresh data exists
+        com.chirag.utils.DataCache dc = com.chirag.utils.DataCache.getInstance();
+        List<Course> cached = dc.get(com.chirag.utils.DataCache.MARKETPLACE_COURSES);
+        java.util.Map<Integer, double[]> cachedRatings = dc.get(com.chirag.utils.DataCache.MARKETPLACE_RATINGS);
+
+        if (cached != null && cachedRatings != null) {
+            allCourses = cached;
+            ratingsCache = cachedRatings;
+            applyFilters();
+            return;
+        }
+
+        // Cache miss — fetch from DB on background thread
         Task<List<Course>> task = new Task<>() {
             @Override
             protected List<Course> call() {
@@ -86,6 +99,9 @@ public class MarketplaceController {
         };
         task.setOnSucceeded(e -> {
             allCourses = task.getValue();
+            // Store in cache for next visit
+            dc.put(com.chirag.utils.DataCache.MARKETPLACE_COURSES, allCourses);
+            dc.put(com.chirag.utils.DataCache.MARKETPLACE_RATINGS, ratingsCache);
             applyFilters();
         });
         task.setOnFailed(e -> logger.error("Marketplace load failed: {}", task.getException().getMessage()));
@@ -228,7 +244,9 @@ public class MarketplaceController {
     @FXML
     public void handleRefresh(ActionEvent event) {
         logger.info("Fetching fresh courses from database...");
-        // Re-fetch asynchronously
+        // Invalidate cache so loadCoursesAsync fetches from DB
+        com.chirag.utils.DataCache.getInstance().invalidate(com.chirag.utils.DataCache.MARKETPLACE_COURSES);
+        com.chirag.utils.DataCache.getInstance().invalidate(com.chirag.utils.DataCache.MARKETPLACE_RATINGS);
         loadCoursesAsync();
     }
 

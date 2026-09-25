@@ -32,10 +32,10 @@ public class Transaction {
     @DatabaseField(canBeNull = false)
     private Date transactionDate;
 
-    @DatabaseField(foreign = true, foreignAutoRefresh = true, columnName = "buyer_id", canBeNull = true)
+    @DatabaseField(foreign = true, columnName = "buyer_id", canBeNull = true)
     private User buyer;
 
-    @DatabaseField(foreign = true, foreignAutoRefresh = true, columnName = "instructor_id", canBeNull = true)
+    @DatabaseField(foreign = true, columnName = "instructor_id", canBeNull = true)
     private User instructor;
 
     /**

@@ -14,10 +14,10 @@ public class Enrollment {
     @DatabaseField(generatedId = true)
     private int id;
 
-    @DatabaseField(foreign = true, foreignAutoRefresh = true, columnName = "user_id")
+    @DatabaseField(foreign = true, columnName = "user_id")
     private User user;
 
-    @DatabaseField(foreign = true, foreignAutoRefresh = true, columnName = "course_id")
+    @DatabaseField(foreign = true, columnName = "course_id")
     private Course course;
 
     @DatabaseField(defaultValue = "false")

@@ -34,7 +34,7 @@ public class Course implements IReviewable {
     @DatabaseField(canBeNull = false)
     private Status status;
 
-    @DatabaseField(foreign = true, foreignAutoRefresh = true, canBeNull = false)
+    @DatabaseField(foreign = true, canBeNull = false)
     private User instructor;
 
     @DatabaseField

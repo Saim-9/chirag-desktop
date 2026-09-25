@@ -60,14 +60,72 @@ public class EnrollmentRepository {
 
     /**
      * Fetches all courses for a given user.
+     * Manually refreshes Course (and its instructor) in batch.
      * Use-case: Manage Creator Dashboard.
      */
     public List<Enrollment> findByUser(User user) {
         try {
-            return enrollmentDao.queryBuilder().where().eq("user_id", user.getId()).query();
+            List<Enrollment> enrollments = enrollmentDao.queryBuilder()
+                    .where().eq("user_id", user.getId()).query();
+            refreshCourses(enrollments);
+            return enrollments;
         } catch (SQLException e) {
             logger.error("Failed to query enrollments: {}", e.getMessage());
             return java.util.Collections.emptyList();
+        }
+    }
+
+    /**
+     * Batch-refreshes Course objects (and their instructors) for enrollments.
+     * 2 batch queries replace N×3 auto-refresh queries.
+     */
+    private void refreshCourses(List<Enrollment> enrollments) {
+        if (enrollments.isEmpty()) return;
+        try {
+            // Collect unique course IDs
+            java.util.Set<Integer> courseIds = new java.util.HashSet<>();
+            for (Enrollment e : enrollments) {
+                if (e.getCourse() != null) courseIds.add(e.getCourse().getId());
+            }
+            if (courseIds.isEmpty()) return;
+
+            // Batch load all courses in 1 query
+            Dao<Course, Integer> courseDao = DaoManager.createDao(
+                    DatabaseConfig.getInstance().getConnectionSource(), Course.class);
+            List<Course> courses = courseDao.queryBuilder()
+                    .where().in("id", courseIds).query();
+            java.util.Map<Integer, Course> courseMap = new java.util.HashMap<>();
+            for (Course c : courses) courseMap.put(c.getId(), c);
+
+            // Batch load all instructors for those courses in 1 query
+            java.util.Set<Integer> instructorIds = new java.util.HashSet<>();
+            for (Course c : courses) {
+                if (c.getInstructor() != null) instructorIds.add(c.getInstructor().getId());
+            }
+            java.util.Map<Integer, User> userMap = new java.util.HashMap<>();
+            if (!instructorIds.isEmpty()) {
+                Dao<User, Integer> userDao = DaoManager.createDao(
+                        DatabaseConfig.getInstance().getConnectionSource(), User.class);
+                List<User> users = userDao.queryBuilder()
+                        .where().in("id", instructorIds).query();
+                for (User u : users) userMap.put(u.getId(), u);
+            }
+
+            // Wire instructor into course, course into enrollment
+            for (Course c : courses) {
+                if (c.getInstructor() != null) {
+                    User full = userMap.get(c.getInstructor().getId());
+                    if (full != null) c.setInstructor(full);
+                }
+            }
+            for (Enrollment e : enrollments) {
+                if (e.getCourse() != null) {
+                    Course full = courseMap.get(e.getCourse().getId());
+                    if (full != null) e.setCourse(full);
+                }
+            }
+        } catch (SQLException ex) {
+            logger.error("Failed to refresh enrollment courses: {}", ex.getMessage());
         }
     }
 

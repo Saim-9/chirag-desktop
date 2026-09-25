@@ -173,6 +173,13 @@ public class CourseDetailController {
 
         boolean success = paymentServiceImpl.processCoursePurchase(UserSession.getCurrentUser(), currentCourse);
         if (success) {
+            // Invalidate cached dashboard data so it refreshes after purchase
+            com.chirag.utils.DataCache dc = com.chirag.utils.DataCache.getInstance();
+            int uid = UserSession.getCurrentUser().getId();
+            dc.invalidate(com.chirag.utils.DataCache.enrolledCourses(uid));
+            dc.invalidate(com.chirag.utils.DataCache.transactions(uid));
+            dc.invalidate(com.chirag.utils.DataCache.lectureCounts(uid));
+
             statusMsgLabel.setText("Purchase Successful!");
             statusMsgLabel.setTextFill(javafx.scene.paint.Color.GREEN);
 

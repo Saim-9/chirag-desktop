@@ -1,0 +1,13 @@
+# Chirag Desktop — Database Configuration
+# Copy this file to config.properties and fill in your own values.
+# WARNING: Do NOT commit config.properties to version control!
+
+# PostgreSQL / Supabase connection
+db.url=jdbc:postgresql://YOUR_HOST:5432/postgres
+db.username=YOUR_DB_USERNAME
+db.password=YOUR_DB_PASSWORD
+
+# Super Admin seed credentials (created on first run)
+admin.email=admin@example.com
+admin.password=CHANGE_ME
+admin.name=Super Admin

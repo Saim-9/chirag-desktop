@@ -374,6 +374,7 @@ public class AdminDashboardController {
 
     @FXML
     public void handleLogout(ActionEvent event) {
+        com.chirag.utils.DataCache.getInstance().invalidateAll();
         UserSession.clearSession();
         SceneManager.getInstance().switchScene("LoginView.fxml");
     }

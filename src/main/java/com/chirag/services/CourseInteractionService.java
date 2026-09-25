@@ -38,10 +38,37 @@ public class CourseInteractionService extends AbstractService {
 
     public List<Review> getReviewsForCourse(int courseId) {
         try {
-            return reviewRepository.findByCourseId(courseId);
+            List<Review> reviews = reviewRepository.findByCourseId(courseId);
+            refreshReviewUsers(reviews);
+            return reviews;
         } catch (Exception e) {
             logger.error("Failed to fetch reviews safely: {}", e.getMessage());
             return Collections.emptyList();
+        }
+    }
+
+    /**
+     * Batch-refreshes User objects on reviews for name display.
+     */
+    private void refreshReviewUsers(List<Review> reviews) {
+        if (reviews.isEmpty()) return;
+        try {
+            java.util.Set<Integer> ids = new java.util.HashSet<>();
+            for (Review r : reviews) {
+                if (r.getUser() != null) ids.add(r.getUser().getId());
+            }
+            if (ids.isEmpty()) return;
+            com.chirag.repositories.UserRepository userRepo = new com.chirag.repositories.UserRepository();
+            java.util.List<com.chirag.models.User> users = userRepo.getDao().queryBuilder()
+                    .where().in("id", ids).query();
+            java.util.Map<Integer, com.chirag.models.User> map = new java.util.HashMap<>();
+            for (com.chirag.models.User u : users) map.put(u.getId(), u);
+            for (Review r : reviews) {
+                if (r.getUser() != null && map.containsKey(r.getUser().getId()))
+                    r.setUser(map.get(r.getUser().getId()));
+            }
+        } catch (Exception e) {
+            logger.error("Failed to refresh review users: {}", e.getMessage());
         }
     }
 

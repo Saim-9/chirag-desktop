@@ -63,19 +63,19 @@ public class DatabaseConfig {
                 databaseUrl = props.getProperty("db.url");
                 dbUsername = props.getProperty("db.username");
                 dbPassword = props.getProperty("db.password");
-                adminEmail = props.getProperty("admin.email", "saim@test.com");
-                adminPassword = props.getProperty("admin.password", "adminpassword");
-                adminName = props.getProperty("admin.name", "Super Admin");
+                adminEmail = props.getProperty("admin.email", "");
+                adminPassword = props.getProperty("admin.password", "");
+                adminName = props.getProperty("admin.name", "Admin");
                 logger.info("Loaded database configuration from config.properties");
             } else {
                 // Fallback to environment variables
                 databaseUrl = System.getenv("CHIRAG_DB_URL");
                 dbUsername = System.getenv("CHIRAG_DB_USERNAME");
                 dbPassword = System.getenv("CHIRAG_DB_PASSWORD");
-                adminEmail = System.getenv().getOrDefault("CHIRAG_ADMIN_EMAIL", "saim@test.com");
-                adminPassword = System.getenv().getOrDefault("CHIRAG_ADMIN_PASSWORD", "adminpassword");
-                adminName = System.getenv().getOrDefault("CHIRAG_ADMIN_NAME", "Super Admin");
-                logger.info("config.properties not found, using environment variables");
+                adminEmail = System.getenv().getOrDefault("CHIRAG_ADMIN_EMAIL", "");
+                adminPassword = System.getenv().getOrDefault("CHIRAG_ADMIN_PASSWORD", "");
+                adminName = System.getenv().getOrDefault("CHIRAG_ADMIN_NAME", "Admin");
+                logger.warn("config.properties not found. Set environment variables or create config.properties (see config.properties.example)");
             }
         } catch (java.io.IOException e) {
             logger.error("Error loading config.properties: {}", e.getMessage());

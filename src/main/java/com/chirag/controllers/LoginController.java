@@ -84,7 +84,7 @@ public class LoginController {
         } else {
             logger.warn("Login failed: credentials do not match");
             if (statusLabel != null) {
-                statusLabel.setText("Login Filed.");
+                statusLabel.setText("Login Failed.");
                 statusLabel.setTextFill(javafx.scene.paint.Color.RED);
             }
         }

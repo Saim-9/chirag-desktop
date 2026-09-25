@@ -86,27 +86,44 @@ public class DashboardController {
     }
 
     /**
-     * Loads instructor courses on a background thread.
+     * Loads instructor courses — serves from cache if available.
      */
     private void loadUploadedCoursesAsync(User user) {
+        com.chirag.utils.DataCache dc = com.chirag.utils.DataCache.getInstance();
+        List<Course> cached = dc.get(com.chirag.utils.DataCache.instructorCourses(user.getId()));
+        if (cached != null) {
+            renderUploadedCourses(cached);
+            return;
+        }
+
         Task<List<Course>> task = new Task<>() {
             @Override
             protected List<Course> call() {
                 return dashboardService.getInstructorCourses(user);
             }
         };
-        task.setOnSucceeded(e -> renderUploadedCourses(task.getValue()));
+        task.setOnSucceeded(e -> {
+            dc.put(com.chirag.utils.DataCache.instructorCourses(user.getId()), task.getValue());
+            renderUploadedCourses(task.getValue());
+        });
         task.setOnFailed(e -> logger.error("Uploaded courses load failed: {}", task.getException().getMessage()));
         new Thread(task, "dashboard-uploads-loader").start();
     }
 
     /**
-     * Loads enrolled courses AND lecture counts on a background thread.
-     * Both queries happen off-thread to prevent UI lag.
+     * Loads enrolled courses AND lecture counts — serves from cache if available.
      */
     private volatile java.util.Map<Integer, Integer> lectureCounts = new java.util.HashMap<>();
 
     private void loadEnrolledCoursesAsync(User user) {
+        com.chirag.utils.DataCache dc = com.chirag.utils.DataCache.getInstance();
+        List<Enrollment> cached = dc.get(com.chirag.utils.DataCache.enrolledCourses(user.getId()));
+        java.util.Map<Integer, Integer> cachedCounts = dc.get(com.chirag.utils.DataCache.lectureCounts(user.getId()));
+        if (cached != null && cachedCounts != null) {
+            renderEnrolledCourses(cached, user, cachedCounts);
+            return;
+        }
+
         Task<List<Enrollment>> task = new Task<>() {
             @Override
             protected List<Enrollment> call() {
@@ -118,22 +135,36 @@ public class DashboardController {
                 return enrollments;
             }
         };
-        task.setOnSucceeded(e -> renderEnrolledCourses(task.getValue(), user, lectureCounts));
+        task.setOnSucceeded(e -> {
+            dc.put(com.chirag.utils.DataCache.enrolledCourses(user.getId()), task.getValue());
+            dc.put(com.chirag.utils.DataCache.lectureCounts(user.getId()), lectureCounts);
+            renderEnrolledCourses(task.getValue(), user, lectureCounts);
+        });
         task.setOnFailed(e -> logger.error("Enrolled courses load failed: {}", task.getException().getMessage()));
         new Thread(task, "dashboard-enrollments-loader").start();
     }
 
     /**
-     * Loads transactions on a background thread.
+     * Loads transactions — serves from cache if available.
      */
     private void loadTransactionsAsync(User user) {
+        com.chirag.utils.DataCache dc = com.chirag.utils.DataCache.getInstance();
+        List<Transaction> cached = dc.get(com.chirag.utils.DataCache.transactions(user.getId()));
+        if (cached != null) {
+            renderTransactions(cached, user);
+            return;
+        }
+
         Task<List<Transaction>> task = new Task<>() {
             @Override
             protected List<Transaction> call() {
                 return dashboardService.getRecentTransactions(user, 5);
             }
         };
-        task.setOnSucceeded(e -> renderTransactions(task.getValue(), user));
+        task.setOnSucceeded(e -> {
+            dc.put(com.chirag.utils.DataCache.transactions(user.getId()), task.getValue());
+            renderTransactions(task.getValue(), user);
+        });
         task.setOnFailed(e -> logger.error("Transactions load failed: {}", task.getException().getMessage()));
         new Thread(task, "dashboard-transactions-loader").start();
     }
@@ -340,6 +371,9 @@ public class DashboardController {
     public void refreshWalletDisplay() {
         User user = UserSession.getCurrentUser();
         if (user != null) {
+            // Invalidate transaction cache so fresh data is fetched
+            com.chirag.utils.DataCache.getInstance().invalidate(
+                    com.chirag.utils.DataCache.transactions(user.getId()));
             walletLabel.setText("Wallet Balance: $" + String.format("%.2f", user.getVirtualWalletBalance()));
             loadTransactionsAsync(user);
         }
@@ -351,6 +385,8 @@ public class DashboardController {
      */
     @FXML
     public void handleLogout(ActionEvent event) {
+        // Clear all cached data so next user starts fresh
+        com.chirag.utils.DataCache.getInstance().invalidateAll();
         UserSession.clearSession();
         logger.info("User logged out");
         com.chirag.utils.SceneManager.getInstance().switchScene("LoginView.fxml");

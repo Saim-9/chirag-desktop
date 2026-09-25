@@ -207,6 +207,13 @@ public class CourseCreationController {
         // Delegates to Service Layer
         boolean success = courseService.publishCourse(course, lectures);
         if (success) {
+            // Invalidate caches so new course appears immediately
+            com.chirag.utils.DataCache dc = com.chirag.utils.DataCache.getInstance();
+            dc.invalidate(com.chirag.utils.DataCache.MARKETPLACE_COURSES);
+            dc.invalidate(com.chirag.utils.DataCache.MARKETPLACE_RATINGS);
+            dc.invalidate(com.chirag.utils.DataCache.instructorCourses(
+                    UserSession.getCurrentUser().getId()));
+
             logger.info("Course published successfully: {}", course.getTitle());
             SceneManager.getInstance().switchScene("DashboardView.fxml");
         } else {

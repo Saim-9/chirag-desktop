@@ -13,10 +13,10 @@ public class Report {
     @DatabaseField(generatedId = true)
     private int id;
 
-    @DatabaseField(foreign = true, foreignAutoRefresh = true, columnName = "reporter_id")
+    @DatabaseField(foreign = true, columnName = "reporter_id")
     private User reporter;
 
-    @DatabaseField(foreign = true, foreignAutoRefresh = true, columnName = "course_id")
+    @DatabaseField(foreign = true, columnName = "course_id")
     private Course reportedCourse;
 
     @DatabaseField(canBeNull = false)
